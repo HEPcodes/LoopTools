@@ -99,7 +99,7 @@
 	DR1eps::usage = "DR1eps represents 1/eps where D = 4 - 2 eps."
 
 :Evaluate:
-	LTwrite[s_] := WriteString["stdout", s]
+	LTwrite[ssssssssss_] := WriteString["stdout", ssssssssss]
 
 :Evaluate:
 	LTids = Thread[# -> 3 Range[Length[#]] - 2]&/@ {
