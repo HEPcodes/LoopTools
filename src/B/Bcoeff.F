@@ -1,7 +1,7 @@
 * Bcoeff.F
 * invoke the two-point tensor coefficients
 * this file is part of LoopTools
-* last modified 31 Jul 14 th
+* last modified 1 Sep 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -36,7 +36,7 @@
 	p = P(1)
 
 	div = uvdiv
-	if( abs(p) + abs(m1) + abs(m2) .lt. eps ) div = div - 1
+	if( abs(p) + abs(m1) + abs(m2) .lt. zeroeps ) div = div - 1
 	if( div .ne. 0 ) then
 	  B(1+bb0) = div
 	  B(1+bb1) = -.5D0*div
@@ -49,17 +49,17 @@
 	endif
 
 	if( lambda .le. 0 ) then
-	  if( m1*m2 .eq. 0 .and. abs(p - m1 - m2) .lt. acc ) then
+	  if( m1*m2 .eq. 0 .and. abs(p - m1 - m2) .lt. diffeps ) then
 	    B(1+dbb0) = nan
 	    if( p .ne. 0 ) B(1+dbb0) = -.5D0/p
 	  endif
-	  if( m2 .eq. 0 .and. abs(p - m1) .lt. acc ) then
+	  if( m2 .eq. 0 .and. abs(p - m1) .lt. diffeps ) then
 	    B(1+dbb1) = nan
 	    if( p .ne. 0 ) B(1+dbb1) = .5D0/p
 	  endif
 	endif
 
-	if( abs(p) + abs(m1) + abs(m2) .lt. eps ) then
+	if( abs(p) + abs(m1) + abs(m2) .lt. zeroeps ) then
 	  if( delta .ne. 0 ) then
 	    B(bb0) = delta
 	    B(bb1) = -.5D0*delta

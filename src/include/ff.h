@@ -130,7 +130,6 @@
      &		12),isgrot(10,12),irota3,irota4,irota5,irota6
 	integer idum93(2)
 *
-	RealType acc, eps
 	ComplexType cIeps
 *
 *	parameters
@@ -147,8 +146,6 @@
      &		pi12 = .822467033424113218236207583323D0,
      &		xlg2 = .6931471805599453094172321214581D0,
      &          sqrt2 = 1.4142135623730950488016887242096981D0,
-     &          acc = 1D-12,
-     &          eps = 1D-22,
      &          cIeps = (0D0,1D-50) )
 *
 *	common
@@ -173,7 +170,9 @@
 *
 	ComplexType mudimc
 	RealType delta, uvdiv, lambda, minmass
-	common /ltregul/ mudimc, delta, uvdiv, lambda, minmass
+	RealType diffeps, zeroeps
+	common /ltregul/ mudimc, delta, uvdiv, lambda, minmass,
+     &    diffeps, zeroeps
 
 	RealType mudim
 	equivalence (mudimc, mudim)

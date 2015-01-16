@@ -254,6 +254,7 @@ clooptools.h: clooptools.h.in ftypes.h
 fcc: fcc.in
 	sed -e 's|^fldflags=.*|fldflags="$(LDFLAGS)"|' fcc.in > fcc
 	chmod 755 fcc
+	rm -f f++
 	ln -s fcc f++
 
 LoopTools$(EXE): LoopTools.tm clooptools.h fortranflush.o $(LIB) fcc

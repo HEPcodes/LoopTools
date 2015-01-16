@@ -3,7 +3,7 @@
 * these functions are adapted from Ansgar Denner's bcanew.f
 * to the conventions of LoopTools;
 * they are used for double-checking the results of FF
-* last modified 5 Nov 13 th
+* last modified 1 Sep 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -111,9 +111,9 @@
 	RealType s12
 
 	z12 = z1*z2
-	if( abs(z12) .lt. eps ) then
+	if( abs(z12) .lt. zeroeps ) then
 	  Li2omx2 = 0
-	else if( abs(z12 - 1) .eq. acc ) then
+	else if( abs(z12 - 1) .eq. diffeps ) then
 	  Li2omx2 = pi6
 	else
 	  l12 = ln(z1, s1) + ln(z2, s2)
@@ -149,13 +149,13 @@
 	RealType s123
 
 	z123 = z1*z2*z3
-	if( abs(Im(z123)) .lt. eps )
+	if( abs(Im(z123)) .lt. zeroeps )
      &    s123 = sign(1D0,
      &      Re(z2*z3)*s1 + Re(z1*z3)*s2 + Re(z1*z2)*s3)
 
 	if( abs(z123) .le. 1 ) then
 	  Li2omx3 = pi6 - spence(0, z123, s123)
-	  if( abs(z123) .gt. eps .and. abs(z123 - 1) .gt. acc )
+	  if( abs(z123) .gt. zeroeps .and. abs(z123 - 1) .gt. diffeps )
      &      Li2omx3 = Li2omx3 - ln(1 - z123, 0D0)*
      &        (ln(z1, s1) + ln(z2, s2) + ln(z3, s3))
 	else
@@ -186,7 +186,7 @@
 	r12 = n1*n2/(d1*d2)
 	if( r12 .lt. 1 ) then
 	  Li2omrat2 = pi6 - spence(0, ToComplex(r12), 0D0)
-	  if( abs(r12*(1 - r12)) .gt. acc )
+	  if( abs(r12*(1 - r12)) .gt. diffeps )
      &      Li2omrat2 = Li2omrat2 -
      &        (lnrat(n1, d1) + lnrat(n2, d2))*log(1 - r12)
 	else
@@ -213,7 +213,7 @@
 	r12 = n1*n2/(d1*d2)
 	if( abs(r12) .lt. 1 ) then
 	  cLi2omrat2 = pi6 - spence(0, r12, 0D0)
-	  if( abs(r12*(1 - r12)) .gt. acc )
+	  if( abs(r12*(1 - r12)) .gt. diffeps )
      &      cLi2omrat2 = cLi2omrat2 -
      &        (lnrat(n1, d1) + lnrat(n2, d2))*log(1 - r12)
 	else
@@ -239,7 +239,7 @@
 
 	ComplexType r12, l12
 
-	if( abs(Im(r1)) + abs(Im(r2)) .lt. eps ) then
+	if( abs(Im(r1)) + abs(Im(r2)) .lt. zeroeps ) then
 	  Li2rat = Li2omx2(r1, s1, r2, s2)
 	  return
 	endif
@@ -247,7 +247,7 @@
 	r12 = r1*r2
 	if( abs(r12) .lt. 1 ) then
 	  Li2rat = pi6 - spence(0, r12, 0D0)
-	  if( abs(r12*(1 - r12)) .gt. acc ) Li2rat = Li2rat -
+	  if( abs(r12*(1 - r12)) .gt. diffeps ) Li2rat = Li2rat -
      &      (ln(r1, s1) + ln(r2, s2))*log(1 - r12)
 	else
 	  r12 = 1/r12
@@ -278,7 +278,7 @@
 
 #ifdef WARNINGS
 	if( s .eq. 0 .and. 
-     &    Im(z) .eq. 0 .and. abs(Re(z1)) .lt. acc )
+     &    Im(z) .eq. 0 .and. abs(Re(z1)) .lt. diffeps )
      &    print *, "spence: argument on cut"
 #endif
 

@@ -2,7 +2,7 @@
 * the two-point tensor coefficients from Ansgar Denner's bcanew.f,
 * adapted to the conventions of LoopTools
 * this file is part of LoopTools
-* last modified 6 Mar 14 th
+* last modified 1 Sep 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -34,7 +34,7 @@
 	dm = m1 - m2
 
 * general case
-	if( abs(p) .gt. eps*(m1 + m2) ) then
+	if( abs(p) .gt. zeroeps*(m1 + m2) ) then
 	  r = sqrt(ToComplex(p*(p - m1 - m2) -
      &      m1*(p - dm) - m2*(p + dm)))
 	  x1 = .5D0*(p + dm + r)/p
@@ -109,14 +109,14 @@
 	  B(bb001) = .125D0*( 2*m1*B(bb1) - a0 +
      &      (p + dm)*(B(bb11) + 1/6D0) - .5D0*(m1 + m2) )
 
-	  if( abs(x1 - x2) .gt. acc*abs(x1 + x2) ) then
+	  if( abs(x1 - x2) .gt. diffeps*abs(x1 + x2) ) then
 	    B(dbb11) = (yfpv(3, x2, y2) - yfpv(3, x1, y1))/r
 	    sel = 1
 	  else if( abs(x1) .gt. 10 ) then
 	    B(dbb11) = -Re((3/4D0 + (3 - 4*x1)*fpv(4, x1, y1))/
      &        x1**2)/p
 	    sel = 2
-	  else if( abs(y1) .gt. acc ) then
+	  else if( abs(y1) .gt. diffeps ) then
 	    B(dbb11) = -Re(4/3D0 + (3 - 4*x1)*fpv(2, x1, y1))/p
 	    sel = 3
 	  else
@@ -131,7 +131,7 @@
 	    B(dbb0) = nan
 	    if( p .ne. 0 ) B(dbb0) = -1/p
 	  else if( m1*m2 .eq. 0 .and.
-     &        abs(p - m1 - m2) .lt. acc ) then
+     &        abs(p - m1 - m2) .lt. diffeps ) then
 * IR divergent case
 	    B(dbb0) = -(1 + .5D0*log(la/p))/p
 	  else if( sel .eq. 1 ) then
@@ -148,7 +148,7 @@
 	  if( abs(m1) + abs(m2) .eq. 0 ) then
 	    B(dbb1) = nan
 	    if( p .ne. 0 ) B(dbb1) = .5D0/p
-	  else if( m2 .eq. 0 .and. abs(p - m1) .lt. acc ) then
+	  else if( m2 .eq. 0 .and. abs(p - m1) .lt. diffeps ) then
 * IR divergent case
 	    B(dbb1) = .5D0*(3 + log(la/p))/p
 	  else if( sel .eq. 1 ) then
@@ -163,7 +163,7 @@
 	  endif
 
 * zero momentum
-	else if( abs(dm) .gt. acc*(m1 + m2) ) then
+	else if( abs(dm) .gt. diffeps*(m1 + m2) ) then
 	  x2 = m1/dm*(1 - cIeps)
 	  y2 = -m2/dm*(1 - cIeps)
 	  if( abs(y2) .gt. .5D0 ) then
@@ -238,7 +238,7 @@
 	if( abs(x) .lt. 5 ) then
 	  if( n .eq. 0 ) then
 	    fpv = -log(-y/x)
-	  else if( abs(x) .lt. acc ) then
+	  else if( abs(x) .lt. diffeps ) then
 	    fpv = -1D0/n
 	  else
 	    xm = -log(-y/x)

@@ -1,7 +1,7 @@
 * ini.F
 * routines for initializing and setting some parameters
 * this file is part of LoopTools
-* last modified 29 Jul 14 th
+* last modified 3 Sep 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -107,7 +107,7 @@
 
 #include "lt.h"
 
-	if( abs(mudim - mudim_) .gt. acc ) call clearcache
+	if( abs(mudim - mudim_) .gt. diffeps ) call clearcache
 	mudim = mudim_
 	end
 
@@ -129,7 +129,7 @@
 
 #include "lt.h"
 
-	if( abs(delta - delta_) .gt. acc ) call clearcache
+	if( abs(delta - delta_) .gt. diffeps ) call clearcache
 	delta = delta_
 	end
 
@@ -151,7 +151,7 @@
 
 #include "lt.h"
 
-	if( abs(uvdiv - uvdiv_) .gt. acc ) call clearcache
+	if( abs(uvdiv - uvdiv_) .gt. diffeps ) call clearcache
 	uvdiv = uvdiv_
 	end
 
@@ -183,7 +183,7 @@
 	  lambda_ = 0
 	  epsi = 0
 	endif
-	if( abs(lambda - lambda_) .gt. acc ) call clearcache
+	if( abs(lambda - lambda_) .gt. diffeps ) call clearcache
 	lambda = lambda_
 	end
 
@@ -215,7 +215,7 @@
 
 #include "lt.h"
 
-	if( abs(minmass - minmass_) .gt. acc ) call clearcache
+	if( abs(minmass - minmass_) .gt. diffeps ) call clearcache
 	minmass = minmass_
 	end
 
@@ -366,6 +366,48 @@
 #include "lt.h"
 
 	getcmpbits = cmpbits
+	end
+
+************************************************************************
+
+	subroutine setdiffeps(diffeps_)
+	implicit none
+	RealType diffeps_
+
+#include "lt.h"
+
+	diffeps = diffeps_
+	end
+
+************************************************************************
+
+	RealType function getdiffeps()
+	implicit none
+
+#include "lt.h"
+
+	getdiffeps = diffeps
+	end
+
+************************************************************************
+
+	subroutine setzeroeps(zeroeps_)
+	implicit none
+	RealType zeroeps_
+
+#include "lt.h"
+
+	zeroeps = zeroeps_
+	end
+
+************************************************************************
+
+	RealType function getzeroeps()
+	implicit none
+
+#include "lt.h"
+
+	getzeroeps = zeroeps
 	end
 
 ************************************************************************

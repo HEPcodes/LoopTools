@@ -1,7 +1,7 @@
 * BcoeffFF.F
 * the two-point tensor coefficients from FF
 * this file is part of LoopTools
-* last modified 26 Jan 14 th
+* last modified 1 Sep 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -51,8 +51,8 @@
 
 	dm = m1 - m2
 
-	if( abs(p) .lt. acc ) then
-	  if( abs(dm) .lt. acc ) then
+	if( abs(p) .lt. diffeps ) then
+	  if( abs(dm) .lt. diffeps ) then
 	    B(bb001) = -.5D0*B(bb00)
 	  else
 	    B(bb001) = -( ((m1 + m2)/6D0)**2 +
@@ -67,8 +67,8 @@
 	call Xffdb0(B(dbb0), pdb0, p, m1, m2, ier(dbb0))
 
 #ifdef COMPLEXPARA
-	if( abs(p) .lt. acc ) then
-	  if( abs(dm) .lt. acc ) then
+	if( abs(p) .lt. diffeps ) then
+	  if( abs(dm) .lt. diffeps ) then
 	    B(bb111) = -.25D0*B(bb0)
 	    B(dbb1) = -1/12D0/m1
 	  else

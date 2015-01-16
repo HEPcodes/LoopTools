@@ -34,7 +34,7 @@
 *
 *  #[ declarations:
 
-	if( abs(p) .gt. acc*(m1 + m2) ) then
+	if( abs(p) .gt. diffeps*(m1 + m2) ) then
 
 *		IR divergent case
 	  if( m2 .eq. 0 .and. p .eq. m1 ) then
@@ -52,12 +52,12 @@
 	  endif
 
 	  call ffroots(p, m1, m2, xp, xm, yp, ym, r, ier)
-	  if( abs(xp - xm) .gt. acc*abs(xp + xm) ) then
+	  if( abs(xp - xm) .gt. diffeps*abs(xp + xm) ) then
 	    cdb1 = (ffypvf(2, xp, yp) - ffypvf(2, xm, ym))/r
 	  else if( abs(xp) .gt. 10 ) then
 	    cdb1 = Re( (2/3D0 +
      +       (2 - 3*xp)*ffpvf(3, xp, yp))/xp**2 )/p
-	  else if( abs(yp) .gt. acc ) then
+	  else if( abs(yp) .gt. diffeps ) then
 	    cdb1 = Re( (3/2D0 +
      +       (2 - 3*xp)*ffpvf(1, xp, yp)) )/p
 	  else
@@ -66,7 +66,7 @@
 	  endif
 
 *		zero momentum case
-	else if( abs(m1 - m2) .gt. acc*(m1 + m2) ) then
+	else if( abs(m1 - m2) .gt. diffeps*(m1 + m2) ) then
 	  xm = (1 - cIeps)*m1/(m1 - m2)
 	  ym = (1 - cIeps)*m2/(m2 - m1)
 	  if( abs(xm) .lt. 10 ) then
@@ -108,15 +108,15 @@
 *
 *  #] declarations:
 
-	if( abs(p) .gt. acc*(m1 + m2) ) then
+	if( abs(p) .gt. diffeps*(m1 + m2) ) then
 
 	  call ffroots(p, m1, m2, xp, xm, yp, ym, r, ier)
-	  if( abs(xp - xm) .gt. acc*abs(xp + xm) ) then
+	  if( abs(xp - xm) .gt. diffeps*abs(xp + xm) ) then
 	    cdb11 = (ffypvf(3, xm, ym) - ffypvf(3, xp, yp))/r
 	  else if( abs(xp) .gt. 10 ) then
 	    cdb11 = Re( (-3/4D0 +
      +       (4*xp - 3)*ffpvf(4, xp, yp))/xp**2 )/p
-	  else if( abs(yp) .gt. acc ) then
+	  else if( abs(yp) .gt. diffeps ) then
 	    cdb11 = Re( (-4/3D0 +
      +       (4*xp - 3)*ffpvf(2, xp, yp))/p )
 	  else
@@ -125,7 +125,7 @@ c	    call fferr(102, ier)
 	  endif
 
 *		zero momentum case
-	else if( abs(m1 - m2) .gt. acc*(m1 + m2) ) then
+	else if( abs(m1 - m2) .gt. diffeps*(m1 + m2) ) then
 	  xm = (1 - cIeps)*m1/(m1 - m2)
 	  ym = (1 - cIeps)*m2/(m2 - m1)
 	  if( abs(xm) .lt. 10 ) then
@@ -167,7 +167,7 @@ c	    call fferr(102, ier)
 *
 *  #] declarations:
 
-	if( abs(p) .gt. acc*(m1 + m2) ) then
+	if( abs(p) .gt. diffeps*(m1 + m2) ) then
 
 	  call ffroots(p, m1, m2, xp, xm, yp, ym, r, ier)
 	  if( abs(yp) .gt. .5D0 .and. abs(ym) .gt. .5D0 ) then
@@ -189,7 +189,7 @@ c	    call fferr(102, ier)
 	  endif
 
 *		zero momentum case
-	else if( abs(m1 - m2) .gt. acc*(m1 + m2) ) then
+	else if( abs(m1 - m2) .gt. diffeps*(m1 + m2) ) then
 	  xm = (1 - cIeps)*m1/(m1 - m2)
 	  ym = (1 - cIeps)*m2/(m2 - m1)
 	  if( abs(ym) .gt. .5D0 ) then

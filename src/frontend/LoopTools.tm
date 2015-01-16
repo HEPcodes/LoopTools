@@ -99,6 +99,12 @@
 	GetCmpBits::usage = "GetCmpBits[] returns the number of bits compared of each real number in cache lookups."
 
 :Evaluate:
+	SetDiffEps::usage = "SetDiffEps[diffeps] sets the tolerance in comparing two numbers, i.e. a and b are considered equal if |a - b| < diffeps.";
+	GetDiffEps::usage = "GetDiffEps[] returns the tolerance used for comparing two numbers.";
+	SetZeroEps::usage = "SetZeroEps[zeroeps] sets the tolerance in determining that a number is zero, i.e. a is considered zero if |a| < zeroeps.";
+	GetZeroEps::usage = "GetZeroEps[] returns the tolerance used in testing numbers for zero."
+
+:Evaluate:
 	DRResult::usage = "DRResult[c0, c1, c2] arranges the coefficients of DR1eps into the final returned to the user.";
 	DR1eps::usage = "DR1eps represents 1/eps where D = 4 - 2 eps."
 
@@ -651,6 +657,38 @@
 :ReturnType:	Integer
 :End:
 
+:Begin:
+:Function:	msetdiffeps
+:Pattern:	SetDiffEps[diffeps]
+:Arguments:	{diffeps}
+:ArgumentTypes:	{Real}
+:ReturnType:	Manual
+:End:
+
+:Begin:
+:Function:	mgetdiffeps
+:Pattern:	GetDiffEps[]
+:Arguments:	{}
+:ArgumentTypes:	{}
+:ReturnType:	Real
+:End:
+
+:Begin:
+:Function:	msetzeroeps
+:Pattern:	SetZeroEps[zeroeps]
+:Arguments:	{zeroeps}
+:ArgumentTypes:	{Real}
+:ReturnType:	Manual
+:End:
+
+:Begin:
+:Function:	mgetzeroeps
+:Pattern:	GetZeroEps[]
+:Arguments:	{}
+:ArgumentTypes:	{}
+:ReturnType:	Real
+:End:
+
 :Evaluate: r = Head[# + 1.] === Real &
 
 :Evaluate: c = Head[# + 1. I] === Complex &
@@ -697,7 +735,7 @@
 	LoopTools.tm
 		provides the LoopTools functions in Mathematica
 		this file is part of LoopTools
-		last modified 29 Jul 14 th
+		last modified 2 Sep 14 th
 */
 
 
@@ -1153,6 +1191,32 @@ static void msetcmpbits(cint cmpbits)
 static int mgetcmpbits(void)
 {
   return getcmpbits();
+}
+
+/******************************************************************/
+
+static void msetdiffeps(cRealType diffeps)
+{
+  setdiffeps(diffeps);
+  ReturnVoid();
+}
+
+static RealType mgetdiffeps(void)
+{
+  return getdiffeps();
+}
+
+/******************************************************************/
+
+static void msetzeroeps(cRealType zeroeps)
+{
+  setzeroeps(zeroeps);
+  ReturnVoid();
+}
+
+static RealType mgetzeroeps(void)
+{
+  return getzeroeps();
 }
 
 /******************************************************************/

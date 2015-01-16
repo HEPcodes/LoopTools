@@ -2,7 +2,7 @@
 	clooptools.h
 		the C/C++ header file with all definitions for LoopTools
 		this file is part of LoopTools
-		last modified 29 Jul 14 th
+		last modified 2 Sep 14 th
 */
 
 
@@ -358,6 +358,7 @@ extern struct {		/* MUST match common block ltcache in lt.h! */
 
 extern struct {		/* MUST match common block ltregul in ff.h! */
   REAL mudim, im_mudim, delta, uvdiv, lambda, minmass;
+  REAL diffeps, zeroeps;
 } FORTRAN(ltregul);
 
 #ifdef __cplusplus
@@ -800,7 +801,8 @@ static inline ComplexType Li2omxC(XARGS(_lt_Cc_))
   FORTRAN(ltregul).v = ToREAL(v)
 
 #define _lt_setx_(v) \
-  if( fabs(ToReal(FORTRAN(ltregul).v) - v) > 1e-12 ) clearcache(); \
+  if( fabs(ToReal(FORTRAN(ltregul).v) - v) > ToReal(FORTRAN(ltregul).diffeps) ) \
+    clearcache(); \
   FORTRAN(ltregul).v = ToREAL(v)
 
 #define _lt_get_(v) \
@@ -896,6 +898,16 @@ static inline void setcmpbits(const int cmpbits)
 }
 
 static inline int getcmpbits() { return FORTRAN(ltcache).cmpbits; }
+
+
+static inline void setdiffeps(cRealType diffeps) { _lt_set_(diffeps); }
+
+static inline RealType getdiffeps() { _lt_get_(diffeps); }
+
+
+static inline void setzeroeps(cRealType zeroeps) { _lt_set_(zeroeps); }
+
+static inline RealType getzeroeps() { _lt_get_(zeroeps); }
 
 #endif
 

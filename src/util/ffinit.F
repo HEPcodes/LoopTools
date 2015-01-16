@@ -81,51 +81,63 @@
 	print *, "env LTMAXDEV =", maxdev
 91	continue
 
+	call getenv("LTDIFFEPS", env)
+	diffeps = 1D-12
+	read(env, *, end=92, err=92) diffeps
+	print *, "env LTDIFFEPS =", diffeps
+92	continue
+
+	call getenv("LTZEROEPS", env)
+	zeroeps = 1D-22
+	read(env, *, end=93, err=93) zeroeps
+	print *, "env LTZEROEPS =", zeroeps
+93	continue
+
 	call getenv("LTCMPBITS", env)
 	cmpbits = 58 + KIND*4
-	read(env, *, end=92, err=92) cmpbits
+	read(env, *, end=94, err=94) cmpbits
 	print *, "env LTCMPBITS =", cmpbits
 	cmpbits = max(cmpbits, 8 + KIND*4)
-92	continue
+94	continue
 
 	call getenv("LTVERSION", env)
 	versionkey = 0
-	read(env, *, end=93, err=93) versionkey
+	read(env, *, end=95, err=95) versionkey
 	print *, "env LTVERSION =", versionkey
-93	continue
+95	continue
 
 	call getenv("LTDEBUG", env)
 	debugkey = 0
-	read(env, *, end=94, err=94) debugkey
+	read(env, *, end=96, err=96) debugkey
 	print *, "env LTDEBUG =", debugkey
-94	continue
+96	continue
 
 	call getenv("LTRANGE", env)
 	debugfrom = 0
 	debugto = 2**30
 	i = index(env, '-')
 	if( i .eq. 0 ) then
-	  read(env, *, end=95, err=95) debugfrom
+	  read(env, *, end=97, err=97) debugfrom
 	  debugto = debugfrom
 	else
-	  read(env(1:i-1), *, end=951, err=951) debugfrom
-951	  read(env(i+1:), *, end=952, err=952) debugto
-952	  continue
+	  read(env(1:i-1), *, end=971, err=971) debugfrom
+971	  read(env(i+1:), *, end=972, err=972) debugto
+972	  continue
 	endif
 	print *, "env LTRANGE =", debugfrom, debugto
-95	continue
+97	continue
 
 	call getenv("LTWARN", env)
 	warndigits = 9
-	read(env, *, end=96, err=96) warndigits
+	read(env, *, end=98, err=98) warndigits
 	print *, "env LTWARN =", warndigits
-96	continue
+98	continue
 
 	call getenv("LTERR", env)
 	errdigits = 100
-	read(env, *, end=97, err=97) errdigits
+	read(env, *, end=99, err=99) errdigits
 	print *, "env LTERR =", errdigits
-97	continue
+99	continue
 
 *
 *	regularization parameters

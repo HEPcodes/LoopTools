@@ -1,7 +1,7 @@
 * D0func.F
 * the scalar four-point function
 * this file is part of LoopTools
-* last modified 13 Jun 14 th
+* last modified 1 Sep 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -73,8 +73,8 @@
 	s = 0
 	do i = 1, 12
 	  perm = pperm(i)
-	  if( abs(Mx(1)) .lt. eps ) then
-	    if( abs(Px(1)) + abs(Mx(2)) .lt. eps ) then
+	  if( abs(Mx(1)) .lt. zeroeps ) then
+	    if( abs(Px(1)) + abs(Mx(2)) .lt. zeroeps ) then
 	      if( DEBUGLEVEL .gt. 0 )
      &          print '("collinear D0, perm = ",O10)', perm
 	      call coll(res, para, perm)
@@ -82,7 +82,7 @@
 	    endif
 	    if( s .eq. 0 .and.
      &        abs(Px(1) - Mx(2)) +
-     &        abs(Px(4) - Mx(4)) .lt. acc ) s = perm
+     &        abs(Px(4) - Mx(4)) .lt. diffeps ) s = perm
 	    if( z .eq. 0 ) z = perm
 	  endif
 	enddo
@@ -126,9 +126,9 @@
 
 	perm = z
 	z = 0
-	if( abs(Mx(2)) .lt. eps ) z = 1
-	if( abs(Mx(3)) .lt. eps ) z = z + 2
-	if( abs(Mx(4)) .lt. eps ) z = z + 4
+	if( abs(Mx(2)) .lt. zeroeps ) z = 1
+	if( abs(Mx(3)) .lt. zeroeps ) z = z + 2
+	if( abs(Mx(4)) .lt. zeroeps ) z = z + 4
 	s = mperm(z)
 	if( s .ne. p1234 ) perm =
      &    pj(perm, pj(s, 1))*8**9 +
@@ -242,8 +242,8 @@
 	endif
 
 * massless case
-	if( abs(m3) .lt. eps ) then
-	  if( abs(p1 - p2) + abs(p3 - p4) .lt. acc ) then
+	if( abs(m3) .lt. zeroeps ) then
+	  if( abs(p1 - p2) + abs(p3 - p4) .lt. diffeps ) then
 	    res = -2*ln(-lambda/p1p2, 1)*lxs*fac
 	    return
 	  endif
@@ -276,10 +276,10 @@
 	lm = 2*ln(r3*sqrt(lambda)/(m3 - p1p2), 1)
 	if( xs .eq. 1 ) then
 	  c = -2
-	  if( abs(x2 - x3) .gt. acc ) then
+	  if( abs(x2 - x3) .gt. diffeps ) then
 	    c = (1 + x2/x3)/(1 - x2/x3)*(lx2 + l1x3) +
      &        (1 + x2*x3)/(1 - x2*x3)*(lx2 + lx3) + 2
-	  else if( abs(x2 - 1) .gt. acc ) then
+	  else if( abs(x2 - 1) .gt. diffeps ) then
 	    c = -2*(x2**2 + 1)/((x2 - 1)*(x2 + 1))*lx2
 	  endif
 	  res = fac*(lm - c)
@@ -314,7 +314,7 @@
 	ComplexType t
 
 	d = x - (m1 - m2)**2
-	if( abs(d) .lt. acc ) then
+	if( abs(d) .lt. diffeps ) then
 	  bdK = 1
 	else
 	  t = 4*m1*m2/(d + cIeps)
@@ -390,8 +390,8 @@
 	res(1) = fac*lxs
 	res(2) = 0
 
-	if( abs(m3) .lt. eps ) then
-	  if( abs(q2) + abs(q3) .lt. acc ) then
+	if( abs(m3) .lt. zeroeps ) then
+	  if( abs(q2) + abs(q3) .lt. diffeps ) then
 * qlbox14: D0(m2, m2, m4, m4; p1p2, p2p3; 0, m2, 0, m4)
 	    if( DEBUGLEVEL .gt. 1 ) print *, "D0softDR: qlbox14"
 	    res(1) = 2*res(1)
@@ -403,9 +403,9 @@
 * Beenakker-Denner Eq. (2.11)
 	  if( DEBUGLEVEL .gt. 1 ) print *, "D0softDR: qlbox15"
 
-	  if( abs(q2*q3) .lt. acc ) then
+	  if( abs(q2*q3) .lt. diffeps ) then
 	    m24 = m2
-	    if( abs(q2) .lt. acc ) m24 = m4
+	    if( abs(q2) .lt. diffeps ) m24 = m4
 	    res(0) = fac*( lxs*(lxs + log(mudim/m24) +
      &        2*lnrat(q2 + q3, t)) +
      &        Li2omx2(xs, 1D0, xs, 1D0) )
@@ -444,10 +444,10 @@
 
 	if( xs .eq. 1 ) then
 	  c = -2
-	  if( abs(x2 - x3) .gt. acc ) then
+	  if( abs(x2 - x3) .gt. diffeps ) then
 	    c = (1 + x2/x3)/(1 - x2/x3)*(lx2 + log(1/x3)) +
      &        (1 + x2*x3)/(1 - x2*x3)*(lx2 + lx3) + 2
-	  else if( abs(x2 - 1) .gt. acc ) then
+	  else if( abs(x2 - 1) .gt. diffeps ) then
 	    c = -2*(x2**2 + 1)/((x2 - 1)*(x2 + 1))*lx2
 	  endif
 	  res(0) = fac*(c - lm)
@@ -680,13 +680,13 @@
 	perm_ = 0
 
 	z = 0
-	if( abs(Mx(3)) .lt. eps ) z = 1
-	if( abs(Mx(4)) .lt. eps ) z = z + 2
-	if( abs(Px(2)) .lt. eps ) z = z + 4
-	if( abs(Px(3)) .lt. eps ) z = z + 8
-	if( abs(Px(4)) .lt. eps ) z = z + 16
-	if( abs(Px(5)) .lt. eps ) z = z + 32
-	if( abs(Px(6)) .lt. eps ) z = z + 64
+	if( abs(Mx(3)) .lt. zeroeps ) z = 1
+	if( abs(Mx(4)) .lt. zeroeps ) z = z + 2
+	if( abs(Px(2)) .lt. zeroeps ) z = z + 4
+	if( abs(Px(3)) .lt. zeroeps ) z = z + 8
+	if( abs(Px(4)) .lt. zeroeps ) z = z + 16
+	if( abs(Px(5)) .lt. zeroeps ) z = z + 32
+	if( abs(Px(6)) .lt. zeroeps ) z = z + 64
 	s = pperm(z)
 	if( iand(s, O'7777777777') .ne. p1234 ) perm =
      &    pj(perm, pj(s, 1))*8**9 +
@@ -826,7 +826,7 @@
 	q4 = -Px(4)
 	q3 = -Px(3)
 
-	if( abs(q3) .lt. eps ) then
+	if( abs(q3) .lt. zeroeps ) then
 * qlbox3: D0(0, p2, 0, p4; p1p2, p2p3; 0, 0, 0, 0)
 * Bern, Dixon, Kosower, NPB 412 (1994) 751 [hep-ph/9306240], Eq. (I.13)
 	  if( DEBUGLEVEL .gt. 1 ) print *, "D0m0p2: qlbox3"
@@ -981,8 +981,8 @@
 	q4 = m4 - Px(4)
 
 	ir = 0
-	if( abs(q3) .lt. acc ) ir = 1
-	if( abs(q4) .lt. acc ) then
+	if( abs(q3) .lt. diffeps ) ir = 1
+	if( abs(q4) .lt. diffeps ) then
 	  ir = ir + 1
 	  q4 = q3
 	endif
@@ -1057,7 +1057,7 @@
 	q4 = m4 - Px(4)
 	t = m4 - Px(6)
 
-	if( abs(t) .lt. acc ) then
+	if( abs(t) .lt. diffeps ) then
 	  t = q4
 	  q4 = 0
 	  s = q2
@@ -1067,7 +1067,7 @@
 	m4mu = sqrt(m4*mudim)
 
 * qlbox9: D0(0, p2, p3, m4; p1p2, p2p3; 0, 0, 0, m4)
-	if( abs(q4) .lt. acc ) then
+	if( abs(q4) .lt. diffeps ) then
 	  if( DEBUGLEVEL .gt. 1 ) print *, "D0m1p3: qlbox9"
 	  fac = 1/(s*t)
 	  ll = lnrat(t, m4mu) + lnrat(s, q2)
@@ -1127,7 +1127,7 @@
 	t = m4 - Px(6)
 	q4 = m4 - Px(4)
 
-	if( abs(s) .lt. acc .or. abs(t) .lt. acc ) then
+	if( abs(s) .lt. diffeps .or. abs(t) .lt. diffeps ) then
 * switch from p1234 to p2134 = 1536242134
 	  tmp = s
 	  s = q3
@@ -1140,8 +1140,8 @@
 	fac = 1/(s*t - q3*q4)
 
 	ir = 0
-	if( abs(q3) .lt. acc ) ir = 1
-	if( abs(q4) .lt. acc ) then
+	if( abs(q3) .lt. diffeps ) ir = 1
+	if( abs(q4) .lt. diffeps ) then
 	  ir = ir + 1
 	  q4 = q3
 	  tmp = s
@@ -1154,7 +1154,7 @@
 	res(2) = .5D0*fac*ir
 
 	p3 = Px(3)
-	if( abs(p3) .lt. eps ) then
+	if( abs(p3) .lt. zeroeps ) then
 	  case = 1
 	  logs = lnrat(m3, m4)**2
 	else
@@ -1181,7 +1181,7 @@
 	    x43(4) = c/x43(3)
 	  endif
 
-	  if( abs(Im(d)) .lt. eps ) then
+	  if( abs(Im(d)) .lt. zeroeps ) then
 	    case = 2
 	    logs = lnrat(x43(1), x43(3))**2 +
      &             lnrat(x43(2), x43(4))**2
@@ -1286,7 +1286,8 @@
 * M. Rauch: implemented the log branch cuts for k13 < 2
 * (from Denner, Nierste, Scharf; Nucl Phys B367 (1991) 637)
 
-c#define AddEps(k) k*ToComplex(1D0, -sign(eps, k))
+cc#define AddEps(k) k*ToComplex(1D0, -sign(eps, k))
+c#define AddEps(k) k*(1 - sign(1D0, k)*cIeps)
 #define AddEps(k) (k - max(abs(k), 1D0)*cIeps)
 c#define k2r(k) (.5D0*k*(1 + sqrt(ToComplex((1 - 2/k)*(1 + 2/k)))))
 #define k2r(k) (.5D0*(k + sign(1D0, Re(k))*sqrt(ToComplex((k - 2)*(k + 2)))))
@@ -1647,7 +1648,8 @@ c#define k2r(k) (.5D0*k*(1 + sqrt(ToComplex((1 - 2/k)*(1 + 2/k)))))
 	k34c = AddEps(k34)/k13c
 	k14 = (m3 + m4 - p3)/m
 	r14 = k2r(k14)
-	r14 = r14*ToComplex(1D0, sign(eps, Re(1/r14 - r14)))
+	r14 = r14*(1 + cIeps*sign(1D0, Re(1/r14 - r14)))
+c	r14 = r14*ToComplex(1D0, sign(eps, Re(1/r14 - r14)))
 
 	a = k34*k24 - k23
 	b = k13*k24 + k12*k34 - k14*k23

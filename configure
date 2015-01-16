@@ -186,7 +186,7 @@ case "`$CONF_FC --version -c 2>&1`" in
 *G95*)
   CONF_FFLAGS="$FFLAGS -O0 -g -ffixed-line-length-132 -freal-loops $CONF_M $CONF_STATIC ${CONF_DEBUG:+-Wall}" ;;
 *GNU*)
-  CONF_FFLAGS="$FFLAGS -O1 -g -ffixed-line-length-none $CONF_M $CONF_STATIC ${CONF_DEBUG:+-Wall}"
+  CONF_FFLAGS="$FFLAGS ${CONF_DEBUG:--O1 -g} -ffixed-line-length-none $CONF_M $CONF_STATIC ${CONF_DEBUG:+-Wall}"
   case "$CONF_FC" in
   *gfortran*)
 	CONF_FFLAGS="$CONF_FFLAGS ${CONF_DEBUG:+-Wtabs -ffpe-trap=invalid,overflow,zero} -fno-range-check -ff2c ${CONF_STATIC_EXT:+-static-libgfortran -static-libgcc}" ;;

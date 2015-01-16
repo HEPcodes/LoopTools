@@ -97,7 +97,9 @@
 \def\d{{\rm d}}
 \def\M{{\cal M}}
 \def\O{{\cal O}}
-\def\mmin{\ensuremath{m_{\text{min}}^2}}
+\def\mmin{\ensuremath{m_{\mathrm{min}}^2}}
+\def\zeroeps{\ensuremath{\varepsilon_{\mathrm{zero}}}}
+\def\diffeps{\ensuremath{\varepsilon_{\mathrm{diff}}}}
 
 \def\Code#1{\ensuremath{\texttt{#1}}}
 %\def\Code#1{\ensuremath{\texttt{\Red{#1}}}}
@@ -1344,15 +1346,53 @@ always enter squared.
 If $\lambda^2\leqslant 0$ was chosen, the $\varepsilon^{-1}$ component 
 of the results contains both UV and IR divergences, sometimes denoted 
 $1/\varepsilon_{\text{UV}}$ and $1/\varepsilon_{\text{IR}}$.  The UV 
-part can be switched off ($i = 0$) and on ($i = 1$) with
+part can be switched off ($x = 0$) and on ($x = 1$) with
 
 \begin{alltt}
-   call setuvdiv(\(i\))                    (Fortran)
-   setuvdiv(\(i\));                        (C/C++)
-   SetUVDiv[\(i\)]                         (Mathematica)
-   export LTUVDIV=\(i\)                    (bash)
-   setenv LTUVDIV \(i\)                    (tcsh)
+   call setuvdiv(\(x\))                    (Fortran)
+   setuvdiv(\(x\));                        (C/C++)
+   SetUVDiv[\(x\)]                         (Mathematica)
+   export LTUVDIV=\(x\)                    (bash)
+   setenv LTUVDIV \(x\)                    (tcsh)
 \end{alltt}
+
+Note that $x$ is a real argument, not an integer one, as in:
+\Code{call setuvdiv(1D0)}.
+
+
+\subsection{Accuracy}
+
+In rare cases the user may want to set the following accuracy thresholds.
+\begin{itemize}
+\item A given quantity $x$ is tested for zero by $|x| < \zeroeps$.  The 
+comparator $\zeroeps$ has the default value $10^{-22}$ and can be set 
+through
+
+\begin{alltt}
+   call setzeroeps(\(\zeroeps\))                    (Fortran)
+   setzeroeps(\(\zeroeps\));                        (C/C++)
+   SetZeroEps[\(\zeroeps\)]                         (Mathematica)
+   export LTZEROEPS=\(\zeroeps\)                    (bash)
+   setenv LTZEROEPS \(\zeroeps\)                    (tcsh)
+\end{alltt}
+
+\item Two quantities $x$ and $y$ are tested for equality by
+$|x - y| < \diffeps$, where $\diffeps$ has the default value $10^{-12}$ 
+and can be set through
+
+\begin{alltt}
+   call setdiffeps(\(\diffeps\))                    (Fortran)
+   setdiffeps(\(\diffeps\));                        (C/C++)
+   SetDiffEps[\(\diffeps\)]                         (Mathematica)
+   export LTDIFFEPS=\(\diffeps\)                    (bash)
+   setenv LTDIFFEPS \(\diffeps\)                    (tcsh)
+\end{alltt}
+
+In particular in conjunction with phase-space generators the detection 
+of \eg $p^2 = m^2$ may fail with the default $\diffeps$ due to rounding 
+errors in the generation of $p$.
+
+\end{itemize}
 
 
 \section{Using \LT\ with Fortran}

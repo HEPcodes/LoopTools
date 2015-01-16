@@ -1,7 +1,7 @@
 * C0.F
 * the scalar three-point function
 * this file is part of LoopTools
-* last modified 13 Jun 14 th
+* last modified 1 Sep 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -58,17 +58,17 @@
 	s = 0
 	do i = 1, 3
 	  perm = paraperm(i)
-	  if( abs(Mx(1)) .lt. eps ) then
+	  if( abs(Mx(1)) .lt. zeroeps ) then
 	    if( abs(Px(1) - Mx(2)) +
-     &          abs(Px(3) - Mx(3)) .lt. acc ) then
+     &          abs(Px(3) - Mx(3)) .lt. diffeps ) then
 	      if( DEBUGLEVEL .gt. 0 )
      &          print '("soft C0, perm = ",O3)', perm
 	      s = perm
 	      goto 556
 	    endif
-	    if( abs(Px(1)) + abs(Mx(2)) .lt. eps ) c = perm
+	    if( abs(Px(1)) + abs(Mx(2)) .lt. zeroeps ) c = perm
 	  endif
-	  if( abs(P(i)) .lt. eps ) z = z + 1
+	  if( abs(P(i)) .lt. zeroeps ) z = z + 1
 	enddo
 
 	if( c .ne. 0 ) then
@@ -279,7 +279,7 @@
 
 	if( DEBUGLEVEL .gt. 0 ) call CDump("C0p2", para, perm)
 
-	if( abs(Px(1)) .lt. eps ) then
+	if( abs(Px(1)) .lt. zeroeps ) then
 	  C0p2 = 0
 	  return
 	endif
@@ -295,7 +295,7 @@
 	m23 = m2 - m3
 	m13 = m1 - m3
 
-	if( abs(p3) .lt. eps ) then
+	if( abs(p3) .lt. zeroeps ) then
 	  a = p1 - p2
 	  y1 = -2*p1*(m13 - a)
 	  y2 = -2*p1*m13
@@ -347,7 +347,7 @@
 
 	if( DEBUGLEVEL .gt. 0 ) call CDump("C0p1", para, perm)
 
-	if( abs(Px(1)) .lt. eps ) then
+	if( abs(Px(1)) .lt. zeroeps ) then
 	  C0p1 = 0
 	  return
 	endif
@@ -365,7 +365,7 @@
 
 	C0p1 = 0
 
-	if( abs(m13) .gt. acc ) then
+	if( abs(m13) .gt. diffeps ) then
 	  y1 = m23 - p1
 	  y2 = m23
 	  c = m23 + p1*m3/m13
@@ -418,16 +418,16 @@
 	m23 = m2 - m3
 	m13 = m1 - m3
 
-	if( abs(m23) .lt. acc ) then
-	  if( abs(m13) .lt. acc ) then
+	if( abs(m23) .lt. diffeps ) then
+	  if( abs(m13) .lt. diffeps ) then
 	    C0p0 = -.5D0/m1
 	  else
 	    C0p0 = (m13 - m1*log(m1/m3))/m13**2
 	  endif
 	else
-	  if( abs(m12) .lt. acc ) then
+	  if( abs(m12) .lt. diffeps ) then
 	    C0p0 = (-m23 + m3*log(m2/m3))/m23**2
-	  else if( abs(m13) .lt. acc ) then
+	  else if( abs(m13) .lt. diffeps ) then
 	    C0p0 = (m23 - m2*log(m2/m3))/m23**2
 	  else
 	    C0p0 = m3/(m13*m23)*log(m1/m3) - m2/(m12*m23)*log(m1/m2)
@@ -464,18 +464,18 @@
 	m2 = Px(3)
 
 	a = sqrt(4*m1*m2)
-	if( abs(a) .lt. eps ) then
+	if( abs(a) .lt. zeroeps ) then
 	  ps = max(minmass, 1D-14)
-	  if( abs(m1) .lt. eps ) m1 = ps
-	  if( abs(m2) .lt. eps ) m2 = ps
+	  if( abs(m1) .lt. zeroeps ) m1 = ps
+	  if( abs(m2) .lt. zeroeps ) m2 = ps
 	  if( .not. ini ) then
 	    print *, "collinear-divergent C0, using mass cutoff ", ps
 	    ini = .TRUE.
 	  endif
 	endif
 
-	if( abs(s) .lt. acc ) then
-	  if( abs(m1 - m2) .lt. acc ) then
+	if( abs(s) .lt. diffeps ) then
+	  if( abs(m1 - m2) .lt. diffeps ) then
 	    res = -.5D0*log(m1/lambda)/m1
 	  else
 	    res = -.25D0*log(m2*m1/lambda**2)*
@@ -569,11 +569,11 @@
 	m2 = Px(3)
 
 	m = sqrt(m1*m2)
-	if( abs(m) .lt. eps ) then
-	  if( abs(m1) .lt. eps ) then
+	if( abs(m) .lt. zeroeps ) then
+	  if( abs(m1) .lt. zeroeps ) then
 	    m1 = m2
-	    if( abs(m1) .lt. eps ) then
-	      if( abs(s) .lt. eps ) then
+	    if( abs(m1) .lt. zeroeps ) then
+	      if( abs(s) .lt. zeroeps ) then
 	        print *, "C0softDR: all scales zero"
 	        res(0) = nan
 	        res(1) = nan
@@ -589,7 +589,7 @@
 	      goto 9
 	    endif
 	  endif
-	  if( abs(s - m1) .lt. acc ) then
+	  if( abs(s - m1) .lt. diffeps ) then
 * qltri5
 	    if( DEBUGLEVEL .gt. 1 ) print *, "C0softDR: qltri5"
 	    f = -.5D0/m1
@@ -618,9 +618,9 @@
 	root = sqrt(ToComplex((r - 4*m)/r))
 	mK = -4*m/(r*(1 + root)**2)
 
-	if( abs(mK - 1) .lt. acc ) then
+	if( abs(mK - 1) .lt. diffeps ) then
 	  r = 0
-	  if( abs(m1 - m2) .gt. acc )
+	  if( abs(m1 - m2) .gt. diffeps )
      &      r = 2 + .5D0*(sqrt(m1) + sqrt(m2))/dm*log(m2/m1)
 	  f = .5D0/m
 	  res(1) = f
@@ -669,11 +669,11 @@
 	s1 = Px(2)
 	s2 = Px(3)
 
-	if( abs(m) .lt. eps ) then
+	if( abs(m) .lt. zeroeps ) then
 * qltri2
 	  if( DEBUGLEVEL .gt. 1 ) print *, "C0collDR: qltri2"
 	  r = .5D0*(s2 - s1)/s1
-	  if( abs(r) .lt. acc ) then
+	  if( abs(r) .lt. diffeps ) then
 	    res(0) = (lnrat(mudim, -s1)*(1 - r) - r)/s1
 	    res(1) = (1 - r*mudim/s1)/s1
 	    res(2) = 0
@@ -695,7 +695,7 @@
 	lm = lnrat(mudim, m)
 
 	r = .5D0*(s1 - s2)/m1
-	if( abs(r) .lt. acc ) then
+	if( abs(r) .lt. diffeps ) then
 	  m = m/s1
 	  res(0) = (lm - (m + 1)*(l2 + r) -
      &      r*((m*(m - 2) - 1)*l2 + lm))/m1

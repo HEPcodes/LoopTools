@@ -1,7 +1,7 @@
 * D0funcC.F
 * the scalar four-point function with complex masses
 * this file is part of LoopTools
-* last modified 20 Feb 14 th
+* last modified 1 Sep 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -72,8 +72,8 @@
 c	PRINT '(I3,O12)', i, perm
 c	PRINT '(6F14.2)', Px(1), Px(2), Px(3), Px(4), Px(5), Px(6)
 c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
-	  if( abs(Mc(1)) .lt. eps ) then
-	    if( abs(Px(1)) + abs(Mc(2)) .lt. eps ) then
+	  if( abs(Mc(1)) .lt. zeroeps ) then
+	    if( abs(Px(1)) + abs(Mc(2)) .lt. zeroeps ) then
 	      if( DEBUGLEVEL .gt. 0 )
      &          print '("collinear D0C, perm = ",O10)', perm
 	      call coll(res, para, perm)
@@ -81,7 +81,7 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	    endif
 	    if( s .eq. 0 .and.
      &        abs(Px(1) - Mc(2)) +
-     &        abs(Px(4) - Mc(4)) .lt. acc ) s = perm
+     &        abs(Px(4) - Mc(4)) .lt. diffeps ) s = perm
 	    if( z .eq. 0 ) z = perm
 	  endif
 	enddo
@@ -193,8 +193,8 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 
 * massless case
 * (should have been re-routed to real D0, keep here for safety)
-	if( abs(m3) .lt. eps ) then
-	  if( abs(p1 - p2) + abs(p3 - p4) .lt. acc ) then
+	if( abs(m3) .lt. zeroeps ) then
+	  if( abs(p1 - p2) + abs(p3 - p4) .lt. diffeps ) then
 	    res = -2*ln(-lambda/p1p2, 1)*lxs*fac
 	    return
 	  endif
@@ -227,10 +227,10 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	lm = 2*ln(r3*sqrt(lambda)/(m3 - p1p2), 1)
 	if( xs .eq. 1 ) then
 	  c = -2
-	  if( abs(x2 - x3) .gt. acc ) then
+	  if( abs(x2 - x3) .gt. diffeps ) then
 	    c = (1 + x2/x3)/(1 - x2/x3)*(lx2 + l1x3) +
      &        (1 + x2*x3)/(1 - x2*x3)*(lx2 + lx3) + 2
-	  else if( abs(x2 - 1) .gt. acc ) then
+	  else if( abs(x2 - 1) .gt. diffeps ) then
 	    c = -2*(x2**2 + 1)/((x2 - 1)*(x2 + 1))*lx2
 	  endif
 	  res = fac*(lm - c)
@@ -263,7 +263,7 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	ComplexType d, t
 
 	d = x - (m1 - m2)**2
-	if( abs(d) .lt. acc ) then
+	if( abs(d) .lt. diffeps ) then
 	  bdKC = 1
 	else
 	  t = 4*m1*m2/(d + cIeps)
@@ -338,9 +338,9 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	res(1) = fac*lxs
 	res(2) = 0
 
-	if( abs(m3) .lt. eps ) then
+	if( abs(m3) .lt. zeroeps ) then
 * (should have been re-routed to real D0, keep here for safety)
-	  if( abs(q2) + abs(q3) .lt. acc ) then
+	  if( abs(q2) + abs(q3) .lt. diffeps ) then
 * qlbox14: D0(m2, m2, m4, m4; p1p2, p2p3; 0, m2, 0, m4)
 	    if( DEBUGLEVEL .gt. 1 ) print *, "D0CsoftDR: qlbox14"
 	    res(1) = 2*res(1)
@@ -352,9 +352,9 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 * Beenakker-Denner Eq. (2.11)
 	  if( DEBUGLEVEL .gt. 1 ) print *, "D0CsoftDR: qlbox15"
 
-	  if( abs(q2*q3) .lt. acc ) then
+	  if( abs(q2*q3) .lt. diffeps ) then
 	    m24 = m2
-	    if( abs(q2) .lt. acc ) m24 = m4
+	    if( abs(q2) .lt. diffeps ) m24 = m4
 	    res(0) = fac*( lxs*(lxs + log(mudim/m24) +
      &        2*lnrat(q2 + q3, t)) +
      &        Li2omx2(xs, 1D0, xs, 1D0) )
@@ -393,10 +393,10 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 
 	if( xs .eq. 1 ) then
 	  c = -2
-	  if( abs(x2 - x3) .gt. acc ) then
+	  if( abs(x2 - x3) .gt. diffeps ) then
 	    c = (1 + x2/x3)/(1 - x2/x3)*(lx2 + log(1/x3)) +
      &        (1 + x2*x3)/(1 - x2*x3)*(lx2 + lx3) + 2
-	  else if( abs(x2 - 1) .gt. acc ) then
+	  else if( abs(x2 - 1) .gt. diffeps ) then
 	    c = -2*(x2**2 + 1)/((x2 - 1)*(x2 + 1))*lx2
 	  endif
 	  res(0) = fac*(c - lm)
@@ -622,13 +622,13 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	perm_ = 0
 
 	z = 0
-	if( abs(Mc(3)) .lt. eps ) z = 1
-	if( abs(Mc(4)) .lt. eps ) z = z + 2
-	if( abs(Px(2)) .lt. eps ) z = z + 4
-	if( abs(Px(3)) .lt. eps ) z = z + 8
-	if( abs(Px(4)) .lt. eps ) z = z + 16
-	if( abs(Px(5)) .lt. eps ) z = z + 32
-	if( abs(Px(6)) .lt. eps ) z = z + 64
+	if( abs(Mc(3)) .lt. zeroeps ) z = 1
+	if( abs(Mc(4)) .lt. zeroeps ) z = z + 2
+	if( abs(Px(2)) .lt. zeroeps ) z = z + 4
+	if( abs(Px(3)) .lt. zeroeps ) z = z + 8
+	if( abs(Px(4)) .lt. zeroeps ) z = z + 16
+	if( abs(Px(5)) .lt. zeroeps ) z = z + 32
+	if( abs(Px(6)) .lt. zeroeps ) z = z + 64
 	s = pperm(z)
 	if( iand(s, O'7777777777') .ne. p1234 ) perm =
      &    pj(perm, pj(s, 1))*8**9 +
@@ -693,8 +693,8 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	q4 = m4 - Px(4)
 
 	ir = 0
-	if( abs(q3) .lt. acc ) ir = 1
-	if( abs(q4) .lt. acc ) then
+	if( abs(q3) .lt. diffeps ) ir = 1
+	if( abs(q4) .lt. diffeps ) then
 	  ir = ir + 1
 	  q4 = q3
 	endif
@@ -764,7 +764,7 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	q4 = m4 - Px(4)
 	t = m4 - Px(6)
 
-	if( abs(t) .lt. acc ) then
+	if( abs(t) .lt. diffeps ) then
 	  t = q4
 	  q4 = 0
 	  s = q2
@@ -775,7 +775,7 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 
 * qlbox9: D0(0, p2, p3, m4; p1p2, p2p3; 0, 0, 0, m4)
 * (should have been re-routed to real D0, keep here for safety)
-	if( abs(q4) .lt. acc ) then
+	if( abs(q4) .lt. diffeps ) then
 	  if( DEBUGLEVEL .gt. 1 ) print *, "D0Cm1p3: qlbox9"
 	  fac = 1/(Re(s)*Re(t))
 	  ll = lnrat(t, m4mu) + lnrat(s, q2)
@@ -833,7 +833,7 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	t = m4 - Px(6)
 	q4 = m4 - Px(4)
 
-	if( abs(s) .lt. acc .or. abs(t) .lt. acc ) then
+	if( abs(s) .lt. diffeps .or. abs(t) .lt. diffeps ) then
 * switch from p1234 to p2134 = 1536242134
 	  tmp = s
 	  s = q3
@@ -846,8 +846,8 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	fac = 1/(s*t - q3*q4)
 
 	ir = 0
-	if( abs(q3) .lt. acc ) ir = 1
-	if( abs(q4) .lt. acc ) then
+	if( abs(q3) .lt. diffeps ) ir = 1
+	if( abs(q4) .lt. diffeps ) then
 	  ir = ir + 1
 	  q4 = q3
 	  tmp = s
@@ -860,7 +860,7 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	res(2) = .5D0*fac*ir
 
 	p3 = Px(3)
-	if( abs(p3) .lt. eps ) then
+	if( abs(p3) .lt. zeroeps ) then
 	  case = 1
 	  logs = lnrat(m3, m4)**2
 	else
@@ -887,7 +887,7 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	    x43(4) = c/x43(3)
 	  endif
 
-	  if( abs(Im(d)) .lt. eps ) then
+	  if( abs(Im(d)) .lt. zeroeps ) then
 	    case = 2
 	    logs = lnrat(x43(1), x43(3))**2 +
      &             lnrat(x43(2), x43(4))**2
