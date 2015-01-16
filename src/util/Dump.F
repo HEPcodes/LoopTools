@@ -1,15 +1,18 @@
 * Dump.F
 * dumps the parameters and coefficients on screen
 * this file is part of LoopTools
-* last modified 8 Dec 05 th
+* last modified 10 Sep 12 th
+
+#include "externals.h"
+#include "types.h"
 
 #include "defs.h"
 
 
-	subroutine XDumpPara(npoint, para, ldpara, origin)
+	subroutine XDumpPara(npoint, para, origin)
 	implicit none
-	integer npoint, ldpara
-	DVAR para(ldpara,*)
+	integer npoint
+	DVAR para(1,*)
 	character*(*) origin
 
 #include "lt.h"
@@ -23,12 +26,15 @@
 	data npara /Pbb, Pcc, Pdd, Pee/
 
 #ifdef COMPLEXPARA
-	if( len(origin) .gt. 1 ) print *, "C", origin, serial
+	if( len(origin) .gt. 1 ) print *, origin, "C", serial
 #else
 	if( len(origin) .gt. 1 ) print *, origin, serial
 #endif
 
-	do i = 1, npara(npoint)
+	do i = npoint + 1, npara(npoint)
+	  print *, "  ", paraname(i,npoint), "=", para(1,i)
+	enddo
+	do i = 1, npoint
 	  print *, "  ", paraname(i,npoint), "=", para(1,i)
 	enddo
 
@@ -40,7 +46,7 @@
 	subroutine XDumpCoeff(npoint, coeff)
 	implicit none
 	integer npoint
-	double complex coeff(*)
+	ComplexType coeff(*)
 
 #include "lt.h"
 

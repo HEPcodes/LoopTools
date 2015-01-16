@@ -2,33 +2,35 @@
 * the five-point tensor coefficients via Passarino-Veltman decomposition
 * this file is part of LoopTools
 * written by M. Rauch
-* last modified 15 Jul 11 th
+* last modified 9 Sep 12 th
 
+#include "externals.h"
+#include "types.h"
+
+#define npoint 5
 #include "defs.h"
 
 
-	subroutine XEcoeffb(para, E, ldpara)
+	subroutine XEcoeffb(E, para)
 	implicit none
-	integer ldpara
-	DVAR para(ldpara,Pee)
-	double complex E(Nee)
+	ComplexType E(*)
+	DVAR para(1,*)
 
 #include "lt.h"
 
 	memindex XDget
-	double complex XE0
-	external XDget, XE0
+	external XDget
 
 	DVAR p1, p2, p3, p4, p5
 	DVAR p1p2, p2p3, p3p4, p4p5, p5p1
 	DVAR m1, m2, m3, m4, m5
 
 	DVAR f1, f2, f3, f4
-	double complex di, d0sum
-	double complex d1i, d1sum, d2i, d2sum, dii
-	double complex d1ii, d2ii, diii
-	double complex d00sum, d22sum, d33sum
-	double complex in(4)
+	ComplexType di, d0sum
+	ComplexType d1i, d1sum, d2i, d2sum, dii
+	ComplexType d1ii, d2ii, diii
+	ComplexType d00sum, d22sum, d33sum
+	ComplexType in(4)
 	memindex Di1, Di2, Di3, Di4, Di5
 	logical dump
 
@@ -45,43 +47,21 @@
 #define SOLVE(b) XSolve(4, G,4, b)
 #endif
 
-	p1 = para(1,1)
-	p2 = para(1,2)
-	p3 = para(1,3)
-	p4 = para(1,4)
-	p5 = para(1,5)
-	p1p2 = para(1,6)
-	p2p3 = para(1,7)
-	p3p4 = para(1,8)
-	p4p5 = para(1,9)
-	p5p1 = para(1,10)
-	m1 = para(1,11)
-	m2 = para(1,12)
-	m3 = para(1,13)
-	m4 = para(1,14)
-	m5 = para(1,15)
-
-#ifdef COMPLEXPARA
-	if( abs(DIMAG(para(1,1))) +
-     &      abs(DIMAG(para(1,2))) +
-     &      abs(DIMAG(para(1,3))) +
-     &      abs(DIMAG(para(1,4))) +
-     &      abs(DIMAG(para(1,5))) +
-     &      abs(DIMAG(para(1,6))) +
-     &      abs(DIMAG(para(1,7))) +
-     &      abs(DIMAG(para(1,8))) +
-     &      abs(DIMAG(para(1,9))) +
-     &      abs(DIMAG(para(1,10))) .gt. 0 )
-     &    print *, "Complex momenta not implemented"
-	if( abs(DIMAG(para(1,11))) +
-     &      abs(DIMAG(para(1,12))) +
-     &      abs(DIMAG(para(1,13))) +
-     &      abs(DIMAG(para(1,14))) +   
-     &      abs(DIMAG(para(1,15))) .eq. 0 ) then
-	  call Ecoeffb(para, E, 2)
-	  return
-	endif
-#endif
+	m1 = M(1)
+	m2 = M(2)
+	m3 = M(3)
+	m4 = M(4)
+	m5 = M(5)
+	p1 = P(1)
+	p2 = P(2)
+	p3 = P(3)
+	p4 = P(4)
+	p5 = P(5)
+	p1p2 = P(6)
+	p2p3 = P(7)
+	p3p4 = P(8)
+	p4p5 = P(9)
+	p5p1 = P(10)
 
 	Di1 = XDget(p2, p3, p4, p5p1, p2p3, p3p4, m2, m3, m4, m5)
 	Di2 = XDget(p1p2, p3, p4, p5, p4p5, p3p4, m1, m3, m4, m5)
@@ -92,29 +72,49 @@
 	serial = serial + 1
 	dump = ibits(debugkey, DebugE, 1) .ne. 0 .and.
      &    serial .ge. debugfrom .and. serial .le. debugto
-	if( dump ) call XDumpPara(5, para, ldpara)
+	if( dump ) call XDumpPara(5, para)
 
-	f1 = QPREC(m2) - QPREC(m1) - QPREC(p1)
-	f2 = QPREC(m3) - QPREC(m1) - QPREC(p1p2)
-	f3 = QPREC(m4) - QPREC(m1) - QPREC(p4p5)
-	f4 = QPREC(m5) - QPREC(m1) - QPREC(p5)
+	f1 = m2
+	  f1 = f1 - m1
+	  f1 = f1 - p1
+	f2 = m3
+	  f2 = f2 - m1
+	  f2 = f2 - p1p2
+	f3 = m4
+	  f3 = f3 - m1
+	  f3 = f3 - p4p5
+	f4 = m5
+	  f4 = f4 - m1
+	  f4 = f4 - p5
 
 * build up G and calculate matrix decomposition and inverse Y
-	G(1,1) = 2*QPREC(p1)
-	G(2,2) = 2*QPREC(p1p2)
-	G(3,3) = 2*QPREC(p4p5)
-	G(4,4) = 2*QPREC(p5)
-	G(1,2) = QPREC(p1) + QPREC(p1p2) - QPREC(p2)
+	G(1,1) = 2*p1
+	G(2,2) = 2*p1p2
+	G(3,3) = 2*p4p5
+	G(4,4) = 2*p5
+	G(1,2) = p1
+	  G(1,2) = G(1,2) + p1p2
+	  G(1,2) = G(1,2) - p2
 	G(2,1) = G(1,2)
-	G(1,3) = QPREC(p1) - QPREC(p2p3) + QPREC(p4p5)
+	G(1,3) = p1
+	  G(1,3) = G(1,3) - p2p3
+	  G(1,3) = G(1,3) + p4p5
 	G(3,1) = G(1,3)
-	G(1,4) = QPREC(p1) - QPREC(p5p1) + QPREC(p5)
+	G(1,4) = p1
+	  G(1,4) = G(1,4) - p5p1
+	  G(1,4) = G(1,4) + p5
 	G(4,1) = G(1,4)
-	G(2,3) = QPREC(p1p2) - QPREC(p3) + QPREC(p4p5)
+	G(2,3) = p1p2
+	  G(2,3) = G(2,3) - p3
+	  G(2,3) = G(2,3) + p4p5
 	G(3,2) = G(2,3)
-	G(2,4) = QPREC(p1p2) - QPREC(p3p4) + QPREC(p5)
+	G(2,4) = p1p2
+	  G(2,4) = G(2,4) - p3p4
+	  G(2,4) = G(2,4) + p5
 	G(4,2) = G(2,4)
-	G(3,4) = QPREC(p5) + QPREC(p4p5) - QPREC(p4)
+	G(3,4) = p5
+	  G(3,4) = G(3,4) + p4p5
+	  G(3,4) = G(3,4) - p4
 	G(4,3) = G(3,4)
 	call SOLVE_SETUP
 
@@ -146,8 +146,7 @@
 	d33sum = Dval(dd33,Di1) +
      &    Dval(dd133,Di1) + Dval(dd233,Di1) + Dval(dd333,Di1)
 
-	E(ee0) = XE0(p1, p2, p3, p4, p5,
-     &    p1p2, p2p3, p3p4, p4p5, p5p1, m1, m2, m3, m4, m5)
+	call XE0para(E(ee0), para)
 
 	IN(1) = f1*E(ee0) - Dval(dd0,Di1) + Dval(dd0,Di2)
 	IN(2) = f2*E(ee0) - Dval(dd0,Di1) + Dval(dd0,Di3)

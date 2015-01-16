@@ -1,7 +1,9 @@
-* looptools.h
-* the header file for Fortran with all definitions for LoopTools
-* this file is part of LoopTools
-* last modified 1 Apr 11 th
+#if 0
+looptools.h
+the header file for Fortran with all definitions for LoopTools
+this file is part of LoopTools
+last modified 30 Dec 12 th
+#endif
 
 
 #ifndef LOOPTOOLS_H
@@ -17,6 +19,7 @@
 #define dbb1 8
 #define dbb00 9
 #define dbb11 10
+#define Nbb 10
 
 #define cc0 1
 #define cc1 2
@@ -40,6 +43,7 @@
 #define cc1122 20
 #define cc1222 21
 #define cc2222 22
+#define Ncc 22
 
 #define dd0 1
 #define dd1 2
@@ -121,6 +125,7 @@
 #define dd22333 78
 #define dd23333 79
 #define dd33333 80
+#define Ndd 80
 
 #define ee0 1
 #define ee1 2
@@ -208,6 +213,7 @@
 #define ee3344 84
 #define ee3444 85
 #define ee4444 86
+#define Nee 86
 
 #define KeyA0 2**0
 #define KeyBget 2**2
@@ -226,6 +232,12 @@
 #define DebugAll 15
 
 #define memindex integer*8
+#ifndef ComplexType
+#define ComplexType double complex
+#endif
+#ifndef RealType
+#define RealType double precision
+#endif
 
 #define Bval(id,p) cache(p+id,1)
 #define BvalC(id,p) cache(p+id,2)
@@ -244,21 +256,21 @@
 	integer ncaches
 	parameter (ncaches = 8)
 
-	double complex cache(2,ncaches)
+	ComplexType cache(2,ncaches)
 	common /ltvars/ cache
 
-	double complex A0, A0C, A00, A00C, B0i, B0iC
-	double complex B0, B1, B00, B11, B001, B111
-	double complex B0C, B1C, B00C, B11C, B001C, B111C
-	double complex DB0, DB1, DB00, DB11
-	double complex DB0C, DB1C, DB00C, DB11C
-	double complex C0, C0C, C0i, C0iC
-	double complex D0, D0C, D0i, D0iC
-	double complex E0, E0C, E0i, E0iC
-	double complex Li2, Li2C, Li2omx, Li2omxC
+	ComplexType A0, A0C, A00, A00C, B0i, B0iC
+	ComplexType B0, B1, B00, B11, B001, B111
+	ComplexType B0C, B1C, B00C, B11C, B001C, B111C
+	ComplexType DB0, DB1, DB00, DB11
+	ComplexType DB0C, DB1C, DB00C, DB11C
+	ComplexType C0, C0C, C0i, C0iC
+	ComplexType D0, D0C, D0i, D0iC
+	ComplexType E0, E0C, E0i, E0iC
+	ComplexType Li2, Li2C, Li2omx, Li2omxC
 	memindex Bget, BgetC, Cget, CgetC, Dget, DgetC, Eget, EgetC
-	double precision getmudim, getdelta, getlambda, getminmass
-	double precision getmaxdev
+	RealType getmudim, getdelta, getlambda, getminmass
+	RealType getmaxdev
 	integer getwarndigits, geterrdigits
 	integer getversionkey, getdebugkey
 	integer getcachelast

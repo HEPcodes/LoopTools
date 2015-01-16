@@ -3,7 +3,7 @@
 		caching of tensor coefficients in
 		dynamically allocated memory
 		this file is part of LoopTools
-		last modified 21 Sep 12 th
+		last modified 10 Sep 12 th
 */
 
 
@@ -34,11 +34,9 @@ typedef long long dblint;
 
 typedef unsigned long long udblint;
 
-typedef struct { dblint part[KIND]; } RealType;
+typedef struct { dblint part[KIND]; } Real;
 
-typedef const RealType cRealType;
-
-typedef struct { RealType re, im; } ComplexType;
+typedef struct { Real re, im; } Complex;
 
 
 typedef long long memindex;
@@ -68,24 +66,44 @@ static inline memindex PtrDiff(const void *a, const void *b)
 }
 
 
-static dblint CmpPara(cRealType *para1, cRealType *para2,
-  int n, const dblint mask)
+#define DEB(...) fprintf(stderr, __VA_ARGS__)
+
+static void pr(const char *l, const Real *r, int n)
 {
+  char s[1024], *p = s;
+  p += sprintf(p, "%s", l);
+  while( n-- ) {
+    const dblint c = (r++)->part[MSB];
+    p += sprintf(p, "  %.15lg", *(double *)&c);
+  }
+  DEB("%s\n", s);
+}
+
+static dblint CmpPara(const Real *para1, const Real *para2, int n,
+  const dblint mask)
+{
+const Real *p2 = para2;
+int n2 = n;
   while( n-- ) {
     const dblint c = (mask & para1->part[MSB]) -
                      (mask & para2->part[MSB]);
-    if( c ) return c;
+//DEB("cmp: p1=%llx p2=%llx\n", mask & para1->part[MSB], mask & para2->part[MSB]);
+    if( c ) {
+pr("\e[1m\e[31mno\e[0m   ", p2, n2);
+      return c;
+    }
     ++para1;
     ++para2;
   }
+pr("\e[1m\e[32myes\e[0m  ", p2, n2);
   return 0;
 }
 
 
 #if KIND == 2
 
-static dblint CmpParaLo(cRealType *para1, cRealType *para2,
-  int n, const dblint mask)
+static dblint CmpParaLo(const Real *para1, const Real *para2, int n,
+  const dblint mask)
 {
   while( n-- ) {
     dblint c = para1->part[MSB] - para2->part[MSB];
@@ -101,14 +119,14 @@ static dblint CmpParaLo(cRealType *para1, cRealType *para2,
 #endif
 
 
-static void *Lookup(cRealType *para, double *base,
-  void (*calc)(RealType *, cRealType *),
+static void *Lookup(const Real *para, double *base,
+  void (*calc)(Real *, const Real *),
   const int npara, const int nval)
 {
   typedef struct node {
     struct node *next[2], *succ;
     int serial;
-    RealType para[2];
+    Real para[2];
   } Node;
 
 #define base_valid (int *)&base[0]
@@ -120,12 +138,14 @@ static void *Lookup(cRealType *para, double *base,
   Node **next = base_first;
   Node *node;
 
+pr("\n\e[1m\e[34mfind\e[0m ", para, npara);
+
   if( last == NULL ) last = next;
 
   if( ltcache_.cmpbits > 0 ) {
     dblint mask = -(1ULL << IDim(64 - ltcache_.cmpbits));
 #if KIND == 2
-    dblint (*cmp)(cRealType *, cRealType *, int, const dblint) = CmpPara;
+    dblint (*cmp)(const Real *, const Real *, int, const dblint) = CmpPara;
     if( ltcache_.cmpbits >= 64 ) {
       mask = -(1ULL << IDim(128 - ltcache_.cmpbits));
       cmp = CmpParaLo;
@@ -144,13 +164,13 @@ static void *Lookup(cRealType *para, double *base,
   node = *last;
 
   if( node == NULL ) {
-	/* The "RealType para[2]" bit in Node is effectively an extra
+	/* The "Real para[2]" bit in Node is effectively an extra
 	   Complex for alignment so that node can be reached with
 	   an integer index into base */
     assert( node = malloc(sizeof(Node) +
-      npara*sizeof(RealType) + nval*sizeof(ComplexType)) );
+      npara*sizeof(Real) + nval*sizeof(Complex)) );
     node = (Node *)((char *)node +
-      (PtrDiff(base, &node->para[npara]) & (sizeof(ComplexType) - 1)));
+      (PtrDiff(base, &node->para[npara]) & (sizeof(Complex) - 1)));
     node->succ = NULL;
     node->serial = valid;
     *last = node;
@@ -163,27 +183,28 @@ static void *Lookup(cRealType *para, double *base,
   node->next[0] = NULL;
   node->next[1] = NULL;
 
-  memcpy(node->para, para, npara*sizeof(RealType));
+  memcpy(node->para, para, npara*sizeof(Real));
   calc(&node->para[npara], para);
 
   return &node->para[npara];
 }
 
 
-memindex cacheindex_(cRealType *para, double *base,
-  void (*calc)(RealType *, cRealType *),
+memindex cacheindex_(const Real *para, double *base,
+  void (*calc)(Real *, const Real *),
   const int *pnpara, const int *pnval)
 {
-  ComplexType *val = Lookup(para, base, calc, *pnpara, *pnval);
-  return PtrDiff(val, base)/(long)sizeof(ComplexType);
+  Complex *val = Lookup(para, base, calc, *pnpara, *pnval);
+  return PtrDiff(val, base)/(long)sizeof(Complex);
 }
 
 
-void cachecopy_(ComplexType *dest, cRealType *para, double *base,
-  void (*calc)(RealType *, cRealType *),
+void cachecopy_(Complex *dest, const Real *para, double *base,
+  void (*calc)(Real *, const Real *),
   const int *pnpara, const int *pnval)
 {
-  ComplexType *val = Lookup(para, base, calc, *pnpara, *pnval);
+  Complex *val = Lookup(para, base, calc, *pnpara, *pnval);
+  val = Lookup(para, base, calc, *pnpara, *pnval);
   memcpy(dest, val, *pnval*sizeof *dest);
 }
 

@@ -2,29 +2,31 @@
 * the five-point tensor coefficients
 * this file is part of LoopTools
 * written by M. Rauch
-* last modified 15 Jul 11 th
+* last modified 7 Oct 12 th
 
+#include "externals.h"
+#include "types.h"
+
+#define npoint 5
 #include "defs.h"
 
 
-	subroutine XEcoeffa(para, E, ldpara)
+	subroutine XEcoeffa(E, para)
 	implicit none
-	integer ldpara
-	DVAR para(ldpara,Pee)
-	double complex E(Nee)
+	ComplexType E(*)
+	DVAR para(1,*)
 
 #include "lt.h"
 
 	memindex XDget
-	double complex XE0
-	external XDget, XE0
+	external XDget
 
 	DVAR p1, p2, p3, p4, p5
 	DVAR p1p2, p2p3, p3p4, p4p5, p5p1
 	DVAR m1, m2, m3, m4, m5
 	QVAR Y(5,5), Yi(5,5), Z(4,4), Zij(3,3)
 	QVAR eta(5), zeta(4,4), detY, detZ
-	double precision del, del4
+	RealType del, del4
 	integer i, j, k, l, finite
 	memindex Di1, Di2, Di3, Di4, Di5
 	logical dump
@@ -33,64 +35,42 @@
 	equivalence (Y, Yflat)
 	equivalence (Yi, Yiflat)
 
-	double complex help1, help2, help3, help4
-	double complex dabbr41, dabbr48, dabbr65, dabbr60, dabbr55
-	double complex dabbr50, dabbr49, dabbr45, dabbr42, dabbr10
-	double complex dabbr84, dabbr91, dabbr81, dabbr52, dabbr88
-	double complex dabbr77, dabbr90, dabbr46, dabbr87, dabbr74
-	double complex dabbr80, dabbr71, dabbr83, dabbr76, dabbr79
-	double complex dabbr43, dabbr70, dabbr73, dabbr35, dabbr37
-	double complex dabbr39, dabbr27, dabbr31, dabbr24, dabbr20
-	double complex dabbr16, dabbr30, dabbr13, dabbr23, dabbr26
-	double complex dabbr5, dabbr7, dabbr9, dabbr33, dabbr92
-	double complex dabbr89, dabbr86, dabbr85, dabbr82, dabbr78
-	double complex dabbr75, dabbr72, dabbr69, dabbr68, dabbr38
-	double complex dabbr36, dabbr34, dabbr32, dabbr29, dabbr28
-	double complex dabbr25, dabbr22, dabbr21, dabbr3, dabbr8
-	double complex dabbr6, dabbr4, dabbr1, dabbr61, dabbr66
-	double complex dabbr57, dabbr47, dabbr51, dabbr64, dabbr44
-	double complex dabbr56, dabbr59, dabbr14, dabbr17, dabbr19
-	double complex dabbr67, dabbr63, dabbr62, dabbr58, dabbr54
-	double complex dabbr53, dabbr11, dabbr18, dabbr15, dabbr12
-	double complex dabbr2, dabbr40
+	ComplexType help1, help2, help3, help4
+	ComplexType dabbr41, dabbr48, dabbr65, dabbr60, dabbr55
+	ComplexType dabbr50, dabbr49, dabbr45, dabbr42, dabbr10
+	ComplexType dabbr84, dabbr91, dabbr81, dabbr52, dabbr88
+	ComplexType dabbr77, dabbr90, dabbr46, dabbr87, dabbr74
+	ComplexType dabbr80, dabbr71, dabbr83, dabbr76, dabbr79
+	ComplexType dabbr43, dabbr70, dabbr73, dabbr35, dabbr37
+	ComplexType dabbr39, dabbr27, dabbr31, dabbr24, dabbr20
+	ComplexType dabbr16, dabbr30, dabbr13, dabbr23, dabbr26
+	ComplexType dabbr5, dabbr7, dabbr9, dabbr33, dabbr92
+	ComplexType dabbr89, dabbr86, dabbr85, dabbr82, dabbr78
+	ComplexType dabbr75, dabbr72, dabbr69, dabbr68, dabbr38
+	ComplexType dabbr36, dabbr34, dabbr32, dabbr29, dabbr28
+	ComplexType dabbr25, dabbr22, dabbr21, dabbr3, dabbr8
+	ComplexType dabbr6, dabbr4, dabbr1, dabbr61, dabbr66
+	ComplexType dabbr57, dabbr47, dabbr51, dabbr64, dabbr44
+	ComplexType dabbr56, dabbr59, dabbr14, dabbr17, dabbr19
+	ComplexType dabbr67, dabbr63, dabbr62, dabbr58, dabbr54
+	ComplexType dabbr53, dabbr11, dabbr18, dabbr15, dabbr12
+	ComplexType dabbr2, dabbr40
 
-#ifdef COMPLEXPARA
-	if( abs(DIMAG(para(1,1))) +
-     &      abs(DIMAG(para(1,2))) +
-     &      abs(DIMAG(para(1,3))) +
-     &      abs(DIMAG(para(1,4))) +
-     &      abs(DIMAG(para(1,5))) +
-     &      abs(DIMAG(para(1,6))) +
-     &      abs(DIMAG(para(1,7))) +
-     &      abs(DIMAG(para(1,8))) +
-     &      abs(DIMAG(para(1,9))) +
-     &      abs(DIMAG(para(1,10))) .gt. 0 )
-     &    print *, "Complex momenta not implemented"
-	if( abs(DIMAG(para(1,11))) +
-     &      abs(DIMAG(para(1,12))) +
-     &      abs(DIMAG(para(1,13))) +
-     &      abs(DIMAG(para(1,14))) +
-     &      abs(DIMAG(para(1,15))) .eq. 0 ) then
-	  call Ecoeffa(para, E, 2)
-	  return
-	endif
-#endif
-
-	p1 = para(1,1)
-	p2 = para(1,2)
-	p3 = para(1,3)
-	p4 = para(1,4)
-	p5 = para(1,5)
-	p1p2 = para(1,6)
-	p2p3 = para(1,7)
-	p3p4 = para(1,8)
-	p4p5 = para(1,9)
-	p5p1 = para(1,10)
-	m1 = para(1,11)
-	m2 = para(1,12)
-	m3 = para(1,13)
-	m4 = para(1,14)
-	m5 = para(1,15)
+	m1 = M(1)
+	m2 = M(2)
+	m3 = M(3)
+	m4 = M(4)
+	m5 = M(5)
+	p1 = P(1)
+	p2 = P(2)
+	p3 = P(3)
+	p4 = P(4)
+	p5 = P(5)
+	p1p2 = P(6)
+	p2p3 = P(7)
+	p3p4 = P(8)
+	p4p5 = P(9)
+	p5p1 = P(10)
 
 	finite = 0
 	if( lambda .ge. 0 ) then
@@ -102,7 +82,6 @@
 	del4 = .25D0*del
 
 	Di1 = XDget(p2, p3, p4, p5p1, p2p3, p3p4, m2, m3, m4, m5)
-	Di1 = XDget(p2, p3, p4, p5p1, p2p3, p3p4, m2, m3, m4, m5)
 	Di2 = XDget(p1p2, p3, p4, p5, p4p5, p3p4, m1, m3, m4, m5)
 	Di3 = XDget(p1, p2p3, p4, p5, p4p5, p5p1, m1, m2, m4, m5)
 	Di4 = XDget(p1, p2, p3p4, p5, p1p2, p5p1, m1, m2, m3, m5)
@@ -111,32 +90,52 @@
 	serial = serial + 1
 	dump = ibits(debugkey, DebugE, 1) .ne. 0 .and.
      &    serial .ge. debugfrom .and. serial .le. debugto
-	if( dump ) call XDumpPara(5, para, ldpara, "Ecoeffa")
+	if( dump ) call XDumpPara(5, para, "Ecoeffa")
 
-	Y(1,1) = 2*QPREC(m1)
-	Y(2,2) = 2*QPREC(m2)
-	Y(3,3) = 2*QPREC(m3)
-	Y(4,4) = 2*QPREC(m4)
-	Y(5,5) = 2*QPREC(m5)
-	Y(1,2) = QPREC(m1) + QPREC(m2) - QPREC(p1)
+	Y(1,1) = 2*m1
+	Y(2,2) = 2*m2
+	Y(3,3) = 2*m3
+	Y(4,4) = 2*m4
+	Y(5,5) = 2*m5
+	Y(1,2) = m1
+	  Y(1,2) = Y(1,2) + m2
+	  Y(1,2) = Y(1,2) - p1
 	Y(2,1) = Y(1,2)
-	Y(1,3) = QPREC(m1) + QPREC(m3) - QPREC(p1p2)
+	Y(1,3) = m1
+	  Y(1,3) = Y(1,3) + m3
+	  Y(1,3) = Y(1,3) - p1p2
 	Y(3,1) = Y(1,3)
-	Y(1,4) = QPREC(m1) + QPREC(m4) - QPREC(p4p5)
+	Y(1,4) = m1
+	  Y(1,4) = Y(1,4) + m4
+	  Y(1,4) = Y(1,4) - p4p5
 	Y(4,1) = Y(1,4)
-	Y(1,5) = QPREC(m1) + QPREC(m5) - QPREC(p5)
+	Y(1,5) = m1
+	  Y(1,5) = Y(1,5) + m5
+	  Y(1,5) = Y(1,5) - p5
 	Y(5,1) = Y(1,5)
-	Y(2,3) = QPREC(m2) + QPREC(m3) - QPREC(p2)
+	Y(2,3) = m2
+	  Y(2,3) = Y(2,3) + m3
+	  Y(2,3) = Y(2,3) - p2
 	Y(3,2) = Y(2,3)
-	Y(2,4) = QPREC(m2) + QPREC(m4) - QPREC(p2p3)
+	Y(2,4) = m2
+	  Y(2,4) = Y(2,4) + m4
+	  Y(2,4) = Y(2,4) - p2p3
 	Y(4,2) = Y(2,4)
-	Y(2,5) = QPREC(m2) + QPREC(m5) - QPREC(p5p1)
+	Y(2,5) = m2
+	  Y(2,5) = Y(2,5) + m5
+	  Y(2,5) = Y(2,5) - p5p1
 	Y(5,2) = Y(2,5)
-	Y(3,4) = QPREC(m3) + QPREC(m4) - QPREC(p3)
+	Y(3,4) = m3
+	  Y(3,4) = Y(3,4) + m4
+	  Y(3,4) = Y(3,4) - p3
 	Y(4,3) = Y(3,4)
-	Y(3,5) = QPREC(m3) + QPREC(m5) - QPREC(p3p4)
+	Y(3,5) = m3
+	  Y(3,5) = Y(3,5) + m5
+	  Y(3,5) = Y(3,5) - p3p4
 	Y(5,3) = Y(3,5)
-	Y(4,5) = QPREC(m4) + QPREC(m5) - QPREC(p4)
+	Y(4,5) = m4
+	  Y(4,5) = Y(4,5) + m5
+	  Y(4,5) = Y(4,5) - p4
 	Y(5,4) = Y(4,5)
 
 * calculate the Y(i), their determinants, and eta(i)
@@ -157,21 +156,33 @@
 	  eta(i) = eta(i)/detY
 	enddo
 
-	Z(1,1) = 2*QPREC(p1)
-	Z(2,2) = 2*QPREC(p1p2)
-	Z(3,3) = 2*QPREC(p4p5)
-	Z(4,4) = 2*QPREC(p5)
-	Z(1,2) = QPREC(p1) + QPREC(p1p2) - QPREC(p2)
+	Z(1,1) = 2*p1
+	Z(2,2) = 2*p1p2
+	Z(3,3) = 2*p4p5
+	Z(4,4) = 2*p5
+	Z(1,2) = p1
+	  Z(1,2) = Z(1,2) + p1p2
+	  Z(1,2) = Z(1,2) - p2
 	Z(2,1) = Z(1,2)
-	Z(1,3) = QPREC(p1) - QPREC(p2p3) + QPREC(p4p5)
+	Z(1,3) = p1
+	  Z(1,3) = Z(1,3) - p2p3
+	  Z(1,3) = Z(1,3) + p4p5
 	Z(3,1) = Z(1,3)
-	Z(1,4) = QPREC(p1) - QPREC(p5p1) + QPREC(p5)
+	Z(1,4) = p1
+	  Z(1,4) = Z(1,4) - p5p1
+	  Z(1,4) = Z(1,4) + p5
 	Z(4,1) = Z(1,4)
-	Z(2,3) = QPREC(p1p2) - QPREC(p3) + QPREC(p4p5)
+	Z(2,3) = p1p2
+	  Z(2,3) = Z(2,3) - p3
+	  Z(2,3) = Z(2,3) + p4p5
 	Z(3,2) = Z(2,3)
-	Z(2,4) = QPREC(p1p2) - QPREC(p3p4) + QPREC(p5)
+	Z(2,4) = p1p2
+	  Z(2,4) = Z(2,4) - p3p4
+	  Z(2,4) = Z(2,4) + p5
 	Z(4,2) = Z(2,4)
-	Z(3,4) = QPREC(p5) + QPREC(p4p5) - QPREC(p4)
+	Z(3,4) = p5
+	  Z(3,4) = Z(3,4) + p4p5
+	  Z(3,4) = Z(3,4) - p4
 	Z(4,3) = Z(3,4)
 
 * calculate the zeta(i,j)
@@ -410,8 +421,7 @@
      &   6*Dval(dd2233,Di1) + 4*Dval(dd2333,Di1) + 
      &   Dval(dd3333,Di1)
 
-	E(ee0) = XE0(p1, p2, p3, p4, p5, p1p2, p2p3, p3p4,
-     &    p4p5, p5p1, m1, m2, m3, m4, m5)
+	call XE0para(E(ee0), para)
 
 	E(ee1) = dabbr1*eta(1) - eta(3)*Dval(dd1,Di3) - 
      &   eta(4)*Dval(dd1,Di4) - eta(5)*Dval(dd1,Di5) + 

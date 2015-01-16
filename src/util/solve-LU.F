@@ -8,6 +8,8 @@
 * Reference: Folkmar Bornemann, lecture notes to
 * Numerische Mathematik 1, Technical University, Munich, Germany
 
+#include "externals.h"
+#include "types.h"
 #include "defs.h"
 
 #define EPS 2D0**(-51)
@@ -112,10 +114,10 @@
 	implicit none
 	integer n, ldA
 	QVAR A(ldA,*)
-	double complex b(*)
+	ComplexType b(*)
 
 	integer i, j
-	double complex tmp
+	ComplexType tmp
 
 * forward substitution L.y = b
 	do i = 1, n

@@ -8,28 +8,29 @@
 * Please cite arXiV:0902.0325 [hep-ph] if you use this function.
 
 #include "externals.h"
+#include "types.h"
 
 
 	subroutine ffd0c(cd0c, cpi, key, ier)
 	implicit none
-	double complex cd0c, cpi(10)
+	ComplexType cd0c, cpi(10)
 	integer key, ier
 
 #include "ff.h"
 #include "perm.h"
 
 	integer o
-	double precision ra, rb, rg, rc, rh, rj
-	double precision d, a
-	double complex cd, ce, ck, cfx
+	RealType ra, rb, rg, rc, rh, rj
+	RealType d, a
+	ComplexType cd, ce, ck, cfx
 
-	double precision signf
+	RealType signf
 	parameter (signf = -1)
 
-	double complex ffT13, ffTn
+	ComplexType ffT13, ffTn
 	external ffT13, ffTn
 
-#define PP(i) DBLE(cpi(i+4))
+#define PP(i) Re(cpi(i+4))
 #define LightLike(i) abs(PP(i)) .lt. precx
 
 * 2 lightlike momenta

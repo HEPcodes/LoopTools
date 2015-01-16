@@ -150,11 +150,11 @@
 
 \hfill\hbox{\underline{%
 \vrule width 0pt height 0pt depth 2ex%
-\Huge \LT~2.7~~~User's Guide}}
+\Huge \LT~2.8~~~User's Guide}}
 
 \vspace*{1ex}
 
-\hfill\hbox{March 7, 2012~~~~~Thomas Hahn}
+\hfill\hbox{September 18, 2012~~~~~Thomas Hahn}
 
 \clearpage
 
@@ -183,20 +183,18 @@ somewhere in your publication that you've used
 our code.
 
 If you're a lawyer, you will rejoice at the exact wording of the license 
-at \Code{http://www.fsf.org/copyleft/lgpl.html}.
+at \Code{http://gnu.org/licenses/lgpl.html}.
 
-\LT\ is available from \Code{http://www.feynarts.de/looptools}.
+\LT\ is available from \Code{http://feynarts.de/looptools}.
 
-\FC\ is available from \Code{http://www.feynarts.de/formcalc}.
+\FC\ is available from \Code{http://feynarts.de/formcalc}.
 
-\FA\ is available from \Code{http://www.feynarts.de}.
+\FA\ is available from \Code{http://feynarts.de}.
 
-\FF\ is available from \Code{ftp://ftp.nikhef.nl/pub/ff/FF.html}.
+\FF\ is available from \Code{http://gjvo.home.xs4all.nl/FF.html}.
 
 If you make this software available to others please provide them with
-this manual, too. There exists a mailing list where updates will be
-announced. To subscribe to this list, send a mail (any text) to
-\Code{hahn-looptools-subscribe@particle.uni-karlsruhe.de}.
+this manual, too.
 
 If you find any bugs, or want to make suggestions, or just write fan mail,
 address it to:
@@ -571,6 +569,8 @@ $} \\[3ex]
 
 \indextt{Bget}%
 \indextt{BgetC}%
+\indextt{Bput}%
+\indextt{BputC}%
 \indextt{B0i}%
 \indextt{B0iC}%
 \indextt{B0}%
@@ -591,6 +591,8 @@ Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
 \Code{B0i(id, \Va)} & \Code{B0iC(id, \Va)} &
 	two-point tensor coefficient \Code{id} \\
 \Code{Bget(\Va)} & \Code{BgetC(\Va)} &
+	all two-point tensor coefficients \\
+\Code{Bput(res,\,\Va)} & \Code{BputC(res,\,\Va)} &
 	all two-point tensor coefficients \\
 \textit{special cases:} && \\
 \Code{B0(\Va)} & \Code{B0C(\Va)} &
@@ -643,6 +645,8 @@ Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
 	two-point tensor coefficient \Code{id} \\
 \Code{Bget(\Va)} & \Code{BgetC(\Va)} &
 	all two-point tensor coefficients \\
+\Code{Bput(res,\,\Va)} & \Code{BputC(res,\,\Va)} &
+	all two-point tensor coefficients \\
 \textit{special cases:} && \\
 \Code{DB0(\Va)} & \Code{DB0C(\Va)} &
 	derivative of \Code{B0} \\
@@ -662,8 +666,8 @@ Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
 \end{tabular}
 \end{center}
 All derivatives are with respect to the momentum squared.  Note that
-the \Code{B0i} and \Code{Bget} coefficients include the derivatives,
-so there is no \Code{DB0i} or \Code{DBget}.
+the \Code{B0i}, \Code{Bget}, and \Code{Bput} coefficients include the 
+derivatives, so there is no \Code{DB0i}, \Code{DBget}, or \Code{DBput}.
 
 
 \subsection{Three-point functions}
@@ -672,12 +676,15 @@ so there is no \Code{DB0i} or \Code{DBget}.
 \indextt{C0}%
 \indextt{C0i}%
 \indextt{Cget}%
+\indextt{Cput}%
 \begin{center}
 \begin{tabular}{|l|l|l|} \hline
 Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
 \Code{C0i(id, \Va)} & \Code{C0iC(id, \Va)} &
 	three-point tensor coefficient \Code{id} \\
 \Code{Cget(\Va)} & \Code{CgetC(\Va)} &
+	all three-point tensor coefficients \\
+\Code{Cput(res,\,\Va)} & \Code{CputC(res,\,\Va)} &
 	all three-point tensor coefficients \\
 \textit{special case:} && \\
 \Code{C0(\Va)} & \Code{C0C(\Va)} &
@@ -724,12 +731,16 @@ $} \\[12ex]
 \indextt{D0iC}%
 \indextt{Dget}%
 \indextt{DgetC}%
+\indextt{Dput}%
+\indextt{DputC}%
 \begin{center}
 \begin{tabular}{|l|l|l|} \hline
 Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
 \Code{D0i(id, \Va)} & \Code{D0iC(id, \Va)} &
 	four-point tensor coefficient \Code{id} \\
 \Code{Dget(\Va)} & \Code{DgetC(\Va)} &
+	all four-point tensor coefficients \\
+\Code{Dput(res,\,\Va)} & \Code{DputC(res,\,\Va)} &
 	all four-point tensor coefficients \\
 \textit{special case:} && \\
 \Code{D0(\Va)} & \Code{D0C(\Va)} &
@@ -784,12 +795,16 @@ $} \\[11ex]
 \indextt{E0iC}%
 \indextt{Eget}%
 \indextt{EgetC}%
+\indextt{Eput}%
+\indextt{EputC}%
 \begin{center}
 \begin{tabular}{|l|l|l|} \hline
 Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
 \Code{E0i(id, \Va)} & \Code{E0iC(id, \Va)} &
 	five-point tensor coefficient \Code{id} \\
 \Code{Eget(\Va)} & \Code{EgetC(\Va)} &
+	all four-point tensor coefficients \\
+\Code{Eput(res,\,\Va)} & \Code{EputC(res,\,\Va)} &
 	all four-point tensor coefficients \\
 \textit{special case:} && \\
 \Code{E0(\Va)} & \Code{E0C(\Va)} &
@@ -881,6 +896,12 @@ The ``\Code{$N$get}'' functions (\Code{Bget}, \Code{Cget}, etc.) compute
 all $N$-point coefficients together.  Their use is slightly more involved
 (one needs to keep track of an extra index) but results in faster code 
 since only one cache lookup is needed, and not one for every coefficient.
+
+The ``\Code{$N$put}'' subroutines (\Code{Bput}, \Code{Cput}, etc.) have
+the same functionality as the \Code{$N$get} functions but allow the user
+control over the storage location, \ie the first argument is a complex
+array of dimension \Code{Nbb}, \Code{Ncc}, \dots\ into which the 
+coefficients are stored.  This is important \eg for parallel execution.
 
 
 \subsection{Cache Mechanism}
@@ -974,7 +995,8 @@ Configure as usual, then run make as
 where the makefile is one of the following:
 \begin{center}
 \begin{tabular}{lll}
-Alpha & HP Tru64 Unix & \Code{makefile.quad-alpha} \\
+gfortran & 4.6+, all platforms & \Code{makefile.quad-gfortran} \\
+f77 & HP Tru64 Unix & \Code{makefile.quad-alpha} \\
 ifort & Linux, Mac OS & \Code{makefile.quad-ifort} \\
 xlf & IBM RS6000, Mac OS (PPC) & \Code{makefile.quad-xlf}
 \end{tabular}

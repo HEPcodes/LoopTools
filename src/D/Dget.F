@@ -2,8 +2,12 @@
 * retrieve the four-point tensor coefficients
 * this file is part of LoopTools
 * improvements by M. Rauch
-* last modified 15 Jul 11 th
+* last modified 13 Sep 12 th
 
+#include "externals.h"
+#include "types.h"
+
+#define npoint 4
 #include "defs.h"
 
 
@@ -15,32 +19,100 @@
 
 #include "lt.h"
 
-	memindex cachelookup
-	external cachelookup, XDcoeff
+	memindex cacheindex
+	external cacheindex, XDcoeff
 
-	DVAR para(Pdd)
+#ifdef COMPLEXPARA
+	memindex Dget
+	external Dget
+#endif
 
-	para(1) = p1
-	para(2) = p2
-	para(3) = p3
-	para(4) = p4
-	para(5) = p1p2
-	para(6) = p2p3
-	para(7) = m1
-	if( abs(para(7)) .lt. minmass ) para(7) = 0
-	para(8) = m2
-	if( abs(para(8)) .lt. minmass ) para(8) = 0
-	para(9) = m3
-	if( abs(para(9)) .lt. minmass ) para(9) = 0
-	para(10) = m4
-	if( abs(para(10)) .lt. minmass ) para(10) = 0
+	DVAR para(1,Pdd+3)
 
-	XDget = cachelookup(para, Dval(1,0), XDcoeff, RC*Pdd, Ndd)
+	P(1) = p1
+	P(2) = p2
+	P(3) = p3
+	P(4) = p4
+	P(5) = p1p2
+	P(6) = p2p3
+#ifdef COMPLEXPARA
+	if( abs(Im(P(1))) + abs(Im(P(2))) +
+     &      abs(Im(P(3))) + abs(Im(P(4))) +
+     &      abs(Im(P(5))) + abs(Im(P(6))) .gt. 0 )
+     &    print *, "DgetC: Complex momenta not implemented"
+#endif
+
+	M(1) = m1
+	if( abs(M(1)) .lt. minmass ) M(1) = 0
+	M(2) = m2
+	if( abs(M(2)) .lt. minmass ) M(2) = 0
+	M(3) = m3
+	if( abs(M(3)) .lt. minmass ) M(3) = 0
+	M(4) = m4
+	if( abs(M(4)) .lt. minmass ) M(4) = 0
+#ifdef COMPLEXPARA
+	if( abs(Im(M(1))) + abs(Im(M(2))) +
+     &      abs(Im(M(3))) + abs(Im(M(4))) .eq. 0 ) then
+	  XDget = Dget(p1, p2, p3, p4, p1p2, p2p3,
+     &      m1, m2, m3, m4) - offsetC
+	  return
+	endif
+#endif
+
+	XDget = cacheindex(para, Dval(1,0), XDcoeff, RC*Pdd, Ndd)
 	end
 
 ************************************************************************
 
-	double complex function XD0i(i, p1, p2, p3, p4, p1p2, p2p3,
+	subroutine XDput(res, p1, p2, p3, p4, p1p2, p2p3,
+     &    m1, m2, m3, m4)
+	implicit none
+	ComplexType res(*)
+	DVAR p1, p2, p3, p4, p1p2, p2p3
+	DVAR m1, m2, m3, m4
+
+#include "lt.h"
+
+	external XDcoeff
+
+	DVAR para(1,Pdd+3)
+
+	P(1) = p1
+	P(2) = p2
+	P(3) = p3
+	P(4) = p4
+	P(5) = p1p2
+	P(6) = p2p3
+#ifdef COMPLEXPARA
+	if( abs(Im(P(1))) + abs(Im(P(2))) +
+     &      abs(Im(P(3))) + abs(Im(P(4))) +
+     &      abs(Im(P(5))) + abs(Im(P(6))) .gt. 0 )
+     &    print *, "DputC: Complex momenta not implemented"
+#endif
+
+	M(1) = m1
+	if( abs(M(1)) .lt. minmass ) M(1) = 0
+	M(2) = m2
+	if( abs(M(2)) .lt. minmass ) M(2) = 0
+	M(3) = m3
+	if( abs(M(3)) .lt. minmass ) M(3) = 0
+	M(4) = m4
+	if( abs(M(4)) .lt. minmass ) M(4) = 0
+#ifdef COMPLEXPARA
+	if( abs(Im(M(1))) + abs(Im(M(2))) +
+     &      abs(Im(M(3))) + abs(Im(M(4))) .eq. 0 ) then
+	  call Dput(res, p1, p2, p3, p4, p1p2, p2p3,
+     &      m1, m2, m3, m4)
+	  return
+	endif
+#endif
+
+	call cachecopy(res, para, Dval(1,0), XDcoeff, RC*Pdd, Ndd)
+	end
+
+************************************************************************
+
+	ComplexType function XD0i(i, p1, p2, p3, p4, p1p2, p2p3,
      &    m1, m2, m3, m4)
 	implicit none
 	integer i
@@ -60,24 +132,22 @@
 
 ************************************************************************
 
-	subroutine XDcoeff(para, D, ldpara)
+	subroutine XDcoeff(D, para)
 	implicit none
-	integer ldpara
-	DVAR para(ldpara,Pdd)
-	double complex D(Ndd)
+	ComplexType D(*)
+	DVAR para(1,*)
 
 #include "lt.h"
 
 	memindex XCget
-	double complex XD0
-	external XCget, XD0
+	external XCget
 
 	DVAR p1, p2, p3, p4, p1p2, p2p3, m1, m2, m3, m4
 	DVAR f1, f2, f3
 	QVAR G(3,3)
-	double complex c0sum, c1sum, c2sum, csum
-	double complex c00sum, c11sum, c12sum, c22sum
-	double complex in(3)
+	ComplexType c0sum, c1sum, c2sum, csum
+	ComplexType c00sum, c11sum, c12sum, c22sum
+	ComplexType in(3)
 	integer finite
 	memindex C234, C134, C124, C123
 	logical dump
@@ -93,33 +163,16 @@
 #define SOLVE(b) XSolve(3, G,3, b)
 #endif
 
-#ifdef COMPLEXPARA
-	if( abs(DIMAG(para(1,1))) +
-     &      abs(DIMAG(para(1,2))) +
-     &      abs(DIMAG(para(1,3))) +
-     &      abs(DIMAG(para(1,4))) +
-     &      abs(DIMAG(para(1,5))) +
-     &      abs(DIMAG(para(1,6))) .gt. 0 )
-     &    print *, "Complex momenta not implemented"
-	if( abs(DIMAG(para(1,7))) +
-     &      abs(DIMAG(para(1,8))) +
-     &      abs(DIMAG(para(1,9))) +
-     &      abs(DIMAG(para(1,10))) .eq. 0 ) then
-	  call Dcoeff(para, D, 2)
-	  return
-	endif
-#endif
-
-	p1 = para(1,1)
-	p2 = para(1,2)
-	p3 = para(1,3)
-	p4 = para(1,4)
-	p1p2 = para(1,5)
-	p2p3 = para(1,6)
-	m1 = para(1,7)
-	m2 = para(1,8)
-	m3 = para(1,9)
-	m4 = para(1,10)
+	m1 = M(1)
+	m2 = M(2)
+	m3 = M(3)
+	m4 = M(4)
+	p1 = P(1)
+	p2 = P(2)
+	p3 = P(3)
+	p4 = P(4)
+	p1p2 = P(5)
+	p2p3 = P(6)
 
 	finite = 1
 	if( lambda .lt. 0 ) finite = 0
@@ -132,20 +185,32 @@
 	serial = serial + 1
 	dump = ibits(debugkey, DebugD, 1) .ne. 0 .and.
      &    serial .ge. debugfrom .and. serial .le. debugto
-	if( dump ) call XDumpPara(4, para, ldpara, "Dcoeff")
+	if( dump ) call XDumpPara(4, para, "Dcoeff")
 
-	f1 = QPREC(m2) - QPREC(m1) - QPREC(p1)
-	f2 = QPREC(m3) - QPREC(m1) - QPREC(p1p2)
-	f3 = QPREC(m4) - QPREC(m1) - QPREC(p4)
+	f1 = m2
+	  f1 = f1 - m1
+	  f1 = f1 - p1
+	f2 = m3
+	  f2 = f2 - m1
+	  f2 = f2 - p1p2
+	f3 = m4
+	  f3 = f3 - m1
+	  f3 = f3 - p4
 
-	G(1,1) = 2*QPREC(p1)
-	G(2,2) = 2*QPREC(p1p2)
-	G(3,3) = 2*QPREC(p4)
-	G(1,2) = QPREC(p1) + QPREC(p1p2) - QPREC(p2)
+	G(1,1) = 2*p1
+	G(2,2) = 2*p1p2
+	G(3,3) = 2*p4
+	G(1,2) = p1
+	  G(1,2) = G(1,2) + p1p2
+	  G(1,2) = G(1,2) - p2
 	G(2,1) = G(1,2)
-	G(1,3) = QPREC(p1) + QPREC(p4) - QPREC(p2p3)
+	G(1,3) = p1
+	  G(1,3) = G(1,3) + p4
+	  G(1,3) = G(1,3) - p2p3
 	G(3,1) = G(1,3)
-	G(2,3) = QPREC(p1p2) - QPREC(p3) + QPREC(p4)
+	G(2,3) = p1p2
+	  G(2,3) = G(2,3) - p3
+	  G(2,3) = G(2,3) + p4
 	G(3,2) = G(2,3)
 	call SOLVE_SETUP
 
@@ -163,7 +228,7 @@
 	c22sum = Cval(cc22,C234) +
      &    Cval(cc122,C234) + Cval(cc222,C234)
 
-	D(dd0) = XD0(p1, p2, p3, p4, p1p2, p2p3, m1, m2, m3, m4)
+	call XD0para(D(dd0), para)
 
 	IN(1) = f1*D(dd0) - Cval(cc0,C234) + Cval(cc0,C134)
 	IN(2) = f2*D(dd0) - Cval(cc0,C234) + Cval(cc0,C124)

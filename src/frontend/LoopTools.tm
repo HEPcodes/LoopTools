@@ -733,7 +733,7 @@
 	LoopTools.tm
 		provides the LoopTools functions in Mathematica
 		this file is part of LoopTools
-		last modified 20 Jul 11 th
+		last modified 20 Sep 12 th
 */
 
 
@@ -768,7 +768,7 @@ typedef const long clong;
 #define MLPutREAL MLPutReal128
 static inline void MLPutREALList(MLINK mlp, CREAL *s, long n)
 {
-  Real d[n];
+  RealType d[n];
   int i;
   for( i = 0; i < n; ++i ) d[i] = ToReal(s[i]);
   MLPutReal128List(mlp, d, n);
@@ -846,7 +846,7 @@ static void EndRedirect()
 /******************************************************************/
 
 #define ReturnComplex(expr) \
-  Complex result; \
+  ComplexType result; \
   BeginRedirect(); \
   result = expr; \
   EndRedirect(); \
@@ -865,13 +865,14 @@ static void EndRedirect()
   MLPutSymbol(stdlink, "Null"); \
   MLEndPacket(stdlink)
 
-#define _Mr_(v) cReal v
-#define _Mri_(v) cReal re_##v, cReal im_##v
+#define _Id_(v) v
+#define _Mr_(v) cRealType v
+#define _Mri_(v) cRealType re_##v, cRealType im_##v
 #define _Mc_(v) ToComplex2(re_##v, im_##v)
 
 /******************************************************************/
 
-static inline void MLPutComplex(MLINK mlp, cComplex c)
+static inline void MLPutComplex(MLINK mlp, cComplexType c)
 {
   if( Im(c) == 0 ) MLPutREAL(mlp, Re(c));
   else {
@@ -1090,65 +1091,65 @@ static void mrestorecache(void)
 
 /******************************************************************/
 
-static void msetmudim(cReal mudim)
+static void msetmudim(cRealType mudim)
 {
   setmudim(mudim);
   ReturnVoid();
 }
 
-static Real mgetmudim(void)
+static RealType mgetmudim(void)
 {
   return getmudim();
 }
 
 /******************************************************************/
 
-static void msetdelta(cReal delta)
+static void msetdelta(cRealType delta)
 {
   setdelta(delta);
   ReturnVoid();
 }
 
-static Real mgetdelta(void)
+static RealType mgetdelta(void)
 {
   return getdelta();
 }
 
 /******************************************************************/
 
-static void msetlambda(cReal lambda)
+static void msetlambda(cRealType lambda)
 {
   setlambda(lambda);
   ReturnVoid();
 }
 
-static Real mgetlambda(void)
+static RealType mgetlambda(void)
 {
   return getlambda();
 }
 
 /******************************************************************/
 
-static void msetminmass(cReal minmass)
+static void msetminmass(cRealType minmass)
 {
   setminmass(minmass);
   ReturnVoid();
 }
 
-static Real mgetminmass(void)
+static RealType mgetminmass(void)
 {
   return getminmass();
 }
 
 /******************************************************************/
 
-static void msetmaxdev(cReal maxdev)
+static void msetmaxdev(cRealType maxdev)
 {
   setmaxdev(maxdev);
   ReturnVoid();
 }
 
-static Real mgetmaxdev(void)
+static RealType mgetmaxdev(void)
 {
   return getmaxdev();
 }

@@ -1,7 +1,7 @@
 #! /bin/sh
 # configure script for LoopTools
 # note: has nothing to do with GNU autoconf
-# last modified 7 Mar 12 by Thomas Hahn
+# last modified 5 Nov 13 by Thomas Hahn
 
 
 LC_ALL=C
@@ -64,7 +64,7 @@ getldflags()
     while test $# -gt 1 ; do
       shift
       case $1 in
-      *.o | -lc | -lgcc*)
+      *.o | -lc | -lgcc)
         ;;
       -l* | -L* | *.a)
         ldflags="$ldflags $1" ;;
@@ -161,9 +161,9 @@ CONF_M=${CONF_BITS:+-m$CONF_BITS}
 
 CONF_MAKE=`findprog make $MAKE gmake Make make` || exit 1
 
-CONF_CC=`findprog gcc $CC gcc` || exit 1
+CONF_CC=`findprog gcc $CC clang gcc` || exit 1
 
-CONF_CXX=`findprog g++ $CXX g++` || exit 1
+CONF_CXX=`findprog g++ $CXX clang++ g++` || exit 1
 
 CONF_FC=`findprog f77 $FC pgf77 ifort xlf gfortran g77 g95 f77 f90 fort77` || exit 1
 
@@ -181,7 +181,7 @@ case "`$CONF_FC --version -c 2>&1`" in
 *G95*)
   CONF_FFLAGS="$FFLAGS -O0 -g -ffixed-line-length-132 -freal-loops $CONF_M $CONF_STATIC ${CONF_DEBUG:+-Wall}" ;;
 *GNU*)
-  CONF_FFLAGS="$FFLAGS -O0 -g -ffixed-line-length-none $CONF_M $CONF_STATIC ${CONF_DEBUG:+-Wall}"
+  CONF_FFLAGS="$FFLAGS -O1 -g -ffixed-line-length-none $CONF_M $CONF_STATIC ${CONF_DEBUG:+-Wall}"
   case "$CONF_FC" in
   *gfortran*)
 	CONF_FFLAGS="$CONF_FFLAGS ${CONF_DEBUG:+-Wtabs -ffpe-trap=invalid,overflow,zero} -fno-range-check -ff2c ${CONF_STATIC_EXT:+-static-libgfortran -static-libgcc}" ;;
@@ -246,14 +246,16 @@ rm -fr $test*
 
 cat > $test.f << _EOF_
 	program test
-	real*16 r
-	r = qext(1d0)
+	real*16 a, b
+	a = 2D0**(52/2+2)
+	b = a + 1/a
+	if( a .eq. b ) call exit(1)
 	end
 _EOF_
 
 $CONF_FC $CONF_FFLAGS $test.f -o $test$CONF_EXE > /dev/null 2>&1
 
-if test -x $test$CONF_EXE ; then
+if ./$test$CONF_EXE > /dev/null 2>&1 ; then
   echo "yes" 1>&2
   CONF_QUAD=1
 else

@@ -1,45 +1,41 @@
-* Bcoeffb.F
+* BcoeffAD.F
 * the two-point tensor coefficients from Ansgar Denner's bcanew.f,
 * adapted to the conventions of LoopTools
 * this file is part of LoopTools
-* last modified 22 Dec 10 th
+* last modified 19 Sep 12 th
 
+#include "externals.h"
+#include "types.h"
+
+#define npoint 2
 #include "defs.h"
 
 
-	subroutine Bcoeffb(para, B, ldpara)
+	subroutine BcoeffAD(B, para)
 	implicit none
-	integer ldpara
-	double precision para(ldpara,Pbb)
-	double complex B(Nbb)
+	ComplexType B(*)
+	RealType para(1,*)
 
 #include "lt.h"
 
-	double complex fpv, yfpv, fth, xlogx, A0b
+	ComplexType fpv, yfpv, fth, xlogx, A0b
 	external fpv, yfpv, fth, xlogx, A0b
 
-	double precision p, m1, m2
-	double precision minacc, dm, la
-	double complex x1, x2, y1, y2, r
-	double complex mu, f1, f2, g1, g2
+	RealType p, m1, m2
+	RealType dm, la
+	ComplexType x1, x2, y1, y2, r
+	ComplexType mu, f1, f2, g1, g2
 	integer sel
-	logical dump
 
-	p = para(1,1)
-	m1 = para(1,2)
-	m2 = para(1,3)
+	m1 = M(1)
+	m2 = M(2)
+	p = P(1)
 
-	serial = serial + 1
-	dump = ibits(debugkey, DebugB, 1) .ne. 0 .and.
-     &    serial .ge. debugfrom .and. serial .le. debugto
-	if( dump ) call DumpPara(2, para, ldpara, "Bcoeffb")
-
-	minacc = acc*(m1 + m2)
 	dm = m1 - m2
 
 * general case
-	if( abs(p) .gt. minacc ) then
-	  r = sqrt(DCMPLX(p*(p - m1 - m2) -
+	if( abs(p) .gt. eps*(m1 + m2) ) then
+	  r = sqrt(ToComplex(p*(p - m1 - m2) -
      &      m1*(p - dm) - m2*(p + dm)))
 	  x1 = .5D0*(p + dm + r)/p
 	  x2 = .5D0*(p + dm - r)/p
@@ -48,8 +44,8 @@
 	  else if( abs(x1) .gt. abs(x2) ) then
 	    x2 = m1/(p*x1)
 	  endif
-	  x1 = x1 + abs(p*x1)/p*eps*cI
-	  x2 = x2 - abs(p*x2)/p*eps*cI
+	  x1 = x1 + sign(abs(x1), p)*cIeps
+	  x2 = x2 - sign(abs(x2), p)*cIeps
 
 	  y2 = .5D0*(p - dm + r)/p
 	  y1 = .5D0*(p - dm - r)/p
@@ -58,8 +54,8 @@
 	  else if( abs(y1) .gt. abs(y2) ) then
 	    y2 = m2/(p*y1)
 	  endif
-	  y1 = y1 - abs(p*y1)/p*eps*cI
-	  y2 = y2 + abs(p*y2)/p*eps*cI
+	  y1 = y1 - sign(abs(y1), p)*cIeps
+	  y2 = y2 + sign(abs(y2), p)*cIeps
 
 	  if( abs(y1) .gt. .5D0 .and. abs(y2) .gt. .5D0 ) then
 	    mu = log(m2/mudim) - delta
@@ -68,7 +64,7 @@
 	    B(bb11) = -1/3D0*(mu + fpv(3, x1, y1) + fpv(3, x2, y2))
 	    B(bb111) = 1/4D0*(mu + fpv(4, x1, y1) + fpv(4, x2, y2))
 	  else if( abs(x1) .lt. 10 .and. abs(x2) .lt. 10 ) then
-	    mu = log(p/mudim*(1 - cI*eps)) - delta
+	    mu = log(p/mudim*(1 - cIeps)) - delta
 	    g1 = xlogx(y1)
 	    f1 = xlogx(-x1) - g1 + 1
 	    g2 = xlogx(y2)
@@ -114,11 +110,11 @@
 	    B(dbb11) = (yfpv(3, x2, y2) - yfpv(3, x1, y1))/r
 	    sel = 1
 	  else if( abs(x1) .gt. 10 ) then
-	    B(dbb11) = -DBLE((3/4D0 + (3 - 4*x1)*fpv(4, x1, y1))/
+	    B(dbb11) = -Re((3/4D0 + (3 - 4*x1)*fpv(4, x1, y1))/
      &        x1**2)/p
 	    sel = 2
 	  else if( abs(y1) .gt. acc ) then
-	    B(dbb11) = -DBLE(4/3D0 + (3 - 4*x1)*fpv(2, x1, y1))/p
+	    B(dbb11) = -Re(4/3D0 + (3 - 4*x1)*fpv(2, x1, y1))/p
 	    sel = 3
 	  else
 	    B(dbb11) = nan
@@ -133,10 +129,10 @@
 	  else if( sel .eq. 1 ) then
 	    B(dbb0) = (yfpv(1, x2, y2) - yfpv(1, x1, y1))/r
 	  else if( sel .eq. 2 ) then
-	    B(dbb0) = -DBLE((.5D0 + (1 - 2*x1)*fpv(2, x1, y1))/
+	    B(dbb0) = -Re((.5D0 + (1 - 2*x1)*fpv(2, x1, y1))/
      &        x1**2)/p
 	  else if( sel .eq. 3 ) then
-	    B(dbb0) = -DBLE(2 + (1 - 2*x1)*fpv(0, x1, y1))/p
+	    B(dbb0) = -Re(2 + (1 - 2*x1)*fpv(0, x1, y1))/p
 	  else
 	    B(dbb0) = nan
 	  endif
@@ -147,18 +143,18 @@
 	  else if( sel .eq. 1 ) then
 	    B(dbb1) = (yfpv(2, x1, y1) - yfpv(2, x2, y2))/r
 	  else if( sel .eq. 2 ) then
-	    B(dbb1) = DBLE((2/3D0 + (2 - 3*x1)*fpv(3, x1, y1))/
+	    B(dbb1) = Re((2/3D0 + (2 - 3*x1)*fpv(3, x1, y1))/
      &        x1**2)/p
 	  else if( sel .eq. 3 ) then
-	    B(dbb1) = DBLE(3/2D0 + (2 - 3*x1)*fpv(1, x1, y1))/p
+	    B(dbb1) = Re(3/2D0 + (2 - 3*x1)*fpv(1, x1, y1))/p
 	  else
 	    B(dbb1) = nan
 	  endif
 
 * zero momentum
-	else if( abs(dm) .gt. minacc ) then
-	  x2 = m1/dm*(1 - cI*eps)
-	  y2 = -m2/dm*(1 - cI*eps)
+	else if( abs(dm) .gt. acc*(m1 + m2) ) then
+	  x2 = m1/dm*(1 - cIeps)
+	  y2 = -m2/dm*(1 - cIeps)
 	  if( abs(y2) .gt. .5D0 ) then
 	    mu = log(m2/mudim) - delta
 	    B(bb0) = -(mu + fpv(1, x2, y2))
@@ -207,20 +203,18 @@
 
 	B(dbb00) = 1/6D0*( 2*m1*B(dbb0) + B(bb1) +
      &    (p + dm)*B(dbb1) - 1/3D0 )
-
-	if( dump ) call DumpCoeff(2, B)
 	end
 
 ************************************************************************
 
-	double complex function fpv(n, x, y)
+	ComplexType function fpv(n, x, y)
 	implicit none
 	integer n
-	double complex x, y
+	ComplexType x, y
 
 #include "lt.h"
 
-	double complex xm
+	ComplexType xm
 	integer m
 
 	if( abs(x) .lt. 5 ) then
@@ -248,12 +242,12 @@
 
 ************************************************************************
 
-	double complex function yfpv(n, x, y)
+	ComplexType function yfpv(n, x, y)
 	implicit none
 	integer n
-	double complex x, y
+	ComplexType x, y
 
-	double complex fpv
+	ComplexType fpv
 	external fpv
 
 	if( abs(y) .eq. 0 ) then
@@ -265,17 +259,17 @@
 
 ************************************************************************
 
-	double complex function fth(n, x, y)
+	ComplexType function fth(n, x, y)
 	implicit none
 	integer n
-	double complex x, y
+	ComplexType x, y
 
 #include "lt.h"
 
-	double complex fpv
+	ComplexType fpv
 	external fpv
 
-	double complex xm
+	ComplexType xm
 	integer m
 
 	if( abs(x) .gt. 1D4 ) then
@@ -296,9 +290,9 @@
 
 ************************************************************************
 
-	double complex function xlogx(x)
+	ComplexType function xlogx(x)
 	implicit none
-	double complex x
+	ComplexType x
 
 	if( abs(x) .eq. 0 ) then
 	  xlogx = 0

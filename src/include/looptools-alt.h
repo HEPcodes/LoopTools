@@ -1,7 +1,9 @@
-* looptools.h
-* the header file for Fortran with all definitions for LoopTools
-* this file is part of LoopTools
-* last modified 31 Mar 11 th
+#if 0
+looptools.h
+the header file for Fortran with all definitions for LoopTools
+this file is part of LoopTools
+last modified 30 Dec 12 th
+#endif
 
 
 #ifndef LOOPTOOLS_H
@@ -235,13 +237,13 @@
 	integer ncaches
 	parameter (ncaches = 8)
 
-	double complex cache(2,ncaches)
+	ComplexType cache(2,ncaches)
 	common /ltvars/ cache
 
-	double complex Bval(1,1), BvalC(1,1)
-	double complex Cval(1,1), CvalC(1,1)
-	double complex Dval(1,1), DvalC(1,1)
-	double complex Eval(1,1), EvalC(1,1)
+	ComplexType Bval(1,1), BvalC(1,1)
+	ComplexType Cval(1,1), CvalC(1,1)
+	ComplexType Dval(1,1), DvalC(1,1)
+	ComplexType Eval(1,1), EvalC(1,1)
 	equivalence (cache(2,1), Bval)
 	equivalence (cache(2,2), BvalC)
 	equivalence (cache(2,3), Cval)
@@ -251,18 +253,18 @@
 	equivalence (cache(2,7), Eval)
 	equivalence (cache(2,8), EvalC)
 
-	double complex A0, A0C, A00, A00C, B0i, B0iC
-	double complex B0, B1, B00, B11, B001, B111
-	double complex B0C, B1C, B00C, B11C, B001C, B111C
-	double complex DB0, DB1, DB00, DB11
-	double complex DB0C, DB1C, DB00C, DB11C
-	double complex C0, C0C, C0i, C0iC
-	double complex D0, D0C, D0i, D0iC
-	double complex E0, E0C, E0i, E0iC
-	double complex Li2, Li2C, Li2omx, Li2omxC
+	ComplexType A0, A0C, A00, A00C, B0i, B0iC
+	ComplexType B0, B1, B00, B11, B001, B111
+	ComplexType B0C, B1C, B00C, B11C, B001C, B111C
+	ComplexType DB0, DB1, DB00, DB11
+	ComplexType DB0C, DB1C, DB00C, DB11C
+	ComplexType C0, C0C, C0i, C0iC
+	ComplexType D0, D0C, D0i, D0iC
+	ComplexType E0, E0C, E0i, E0iC
+	ComplexType Li2, Li2C, Li2omx, Li2omxC
 	memindex Bget, BgetC, Cget, CgetC, Dget, DgetC, Eget, EgetC
-	double precision getmudim, getdelta, getlambda, getminmass
-	double precision getmaxdev
+	RealType getmudim, getdelta, getlambda, getminmass
+	RealType getmaxdev
 	integer getwarndigits, geterrdigits
 	integer getversionkey, getdebugkey
 	integer getcachelast

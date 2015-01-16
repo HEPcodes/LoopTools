@@ -1,9 +1,7 @@
 * defs.h
 * internal definitions for the LoopTools routines
 * this file is part of LoopTools
-* last modified 25 Feb 11 th
-
-#include "externals.h"
+* last modified 19 Sep 12 th
 
 
 #ifdef COMPLEXPARA
@@ -25,20 +23,27 @@
 #define XDB11 DB11C
 #define XB0i B0iC
 #define XBget BgetC
+#define XBput BputC
 #define XBcoeff BcoeffC
-#define XBcoeffa BcoeffaC
+#define XBcoeffFF BcoeffFFC
 #define XC0 C0C
+#define XC0para C0Cpara
 #define XC0i C0iC
 #define XCget CgetC
+#define XCput CputC
 #define XCcoeff CcoeffC
 #define XD0 D0C
+#define XD0para D0Cpara
 #define XD0i D0iC
 #define XDget DgetC
+#define XDput DputC
 #define XDcoeff DcoeffC
 #define XE0 E0C
 #define XE0sub e0subc
+#define XE0para E0Cpara
 #define XE0i E0iC
 #define XEget EgetC
+#define XEput EputC
 #define XEcoeff EcoeffC
 #define XEcoeffa EcoeffaC
 #define XEcoeffb EcoeffbC
@@ -63,12 +68,12 @@
 #define Xffdb0 ffcdb0
 
 #define RC 2
-#define DVAR double complex
-#define QVAR double complex
-#define QREAL double precision
+#define DVAR ComplexType
+#define QVAR ComplexType
+#define QREAL RealType
 #define QPREC(x) x
-#define QCC(x) DCONJG(x)
-#define QRE(x) DBLE(x)
+#define QCC(x) Conjugate(x)
+#define QRE(x) Re(x)
 
 #else
 
@@ -89,20 +94,27 @@
 #define XDB11 DB11
 #define XB0i B0i
 #define XBget Bget
+#define XBput Bput
 #define XBcoeff Bcoeff
-#define XBcoeffa Bcoeffa
+#define XBcoeffFF BcoeffFF
 #define XC0 C0
+#define XC0para C0para
 #define XC0i C0i
 #define XCget Cget
+#define XCput Cput
 #define XCcoeff Ccoeff
 #define XD0 D0
+#define XD0para D0para
 #define XD0i D0i
 #define XDget Dget
+#define XDput Dput
 #define XDcoeff Dcoeff
 #define XE0 E0
 #define XE0sub e0sub
+#define XE0para E0para
 #define XE0i E0i
 #define XEget Eget
+#define XEput Eput
 #define XEcoeff Ecoeff
 #define XEcoeffa Ecoeffa
 #define XEcoeffb Ecoeffb
@@ -127,12 +139,12 @@
 #define Xffdb0 ffxdb0
 
 #define RC 1
-#define DVAR double precision
+#define DVAR RealType
 #if QUAD
 #define QVAR real*16
 #define QPREC(x) QEXT(x)
 #else
-#define QVAR double precision
+#define QVAR RealType
 #define QPREC(x) x
 #endif
 #define QREAL QVAR
@@ -372,8 +384,16 @@
 #define Dval(id,p) cache(p+id,RC+4)
 #define Eval(id,p) cache(p+id,RC+6)
 #define Nval(n,id,p) cache(p+id,RC+2*n-4)
+#define offsetC 2
 
-#define Sgn(i) (1 - 2*iand(i,1))
+#define M(i) para(1,i)
+#define P(i) para(1,i+npoint)
+
+#define Sgn(i) (1-2*iand(i,1))
+
+#define ln(x,s) log(x+(s)*cIeps)
+
+#define lnrat(x,y) log((x-cIeps)/(y-cIeps))
 
 #define MAXDIM 8
 

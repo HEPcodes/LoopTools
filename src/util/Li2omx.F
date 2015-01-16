@@ -1,18 +1,21 @@
 * Li2omx.F
 * the dilogarithm function of 1 - x
 * this file is part of LoopTools
-* last modified 25 Feb 11 th
+* last modified 1 Aug 12 th
 
+#include "externals.h"
+#include "types.h"
 #include "defs.h"
 
 
-	double complex function XLi2omx(x)
+	ComplexType function XLi2omx(x)
 	implicit none
 	DVAR x
 
-	double complex spence1
+	ComplexType spence
+	external spence
 
-	XLi2omx = spence1(DCMPLX(1 - x), DCMPLX(x), 0D0)
+	XLi2omx = spence(1, ToComplex(x), 0D0)
 	end
 
 ************************************************************************
@@ -20,12 +23,12 @@
 
 	subroutine XLi2omxsub(res, x)
 	implicit none
-	double complex res
+	ComplexType res
 	DVAR x
 
-	double complex spence1
-	external spence1
+	ComplexType spence
+	external spence
 
-	res = spence1(DCMPLX(1 - x), DCMPLX(x), 0D0)
+	res = spence(1, ToComplex(x), 0D0)
         end
 

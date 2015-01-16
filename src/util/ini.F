@@ -1,8 +1,10 @@
 * ini.F
 * routines for initializing and setting some parameters
 * this file is part of LoopTools
-* last modified 9 Dec 10 th
+* last modified 27 Sep 12 th
 
+#include "externals.h"
+#include "types.h"
 #include "defs.h"
 
 
@@ -16,6 +18,8 @@
 	do i = 1, ncaches
 	  cacheptr(1,1,i) = 0
 	  cacheptr(2,1,i) = 0
+	  savedptr(1,i) = 0
+	  savedptr(2,i) = 0
 	enddo
 	end
 
@@ -55,7 +59,7 @@
 
 	subroutine setcachelast(base, offset)
 	implicit none
-	double complex base(*)
+	ComplexType base(*)
 	integer offset
 
 	logical ini
@@ -80,7 +84,7 @@
 
 	integer function getcachelast(base)
 	implicit none
-	double complex base(*)
+	ComplexType base(*)
 
 	logical ini
 	data ini /.TRUE./
@@ -99,17 +103,17 @@
 
 	subroutine setmudim(mudim_)
 	implicit none
-	double precision mudim_
+	RealType mudim_
 
 #include "lt.h"
 
+	if( abs(mudim - mudim_) .gt. acc ) call clearcache
 	mudim = mudim_
-	call clearcache
 	end
 
 ************************************************************************
 
-	double precision function getmudim()
+	RealType function getmudim()
 	implicit none
 
 #include "lt.h"
@@ -121,17 +125,17 @@
 
 	subroutine setdelta(delta_)
 	implicit none
-	double precision delta_
+	RealType delta_
 
 #include "lt.h"
 
+	if( abs(delta - delta_) .gt. acc ) call clearcache
 	delta = delta_
-	call clearcache
 	end
 
 ************************************************************************
 
-	double precision function getdelta()
+	RealType function getdelta()
 	implicit none
 
 #include "lt.h"
@@ -143,17 +147,17 @@
 
 	subroutine setlambda(lambda_)
 	implicit none
-	double precision lambda_
+	RealType lambda_
 
 #include "lt.h"
 
+	if( abs(lambda - lambda_) .gt. acc ) call clearcache
 	lambda = lambda_
-	call clearcache
 	end
 
 ************************************************************************
 
-	double precision function getlambda()
+	RealType function getlambda()
 	implicit none
 
 #include "lt.h"
@@ -165,17 +169,16 @@
 
 	subroutine setminmass(minmass_)
 	implicit none
-	double precision minmass_
+	RealType minmass_
 
 #include "lt.h"
 
 	minmass = minmass_
-	call clearcache
 	end
 
 ************************************************************************
 
-	double precision function getminmass()
+	RealType function getminmass()
 	implicit none
 
 #include "lt.h"
@@ -187,7 +190,7 @@
 
 	subroutine setmaxdev(maxdev_)
 	implicit none
-	double precision maxdev_
+	RealType maxdev_
 
 #include "lt.h"
 
@@ -196,7 +199,7 @@
 
 ************************************************************************
 
-	double precision function getmaxdev()
+	RealType function getmaxdev()
 	implicit none
 
 #include "lt.h"
@@ -331,7 +334,7 @@
 
 	subroutine ffset(res, x)
 	implicit none
-	DOUBLE PRECISION res, x
+	RealType res, x
 
 	res = x
 	end
@@ -349,19 +352,19 @@
 	common /ltcoeffnames/ coeffname
 
 	data (paraname(i,2), i = 1, Pbb) /
-     &    "p", "m1", "m2" /
+     &    "m1", "m2", "p" /
 
 	data (paraname(i,3), i = 1, Pcc) /
-     &    "p1", "p2", "p1p2", "m1", "m2", "m3" /
+     &    "m1", "m2", "m3", "p1", "p2", "p1p2" /
 
 	data (paraname(i,4), i = 1, Pdd) /
-     &    "p1", "p2", "p3", "p4", "p1p2", "p2p3",
-     &    "m1", "m2", "m3", "m4" /
+     &    "m1", "m2", "m3", "m4",
+     &    "p1", "p2", "p3", "p4", "p1p2", "p2p3" /
 
 	data (paraname(i,5), i = 1, Pee) /
+     &    "m1", "m2", "m3", "m4", "m5",
      &    "p1", "p2", "p3", "p4", "p5",
-     &    "p1p2", "p2p3", "p3p4", "p4p5", "p5p1",
-     &    "m1", "m2", "m3", "m4", "m5" /
+     &    "p1p2", "p2p3", "p3p4", "p4p5", "p5p1" /
 
 	data (coeffname(i,2), i = 1, Nbb) /
      &    "bb0", "bb1", "bb00", "bb11", "bb001", "bb111",

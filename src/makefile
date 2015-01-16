@@ -18,7 +18,7 @@ OBJS = $(OBJS-quad) \
   A0.o A0C.o A00.o A00C.o \
   ffxa0.o ffca0.o \
   Bget.o BgetC.o Bcoeff.o BcoeffC.o \
-  Bcoeffa.o BcoeffaC.o Bcoeffb.o \
+  BcoeffAD.o BcoeffFF.o BcoeffFFC.o \
   ffxb0.o ffcb0.o ffxb1.o ffcb1.o \
   ffxb2p.o ffcb2p.o \
   ffxdb0.o ffcdb0.o ffxdb1.o \
@@ -71,12 +71,12 @@ Bcoeff.o: Bcoeff.F $(LTINC)
 	$(XFC) -c -o Bcoeff.o Bcoeff.F
 BcoeffC.o: BcoeffC.F $(LTINC)
 	$(XFC) -c -o BcoeffC.o BcoeffC.F
-Bcoeffa.o: Bcoeffa.F $(LTINC)
-	$(XFC) -c -o Bcoeffa.o Bcoeffa.F
-BcoeffaC.o: Bcoeffa.F $(LTINC)
-	$(CFC) -c -o BcoeffaC.o Bcoeffa.F
-Bcoeffb.o: Bcoeffb.F $(LTINC)
-	$(XFC) -c -o Bcoeffb.o Bcoeffb.F
+BcoeffAD.o: BcoeffAD.F $(LTINC)
+	$(XFC) -c -o BcoeffAD.o BcoeffAD.F
+BcoeffFF.o: BcoeffFF.F $(LTINC)
+	$(XFC) -c -o BcoeffFF.o BcoeffFF.F
+BcoeffFFC.o: BcoeffFF.F $(LTINC)
+	$(CFC) -c -o BcoeffFFC.o BcoeffFF.F
 ffxb0.o: ffxb0.F $(FFINC)
 	$(XFC) -c -o ffxb0.o ffxb0.F
 ffcb0.o: ffcb0.F $(FFINC)

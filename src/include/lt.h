@@ -17,7 +17,7 @@
 
 	integer*8 cacheptr(4,KIND,ncaches)
 	integer*8 savedptr(2,ncaches)
-	double precision maxdev
+	RealType maxdev
 	integer warndigits, errdigits
 	integer serial, versionkey
 	integer debugkey, debugfrom, debugto
@@ -33,11 +33,11 @@
 
 	common /ltcache/ cmpbits
 
-	double complex cache(2,ncaches)
+	ComplexType cache(2,ncaches)
 	equivalence (cacheptr, cache)
 
 #ifndef sig
-#define sig(c) int(sign(1D0,DBLE(r))
+#define sig(c) int(sign(1D0,Re(r))
 #define DEBUGLEVEL ibits(debugkey,8,2)
 #endif
 

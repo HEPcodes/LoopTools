@@ -3,19 +3,21 @@
 * this file is part of LoopTools
 * last modified 15 Apr 11 th
 
+#include "externals.h"
+#include "types.h"
 #include "defs.h"
 
 
-	double complex function XA0(m)
+	ComplexType function XA0(m)
 	implicit none
 	DVAR m
 
 #include "lt.h"
 
-	double complex XA0b
+	ComplexType XA0b
 	external XA0b
 
-	double complex res(0:1)
+	ComplexType res(0:1)
 	integer key, ier
 
 	if( lambda .lt. 0 ) then
@@ -58,10 +60,10 @@
 
 	subroutine XA0sub(res, m)
 	implicit none
-	double complex res
+	ComplexType res
 	DVAR m
 
-	double complex XA0
+	ComplexType XA0
 	external XA0
 
 	res = XA0(m)
@@ -71,7 +73,7 @@
 * this routine is adapted from Ansgar Denner's bcanew.f
 * to the conventions of LoopTools
 
-	double complex function XA0b(m)
+	ComplexType function XA0b(m)
 	implicit none
 	DVAR m
 

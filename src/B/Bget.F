@@ -1,8 +1,12 @@
 * Bget.F
 * retrieve the two-point tensor coefficients
 * this file is part of LoopTools
-* last modified 21 Jan 11 th
+* last modified 13 Sep 12 th
 
+#include "externals.h"
+#include "types.h"
+
+#define npoint 2
 #include "defs.h"
 
 
@@ -12,23 +16,72 @@
 
 #include "lt.h"
 
-	memindex cachelookup
-	external cachelookup, XBcoeff
+	memindex cacheindex
+	external cacheindex, XBcoeff
 
-	DVAR para(Pbb)
+#ifdef COMPLEXPARA
+	memindex Bget
+	external Bget
+#endif
 
-	para(1) = p
-	para(2) = m1
-	if( abs(para(2)) .lt. minmass ) para(2) = 0
-	para(3) = m2
-	if( abs(para(3)) .lt. minmass ) para(3) = 0
+	DVAR para(1,Pbb)
 
-	XBget = cachelookup(para, Bval(1,0), XBcoeff, RC*Pbb, Nbb)
+	P(1) = p
+#ifdef COMPLEXPARA
+	if( abs(Im(P(1))) .gt. 0 )
+     &    print *, "BgetC: Complex momenta not implemented"
+#endif
+
+	M(1) = m1
+	if( abs(M(1)) .lt. minmass ) M(1) = 0
+	M(2) = m2
+	if( abs(M(2)) .lt. minmass ) M(2) = 0
+#ifdef COMPLEXPARA
+	if( abs(Im(M(1))) + abs(Im(M(2))) .eq. 0 ) then
+	  XBget = Bget(p, m1, m2) - offsetC
+	  return
+	endif
+#endif
+
+	XBget = cacheindex(para, Bval(1,0), XBcoeff, RC*Pbb, Nbb)
 	end
 
 ************************************************************************
 
-	double complex function XB0i(i, p, m1, m2)
+	subroutine XBput(res, p, m1, m2)
+	implicit none
+	ComplexType res(*)
+	DVAR p, m1, m2
+
+#include "lt.h"
+
+	external XBcoeff
+
+	DVAR para(1,Pbb)
+
+	P(1) = p
+#ifdef COMPLEXPARA
+	if( abs(Im(P(1))) .gt. 0 )
+     &    print *, "BputC: Complex momenta not implemented"
+#endif
+
+	M(1) = m1
+	if( abs(M(1)) .lt. minmass ) M(1) = 0
+	M(2) = m2
+	if( abs(M(2)) .lt. minmass ) M(2) = 0
+#ifdef COMPLEXPARA
+	if( abs(Im(M(1))) + abs(Im(M(2))) .eq. 0 ) then
+	  call Bput(res, p, m1, m2)
+	  return
+	endif
+#endif
+
+	call cachecopy(res, para, Bval(1,0), XBcoeff, RC*Pbb, Nbb)
+	end
+
+************************************************************************
+
+	ComplexType function XB0i(i, p, m1, m2)
 	implicit none
 	integer i
 	DVAR p, m1, m2
@@ -46,7 +99,7 @@
 
 ************************************************************************
 
-	double complex function XB0(p, m1, m2)
+	ComplexType function XB0(p, m1, m2)
 	implicit none
 	DVAR p, m1, m2
 
@@ -60,7 +113,7 @@
 
 ************************************************************************
 
-	double complex function XB1(p, m1, m2)
+	ComplexType function XB1(p, m1, m2)
 	implicit none
 	DVAR p, m1, m2
 
@@ -74,7 +127,7 @@
 
 ************************************************************************
 
-	double complex function XB00(p, m1, m2)
+	ComplexType function XB00(p, m1, m2)
 	implicit none
 	DVAR p, m1, m2
 
@@ -88,7 +141,7 @@
 
 ************************************************************************
 
-	double complex function XB11(p, m1, m2)
+	ComplexType function XB11(p, m1, m2)
 	implicit none
 	DVAR p, m1, m2
 
@@ -102,7 +155,7 @@
 
 ************************************************************************
 
-	double complex function XB001(p, m1, m2)
+	ComplexType function XB001(p, m1, m2)
 	implicit none
 	DVAR p, m1, m2
 
@@ -116,7 +169,7 @@
 
 ************************************************************************
 
-	double complex function XB111(p, m1, m2)
+	ComplexType function XB111(p, m1, m2)
 	implicit none
 	DVAR p, m1, m2
 
@@ -130,7 +183,7 @@
 
 ************************************************************************
 
-	double complex function XDB0(p, m1, m2)
+	ComplexType function XDB0(p, m1, m2)
 	implicit none
 	DVAR p, m1, m2
 
@@ -144,7 +197,7 @@
 
 ************************************************************************
 
-	double complex function XDB1(p, m1, m2)
+	ComplexType function XDB1(p, m1, m2)
 	implicit none
 	DVAR p, m1, m2
 
@@ -158,7 +211,7 @@
 
 ************************************************************************
 
-	double complex function XDB00(p, m1, m2)
+	ComplexType function XDB00(p, m1, m2)
 	implicit none
 	DVAR p, m1, m2
 
@@ -172,7 +225,7 @@
 
 ************************************************************************
 
-	double complex function XDB11(p, m1, m2)
+	ComplexType function XDB11(p, m1, m2)
 	implicit none
 	DVAR p, m1, m2
 

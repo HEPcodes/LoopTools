@@ -2,8 +2,12 @@
 * the three-point tensor coefficients
 * this file is part of LoopTools
 * improvements by M. Rauch
-* last modified 25 Jul 11 th
+* last modified 13 Sep 12 th
 
+#include "externals.h"
+#include "types.h"
+
+#define npoint 3
 #include "defs.h"
 
 
@@ -13,27 +17,80 @@
 
 #include "lt.h"
 
-	memindex cachelookup
-	external cachelookup, XCcoeff
+	memindex cacheindex
+	external cacheindex, XCcoeff
 
-	DVAR para(Pcc)
+#ifdef COMPLEXPARA
+	memindex Cget
+	external Cget
+#endif
 
-	para(1) = p1
-	para(2) = p2
-	para(3) = p1p2
-	para(4) = m1
-	if( abs(para(4)) .lt. minmass ) para(4) = 0
-	para(5) = m2
-	if( abs(para(5)) .lt. minmass ) para(5) = 0
-	para(6) = m3
-	if( abs(para(6)) .lt. minmass ) para(6) = 0
+	DVAR para(1,Pcc)
 
-	XCget = cachelookup(para, Cval(1,0), XCcoeff, RC*Pcc, Ncc)
+	P(1) = p1
+	P(2) = p2
+	P(3) = p1p2
+#ifdef COMPLEXPARA
+	if( abs(Im(P(1))) + abs(Im(P(2))) + abs(Im(P(3))) .gt. 0 )
+     &    print *, "CgetC: Complex momenta not implemented"
+#endif
+
+	M(1) = m1
+	if( abs(M(1)) .lt. minmass ) M(1) = 0
+	M(2) = m2
+	if( abs(M(2)) .lt. minmass ) M(2) = 0
+	M(3) = m3
+	if( abs(M(3)) .lt. minmass ) M(3) = 0
+#ifdef COMPLEXPARA
+	if( abs(Im(M(1))) + abs(Im(M(2))) + abs(Im(M(3))) .eq. 0 ) then
+	  XCget = Cget(p1, p2, p1p2, m1, m2, m3) - offsetC
+	  return
+	endif
+#endif
+
+	XCget = cacheindex(para, Cval(1,0), XCcoeff, RC*Pcc, Ncc)
 	end
 
 ************************************************************************
 
-	double complex function XC0i(i, p1, p2, p1p2, m1, m2, m3)
+	subroutine XCput(res, p1, p2, p1p2, m1, m2, m3)
+	implicit none
+	ComplexType res(*)
+	DVAR p1, p2, p1p2, m1, m2, m3
+
+#include "lt.h"
+
+	external XCcoeff
+
+	DVAR para(1,Pcc)
+
+	P(1) = p1
+	P(2) = p2
+	P(3) = p1p2
+#ifdef COMPLEXPARA
+	if( abs(Im(P(1))) + abs(Im(P(2))) + abs(Im(P(3))) .gt. 0 )
+     &    print *, "CgetC: Complex momenta not implemented"
+#endif
+
+	M(1) = m1
+	if( abs(M(1)) .lt. minmass ) M(1) = 0
+	M(2) = m2
+	if( abs(M(2)) .lt. minmass ) M(2) = 0
+	M(3) = m3
+	if( abs(M(3)) .lt. minmass ) M(3) = 0
+#ifdef COMPLEXPARA
+	if( abs(Im(M(1))) + abs(Im(M(2))) + abs(Im(M(3))) .eq. 0 ) then
+	  call Cput(res, p1, p2, p1p2, m1, m2, m3)
+	  return
+	endif
+#endif
+
+	call cachecopy(res, para, Cval(1,0), XCcoeff, RC*Pcc, Ncc)
+	end
+
+************************************************************************
+
+	ComplexType function XC0i(i, p1, p2, p1p2, m1, m2, m3)
 	implicit none
 	integer i
 	DVAR p1, p2, p1p2, m1, m2, m3
@@ -51,22 +108,20 @@
 
 ************************************************************************
 
-	subroutine XCcoeff(para, C, ldpara)
+	subroutine XCcoeff(C, para)
 	implicit none
-	integer ldpara
-	DVAR para(ldpara,Pcc)
-	double complex C(Ncc)
+	ComplexType C(*)
+	DVAR para(1,*)
 
 #include "lt.h"
 
 	memindex XBget
-	double complex XC0
-	external XBget, XC0
+	external XBget
 
 	DVAR p1, p2, p1p2, m1, m2, m3
 	DVAR f1, f2
 	QVAR G(2,2)
-	double complex bsum, b1sum, b00sum, b11sum, in(2)
+	ComplexType bsum, b1sum, b00sum, b11sum, in(2)
 	integer finite
 	memindex B12, B23, B13
 	logical dump
@@ -82,25 +137,12 @@
 #define SOLVE(b) XSolve(2, G,2, b)
 #endif
 
-#ifdef COMPLEXPARA
-	if( abs(DIMAG(para(1,1))) +
-     &      abs(DIMAG(para(1,2))) +
-     &      abs(DIMAG(para(1,3))) .gt. 0 )
-     &    print *, "Complex momenta not implemented"
-	if( abs(DIMAG(para(1,4))) +
-     &      abs(DIMAG(para(1,5))) +
-     &      abs(DIMAG(para(1,6))) .eq. 0 ) then
-	  call Ccoeff(para, C, 2)
-	  return
-	endif
-#endif
-
-	p1 = para(1,1)
-	p2 = para(1,2)
-	p1p2 = para(1,3)
-	m1 = para(1,4)
-	m2 = para(1,5)
-	m3 = para(1,6)
+	m1 = M(1)
+	m2 = M(2)
+	m3 = M(3)
+	p1 = P(1)
+	p2 = P(2)
+	p1p2 = P(3)
 
 	finite = 1
 	if( lambda .lt. 0 ) finite = 0
@@ -112,14 +154,20 @@
 	serial = serial + 1
 	dump = ibits(debugkey, DebugC, 1) .ne. 0 .and.
      &    serial .ge. debugfrom .and. serial .le. debugto
-	if( dump ) call XDumpPara(3, para, ldpara, "Ccoeff")
+	if( dump ) call XDumpPara(3, para, "Ccoeff")
 
-	f1 = QPREC(m2) - QPREC(m1) - QPREC(p1)
-	f2 = QPREC(m3) - QPREC(m1) - QPREC(p1p2)
+	f1 = m2
+	  f1 = f1 - m1
+	  f1 = f1 - p1
+	f2 = m3
+	  f2 = f2 - m1
+	  f2 = f2 - p1p2
 
-	G(1,1) = 2*QPREC(p1)
-	G(2,2) = 2*QPREC(p1p2)
-	G(1,2) = QPREC(p1) + QPREC(p1p2) - QPREC(p2)
+	G(1,1) = 2*p1
+	G(2,2) = 2*p1p2
+	G(1,2) = p1
+	  G(1,2) = G(1,2) + p1p2
+	  G(1,2) = G(1,2) - p2
 	G(2,1) = G(1,2)
 	call SOLVE_SETUP
 
@@ -128,7 +176,7 @@
 	b00sum = Bval(bb00,B23) + Bval(bb001,B23)
 	b11sum = Bval(bb11,B23) + Bval(bb111,B23)
 
-	C(cc0) = XC0(p1, p2, p1p2, m1, m2, m3)
+	call XC0para(C(cc0), para)
 
 	IN(1) = f1*C(cc0) - Bval(bb0,B23) + Bval(bb0,B13)
 	IN(2) = f2*C(cc0) - Bval(bb0,B23) + Bval(bb0,B12)

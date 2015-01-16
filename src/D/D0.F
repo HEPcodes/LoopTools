@@ -1,80 +1,112 @@
 * D0.F
 * the scalar four-point function
 * this file is part of LoopTools
-* last modified 26 Jun 12 th
+* last modified 6 Nov 12 th
 
+#include "externals.h"
+#include "types.h"
+
+#define npoint 4
 #include "defs.h"
 
-#define legs 4
-#define M(i) xpi(i)
-#define P(i) xpi(i+legs)
 
-
-	double complex function D0(p1, p2, p3, p4, p1p2, p2p3,
+	ComplexType function D0(p1, p2, p3, p4, p1p2, p2p3,
      &    m1, m2, m3, m4)
 	implicit none
-	double precision p1, p2, p3, p4, p1p2, p2p3
-	double precision m1, m2, m3, m4
+	RealType p1, p2, p3, p4, p1p2, p2p3
+	RealType m1, m2, m3, m4
 
 #include "lt.h"
 
-	double precision xpi(13)
+	RealType para(1,Pdd+3)
 
-	external D0softDR, D0collDR, D0soft, D0coll
-
-	M(1) = m1
-	M(2) = m2
-	M(3) = m3
-	M(4) = m4
 	P(1) = p1
 	P(2) = p2
 	P(3) = p3
 	P(4) = p4
 	P(5) = p1p2
 	P(6) = p2p3
-	P(7) = 0
-	P(8) = 0
-	P(9) = 0
 
-	if( lambda .le. 0 ) then
-	  call DDispatch(D0, xpi, D0softDR, D0collDR)
-	else
-	  call DDispatch(D0, xpi, D0soft, D0coll)
-	endif
+	M(1) = m1
+	if( abs(M(1)) .lt. minmass ) M(1) = 0
+	M(2) = m2
+	if( abs(M(2)) .lt. minmass ) M(2) = 0
+	M(3) = m3
+	if( abs(M(3)) .lt. minmass ) M(3) = 0
+	M(4) = m4
+	if( abs(M(4)) .lt. minmass ) M(4) = 0
+
+	call D0para(D0, para)
 	end
 
 ************************************************************************
-* adapter code for C++
+
+* subroutine version for C++
 
 	subroutine d0sub(res, p1, p2, p3, p4, p1p2, p2p3,
      &    m1, m2, m3, m4)
 	implicit none
-	double complex res
-	double precision p1, p2, p3, p4, p1p2, p2p3
-	double precision m1, m2, m3, m4
+	ComplexType res
+	RealType p1, p2, p3, p4, p1p2, p2p3
+	RealType m1, m2, m3, m4
 
-	double complex D0
-	external D0
+#include "lt.h"
 
-	res = D0(p1, p2, p3, p4, p1p2, p2p3, m1, m2, m3, m4)
+	RealType para(1,Pdd+3)
+
+	P(1) = p1
+	P(2) = p2
+	P(3) = p3
+	P(4) = p4
+	P(5) = p1p2
+	P(6) = p2p3
+
+	M(1) = m1
+	if( abs(M(1)) .lt. minmass ) M(1) = 0
+	M(2) = m2
+	if( abs(M(2)) .lt. minmass ) M(2) = 0
+	M(3) = m3
+	if( abs(M(3)) .lt. minmass ) M(3) = 0
+	M(4) = m4
+	if( abs(M(4)) .lt. minmass ) M(4) = 0
+
+	call D0para(res, para)
 	end
 
 ************************************************************************
 
-	subroutine DDispatch(res, xpi, soft, coll)
+	subroutine D0para(res, para)
 	implicit none
-	double complex res
-	double precision xpi(13)
+	ComplexType res
+	RealType para(1,*)
+
+#include "lt.h"
+
+	external D0softDR, D0collDR, D0soft, D0coll
+
+	if( lambda .le. 0 ) then
+	  call DDispatch(res, para, D0softDR, D0collDR)
+	else
+	  call DDispatch(res, para, D0soft, D0coll)
+	endif
+	end
+
+************************************************************************
+
+	subroutine DDispatch(res, para, soft, coll)
+	implicit none
+	ComplexType res
+	RealType para(1,*)
 	external soft, coll
 
 #include "lt.h"
 #include "perm.h"
 
-	integer i, z, s, perm, ier, key
-	double complex alt
+	integer i, z, s, perm, key, ier
+	ComplexType alt
 
-	integer xpiperm(12), mperm(0:7)
-	data xpiperm /
+	integer pperm(12), mperm(0:7)
+	data pperm /
      &    p1234, p1243, p1324,
      &    p2341, p2431, p2314,
      &    p3412, p3142, p3421,
@@ -101,13 +133,15 @@
 	z = 0
 	s = 0
 	do i = 1, 12
-	  perm = xpiperm(i)
+	  perm = pperm(i)
 c	PRINT '(I3,O12)', i, perm
 c	PRINT '(6F14.2)', Px(1), Px(2), Px(3), Px(4), Px(5), Px(6)
 c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 	  if( abs(Mx(1)) .lt. eps ) then
 	    if( abs(Px(1)) + abs(Mx(2)) .lt. eps ) then
-	      call coll(res, xpi, perm)
+	      if( DEBUGLEVEL .gt. 0 )
+     &          print '("collinear D0, perm = ",O10)', perm
+	      call coll(res, para, perm)
 	      if( res .ne. perm ) return
 	    endif
 	    if( s .eq. 0 .and.
@@ -117,24 +151,29 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 	  endif
 	enddo
 
-	if( s .ne. 0 ) then
-	  call soft(res, xpi, s)
-	  return
-	endif
-
-	if( lambda .lt. 0 ) then
-	  res = 0
+	if( s .eq. 0 ) then
+	  if( lambda .lt. 0 ) then
+	    res = 0
+	    return
+	  endif
+	else if( lambda .le. 0 ) then
+	  if( DEBUGLEVEL .gt. 0 )
+     &      print '("soft D0, perm = ",O10)', s
+	  call soft(res, para, s)
 	  return
 	endif
 
 	key = ibits(versionkey, KeyD0, 2)
 
 	if( key .ne. 1 ) then
+	  P(7) = 0
+	  P(8) = 0
+	  P(9) = 0
 	  ier = 0
-	  call ffxd0(res, xpi, ier)
+	  call ffxd0(res, para, ier)
 	  if( ier .gt. warndigits ) then
 	    ier = 0
-	    call ffxd0r(res, xpi, ier)
+	    call ffxd0r(res, para, ier)
 	    if( ier .gt. warndigits ) key = ior(key, 2)
 	    if( ier .ge. errdigits ) key = ior(key, 3)
 	  endif
@@ -142,8 +181,15 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 	  alt = res
 	endif
 
+	if( s .ne. 0 ) then
+	  if( DEBUGLEVEL .gt. 0 )
+     &      print '("soft D0, perm = ",O10)', s
+	  call soft(res, para, s)
+	  goto 9
+	endif
+
 	if( z .eq. 0 ) then
-	  call D0m4(res, xpi)
+	  call D0m4(res, para)
 	  goto 9
 	endif
 
@@ -167,16 +213,16 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 
 	goto (2, 2, 3, 2, 3, 3, 4) z
 
-	call D0m3(res, xpi, perm)
+	call D0m3(res, para, perm)
 	goto 9
 
-2	call D0m2(res, xpi, perm)
+2	call D0m2(res, para, perm)
 	goto 9
 
-3	call D0m1(res, xpi, perm)
+3	call D0m1(res, para, perm)
 	goto 9
 
-4	call D0m0(res, xpi)
+4	call D0m0(res, para)
 
 9	if( key .gt. 1 .and.
      &      abs(res - alt) .gt. maxdev*abs(alt) ) then
@@ -193,19 +239,18 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 	  print *, "  m4   =", M(4)
 	  print *, "D0 a   =", alt
 	  print *, "D0 b   =", res
-	  if( ier .le. errdigits ) res = alt
 	endif
 
-	if( .not. btest(key, 1) ) res = alt
+	if( .not. btest(key, 0) ) res = alt
 	end
 
 ************************************************************************
 
-	subroutine DDump(s, xpi, perm)
+	subroutine DDump(s, para,ldpara, perm)
 	implicit none
 	character*(*) s
-	double precision xpi(13)
-	integer perm
+	integer ldpara, perm
+	RealType para(ldpara,*)
 
 #include "lt.h"
 
@@ -226,22 +271,22 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 
 ************************************************************************
 
-	subroutine D0soft(res, xpi, perm)
+	subroutine D0soft(res, para, perm)
 	implicit none
-	double complex res
-	double precision xpi(13)
+	ComplexType res
+	RealType para(1,*)
 	integer perm
 
 #include "lt.h"
 
-	double precision m3, p1, p2, p3, p4, p1p2, p2p3
-	double precision r1, r3, r4
-	double complex xs, x2, x3, y, c, fac
-	double complex lxs, lx2, lx3, l1x2, l1x3, ly, lm
+	RealType m3, p1, p2, p3, p4, p1p2, p2p3
+	RealType r1, r3, r4
+	ComplexType xs, x2, x3, y, c, fac
+	ComplexType lxs, lx2, lx3, l1x2, l1x3, ly, lm
 	integer ier
 
-	double complex ln, spence, bdK, zfflo1
-	external ln, spence, bdK, zfflo1
+	ComplexType bdK, zfflo1, spence
+	external bdK, zfflo1, spence
 
 	m3 = Mx(3)
 	p1 = Px(1)
@@ -251,7 +296,7 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 	p1p2 = Px(5)
 	p2p3 = Px(6)
 
-	if( DEBUGLEVEL .gt. 0 ) call DDump("D0soft", xpi, perm)
+	if( DEBUGLEVEL .gt. 0 ) call DDump("D0soft", para,1, perm)
 
 	ier = 0
 
@@ -268,23 +313,23 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 * massless case
 	if( abs(m3) .lt. eps ) then
 	  if( abs(p1 - p2) + abs(p3 - p4) .lt. acc ) then
-	    res = -2*ln(-lambda/p1p2, 1D0)*lxs*fac
+	    res = -2*ln(-lambda/p1p2, 1)*lxs*fac
 	    return
 	  endif
-	  y = (r1*(p3 - p4 + cI*eps))/(r4*(p2 - p1 + cI*eps))
+	  y = (r1*(p3 - p4 + cIeps))/(r4*(p2 - p1 + cIeps))
 	  ly = log(y)
-	  c = ln(lambda/(r1*r4), 0D0) +
+	  c = ln(lambda/(r1*r4), 0) +
      &      ln((p2 - p1)/p1p2, p1 - p2) +
      &      ln((p3 - p4)/p1p2, p4 - p3)
 	  if( xs .eq. 1 ) then
 	    res = fac*(c - 2 - (1 + y)/(1 - y)*ly)
 	  else
 	    res = fac*(pi6 -
-     &        spence(xs/y, 0D0) -
+     &        spence(0, xs/y, 0D0) -
      &        (lxs + log(1/y))*zfflo1(xs/y, ier) -
-     &        spence(xs*y, 0D0) -
+     &        spence(0, xs*y, 0D0) -
      &        (lxs + ly)*(zfflo1(xs*y, ier) + .5D0*(lxs - ly)) +
-     &        spence(xs**2, 0D0) +
+     &        spence(0, xs**2, 0D0) +
      &        lxs*(2*zfflo1(xs**2, ier) - c))
 	  endif
 	  return
@@ -297,7 +342,7 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 	lx2 = log(x2)
 	lx3 = log(x3)
 	l1x3 = log(1/x3)
-	lm = 2*ln(r3*sqrt(lambda)/(m3 - p1p2), 1D0)
+	lm = 2*ln(r3*sqrt(lambda)/(m3 - p1p2), 1)
 	if( xs .eq. 1 ) then
 	  c = -2
 	  if( abs(x2 - x3) .gt. acc ) then
@@ -311,45 +356,45 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 	  l1x2 = log(1/x2)
 	  res = fac*( .5D0*pi**2 +
      &      lxs*(2*zfflo1(xs**2, ier) - lm) +
-     &      spence(xs**2, 0D0) + lx2**2 + lx3**2 -
-     &      spence(xs/(x2*x3), 0D0) -
+     &      spence(0, xs**2, 0D0) + lx2**2 + lx3**2 -
+     &      spence(0, xs/(x2*x3), 0D0) -
      &      (lxs + l1x2 + l1x3)*zfflo1(xs/(x2*x3), ier) -
-     &      spence(xs*x2/x3, 0D0) -
+     &      spence(0, xs*x2/x3, 0D0) -
      &      (lxs + lx2 + l1x3)*zfflo1(xs*x2/x3, ier) -
-     &      spence(xs/x2*x3, 0D0) -
+     &      spence(0, xs/x2*x3, 0D0) -
      &      (lxs + l1x2 + lx3)*zfflo1(xs/x2*x3, ier) -
-     &      spence(xs*x2*x3, 0D0) -
+     &      spence(0, xs*x2*x3, 0D0) -
      &      (lxs + lx2 + lx3)*zfflo1(xs*x2*x3, ier) )
 	endif
 	end
 
 ************************************************************************
 
-	double complex function bdK(x, m1, m2)
+	ComplexType function bdK(x, m1, m2)
 * this is actually -K from the Beenakker/Denner paper for D0soft
 	implicit none
-	double precision x, m1, m2
+	RealType x, m1, m2
 
 #include "lt.h"
 
-	double precision d
-	double complex t
+	RealType d
+	ComplexType t
 
 	d = x - (m1 - m2)**2
 	if( abs(d) .lt. acc ) then
 	  bdK = 1
 	else
-	  t = 4*m1*m2/(d + cI*eps)
+	  t = 4*m1*m2/(d + cIeps)
 	  bdK = -t/(sqrt(1 - t) + 1)**2
 	endif
 	end
 
 ************************************************************************
 
-	subroutine D0coll(res, xpi, perm)
+	subroutine D0coll(res, para, perm)
 	implicit none
-	double complex res
-	double precision xpi(13)
+	ComplexType res
+	RealType para(1,*)
 	integer perm
 
 #include "lt.h"
@@ -357,7 +402,7 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 	logical ini
 	data ini /.FALSE./
 
-	if( DEBUGLEVEL .gt. 0 ) call DDump("D0coll", xpi, perm)
+	if( DEBUGLEVEL .gt. 0 ) call DDump("D0coll", para,1, perm)
 
 	Px(1) = max(minmass, 1D-14)
 	res = perm
@@ -371,36 +416,36 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 * IR-divergent D0 in dim reg
 * from W. Beenakker and A. Denner, NPB 338 (1990) 349
 
-	subroutine D0softDR(res, xpi, perm)
+	subroutine D0softDR(res, para, perm)
 	implicit none
-	double complex res
-	double precision xpi(13)
+	ComplexType res
+	RealType para(1,*)
 	integer perm
 
 #include "lt.h"
 
-	double precision m2, m3, m4, p2, p3, t, p2p3, q2, q3
-	double precision r1, r3, r4, m24, sy
-	double complex c, fac, xs, x2, x3, lxs, lx2, lx3, lm, y
+	RealType m2, m3, m4, p2, p3, t, p2p3, q2, q3
+	RealType r1, r3, r4, m24, sy
+	ComplexType c, fac, xs, x2, x3, lxs, lx2, lx3, lm, y
 
-	double complex bdK, ln, cln, lnrat, Li2omx2, Li2omx3
-	external bdK, ln, cln, lnrat, Li2omx2, Li2omx3
+	ComplexType bdK, Li2omx2, Li2omx3
+	external bdK, Li2omx2, Li2omx3
 
-	if( DEBUGLEVEL .gt. 0 ) call DDump("D0softDR", xpi, perm)
+	if( DEBUGLEVEL .gt. 0 ) call DDump("D0softDR", para,1, perm)
 
 	if( lambda .eq. -2 ) then
 	  res = 0
 	  return
 	endif
 
-	m2 = Mx(2)
 	m3 = Mx(3)
-	m4 = Mx(4)
 	t = m3 - Px(5)
 	p2p3 = Px(6)
 
+	m2 = Px(1)
 	p2 = Px(2)
 	q2 = m2 - p2
+	m4 = Px(4)
 	p3 = Px(3)
 	q3 = m4 - p3
 
@@ -497,10 +542,10 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 
 ************************************************************************
 
-	subroutine D0collDR(res, xpi, perm)
+	subroutine D0collDR(res, para, perm)
 	implicit none
-	double complex res
-	double precision xpi(13)
+	ComplexType res
+	RealType para(1,*)
 	integer perm
 
 #include "lt.h"
@@ -702,7 +747,7 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 *         34	0000	1
      &    nz3p1234, nz2p1234, nz2p1243, p1234 /
 
-	if( DEBUGLEVEL .gt. 0 ) call DDump("D0collDR", xpi, perm)
+	if( DEBUGLEVEL .gt. 0 ) call DDump("D0collDR", para,1, perm)
 
 	z = 0
 	if( abs(Mx(3)) .lt. eps ) z = 1
@@ -728,45 +773,44 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 	goto (22,22,22,23, 22,22,22,23, 10,11,12,13)
      &    ibits(s, 30, 2) + ibits(z, 0, 2)*4 - 3
 
-	call D0m2p3(res, xpi, perm)
+	call D0m2p3(res, para, perm)
 	return
 
-23	call D0m1p3(res, xpi, perm)
+23	call D0m1p3(res, para, perm)
 	return
 
-22	call D0m1p2(res, xpi, perm)
+22	call D0m1p2(res, para, perm)
 	return
 
-13	call D0m0p3(res, xpi, perm)
+13	call D0m0p3(res, para,1, perm)
 	return
 
-12	call D0m0p2(res, xpi, perm)
+12	call D0m0p2(res, para,1, perm)
 	return
 
-11	call D0m0p1(res, xpi, perm)
+11	call D0m0p1(res, para,1, perm)
 	return
 
-10	call D0m0p0(res, xpi, perm)
+10	call D0m0p0(res, para,1, perm)
 	end
 
 ************************************************************************
 * qlbox1: D0(0, 0, 0, 0; p1p2, p2p3; 0, 0, 0, 0)
 * Bern, Dixon, Kosower, NPB 412 (1994) 751 [hep-ph/9306240], Eq. (I.11)
 
-	subroutine D0m0p0(res, xpi, perm)
+	subroutine D0m0p0(res, para,ldpara, perm)
 	implicit none
-	double complex res
-	double precision xpi(13)
-	integer perm
+	ComplexType res
+	integer ldpara, perm
+	RealType para(1,*)
 
 #include "lt.h"
 
-	double precision s, t, fac
+	RealType s, t, fac
+	ComplexType lsm, ltm, lts
 
-	double complex lnrat
-	external lnrat
-
-	if( DEBUGLEVEL .gt. 0 ) call DDump("D0m0p0: qlbox1", xpi, perm)
+	if( DEBUGLEVEL .gt. 0 )
+     &    call DDump("D0m0p0: qlbox1", para,ldpara, perm)
 
 	s = -Px(5)
 	t = -Px(6)
@@ -776,8 +820,10 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 	else if( lambda .eq. -1 ) then
 	  res = 2*fac*(-lnrat(t, mudim) - lnrat(s, mudim))
 	else
-	  res = fac*(lnrat(t, mudim)**2 + lnrat(s, mudim)**2 -
-     &      lnrat(t, s)**2 - pi**2)
+	  lsm = lnrat(s, mudim)
+	  ltm = lnrat(t, mudim)
+	  lts = lnrat(t, s)
+	  res = fac*((ltm - pi)*(ltm + pi) - (lts - lsm)*(lts + lsm))
 	endif
 	end
 
@@ -786,21 +832,22 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 * One-mass integral as given in
 * Ellis, Giele, Zanderighi, Eq. (A22).
 
-	subroutine D0m0p1(res, xpi, perm)
+	subroutine D0m0p1(res, para,ldpara, perm)
 	implicit none
-	double complex res
-	double precision xpi(13)
-	integer perm
+	ComplexType res
+	integer ldpara, perm
+	RealType para(ldpara,*)
 
 #include "lt.h"
 
-	double precision s, t, m4, fac
-	double complex l1, l2
+	RealType s, t, m4, fac
+	ComplexType l1, l2
 
-	double complex lnrat, Li2omrat
-	external lnrat, Li2omrat
+	ComplexType Li2omrat
+	external Li2omrat
 
-	if( DEBUGLEVEL .gt. 0 ) call DDump("D0m0p1: qlbox2", xpi, perm)
+	if( DEBUGLEVEL .gt. 0 )
+     &    call DDump("D0m0p1: qlbox2", para,ldpara, perm)
 
 	s = -Px(5)
 	t = -Px(6)
@@ -813,7 +860,7 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
      &      lnrat(t, mudim) - lnrat(s, mudim))
 	else
 	  l1 = sqrt(lnrat(t, mudim)**2 + lnrat(m4, t)**2 +
-     &              lnrat(s, mudim)**2 + lnrat(m4, s)**2)
+     &      lnrat(s, mudim)**2 + lnrat(m4, s)**2)
           l2 = sqrt(lnrat(m4, mudim)**2 + lnrat(t, s)**2)
 	  res = fac*((l1 - l2)*(l1 + l2) +
      &      2*(Li2omrat(t, m4) + Li2omrat(s, m4) - pi6))
@@ -822,21 +869,21 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 
 ************************************************************************
 
-	subroutine D0m0p2(res, xpi, perm)
+	subroutine D0m0p2(res, para,ldpara, perm)
 	implicit none
-	double complex res
-	double precision xpi(13)
-	integer perm
+	ComplexType res
+	integer ldpara, perm
+	RealType para(ldpara,*)
 
 #include "lt.h"
 
-	double precision s, t, q2, q3, q4, fac, r
-	double complex ls, lt, lq2, lq3, lq4
+	RealType s, t, q2, q3, q4, fac, r
+	ComplexType ls, lt, lq2, lq3, lq4
 
-	double complex lnrat, lndiv0, lndiv1, Li2omrat, Li2omrat2
-	external lnrat, lndiv0, lndiv1, Li2omrat, Li2omrat2
+	ComplexType lndiv0, lndiv1, Li2omrat, Li2omrat2
+	external lndiv0, lndiv1, Li2omrat, Li2omrat2
 
-	if( DEBUGLEVEL .gt. 0 ) call DDump("D0m0p2", xpi, perm)
+	if( DEBUGLEVEL .gt. 0 ) call DDump("D0m0p2", para,ldpara, perm)
 
 	s = -Px(5)
 	t = -Px(6)
@@ -917,20 +964,21 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 * or from hep-ph/0508308v3 Eq. (A27)
 * (v3 corrects previous versions)
 
-	subroutine D0m0p3(res, xpi, perm)
+	subroutine D0m0p3(res, para,ldpara, perm)
 	implicit none
-	double complex res
-	double precision xpi(13)
-	integer perm
+	ComplexType res
+	integer ldpara, perm
+	RealType para(ldpara,*)
 
 #include "lt.h"
 
-	double precision s, t, q2, q3, q4, fac, r
+	RealType s, t, q2, q3, q4, fac, r
 
-	double complex lnrat, lndiv0, lndiv1, Li2omrat, Li2omrat2
-	external lnrat, lndiv0, lndiv1, Li2omrat, Li2omrat2
+	ComplexType lndiv0, lndiv1, Li2omrat, Li2omrat2
+	external lndiv0, lndiv1, Li2omrat, Li2omrat2
 
-	if( DEBUGLEVEL .gt. 1 ) call DDump("D0m0p3: qlbox5", xpi, perm)
+	if( DEBUGLEVEL .gt. 1 )
+     &    call DDump("D0m0p3: qlbox5", para,ldpara, perm)
 
 	if( lambda .eq. -2 ) then
 	  res = 0
@@ -979,22 +1027,22 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 
 ************************************************************************
 
-	subroutine D0m1p2(res, xpi, perm)
+	subroutine D0m1p2(res, para, perm)
 	implicit none
-	double complex res
-	double precision xpi(13)
+	ComplexType res
+	RealType para(1,*)
 	integer perm
 
 #include "lt.h"
 
-	double precision m4, s, t, q3, q4, fac
-	double complex lm, ls, lt, lq
+	RealType m4, s, t, q3, q4, fac
+	ComplexType lm, ls, lt, lq
 	integer ir
 
-	double complex lnrat, Li2omrat, Li2omrat2
-	external lnrat, Li2omrat, Li2omrat2
+	ComplexType Li2omrat, Li2omrat2
+	external Li2omrat, Li2omrat2
 
-	if( DEBUGLEVEL .gt. 1 ) call DDump("D0m1p2", xpi, perm)
+	if( DEBUGLEVEL .gt. 1 ) call DDump("D0m1p2", para,1, perm)
 
 	m4 = Mx(4)
 	s = -Px(5)
@@ -1063,25 +1111,25 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 
 ************************************************************************
 
-	subroutine D0m1p3(res, xpi, perm)
+	subroutine D0m1p3(res, para, perm)
 	implicit none
-	double complex res
-	double precision xpi(13)
+	ComplexType res
+	RealType para(1,*)
 	integer perm
 
 #include "lt.h"
 
-	double precision s, t, m4, q2, q3, q4, m4mu, fac
+	RealType s, t, m4, q2, q3, q4, m4mu, fac
 
-	double complex lnrat, Li2omrat, Li2omrat2
-	external lnrat, Li2omrat, Li2omrat2
+	ComplexType Li2omrat, Li2omrat2
+	external Li2omrat, Li2omrat2
 
-	if( DEBUGLEVEL .gt. 1 ) call DDump("D0m1p3", xpi, perm)
+	if( DEBUGLEVEL .gt. 1 ) call DDump("D0m1p3", para,1, perm)
 
-	if( lambda .eq. -2 ) then
-	  res = 0
-	  return
-	endif
+c	if( lambda .eq. -2 ) then
+c	  res = 0
+c	  return
+c	endif
 
 	q2 = -Px(2)
 	s = -Px(5)
@@ -1103,49 +1151,55 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 	if( abs(q4) .lt. acc ) then
 	  if( DEBUGLEVEL .gt. 1 ) print *, "D0m1p3: qlbox9"
 	  fac = 1/(s*t)
-	  if( lambda .eq. -1 ) then
+	  if( lambda .eq. -2 ) then
+	    res = .5D0*fac
+	  else if( lambda .eq. -1 ) then
 	    res = -fac*(lnrat(t, m4mu) + lnrat(s, q2))
 	  else
 	    res = fac*(Li2omrat2(q3, q2, t, m4) + 2*Li2omrat(s, q2) +
-     &        lnrat(t, m4mu) + lnrat(s, q2) + pi12)
+     &        (lnrat(t, m4mu) + lnrat(s, q2))**2 + pi12)
 	  endif
 	  return
 	endif
 
 * qlbox10: D0(0, p2, p3, p4; p1p2, p2p3; 0, 0, 0, m4)
 	if( DEBUGLEVEL .gt. 1 ) print *, "D0m1p3: qlbox10"
+	if( lambda .eq. -2 ) then
+	  res = 0
+	  return
+	endif
 	fac = 1/(s*t - q2*q4)
 	res = fac*(lnrat(q2, mudim) + lnrat(q4, mudim) -
      &    lnrat(s, mudim) - lnrat(t, mudim))
 	if( lambda .ne. -1 ) then
 	  res = 2*res*lnrat(m4mu, t) +
      &      fac*(Li2omrat2(q3, q2, t, m4) - Li2omrat2(q3, s, q4, m4) +
-     &        2*(Li2omrat2(q2, s, q4, t) +
-     &          Li2omrat(q2, s) - Li2omrat(t, q4)))
+     &        2*(Li2omrat2(q2, s, q4, t) -
+     &          Li2omrat(q2, s) + Li2omrat(t, q4)))
 	endif
 	end
 
 ************************************************************************
 
-	subroutine D0m2p3(res, xpi, perm)
+	subroutine D0m2p3(res, para, perm)
 	implicit none
-	double complex res
-	double precision xpi(13)
+	ComplexType res
+	RealType para(1,*)
 	integer perm
 
 #include "lt.h"
 
-	double precision s, t, m3, m4, q3, q4, p3, fac, m3mu, m4mu
-	double precision p34, c, s3t, s4s, tmp
-	double complex ls, lt, lq3, lq4, d
-	double complex x43(4), r3t, r4s, r43p, r43m
-	double complex logs, dilogs
+	RealType s, t, m3, m4, q3, q4, p3, fac, m3mu
+	RealType p34, c, s3t, s4s, tmp
+	ComplexType ls, lt, lq3, lq4, d
+	ComplexType x43(4), r3t, r4s, r43p, r43m
+	ComplexType logs, dilogs
 	integer ir, case
 
-	double complex lnrat, cln, Li2rat, Li2omrat, Li2omrat2
-	external lnrat, cln, Li2rat, Li2omrat, Li2omrat2
+	ComplexType Li2rat, Li2omrat, Li2omrat2
+	external Li2rat, Li2omrat, Li2omrat2
 
-	if( DEBUGLEVEL .gt. 1 ) call DDump("D0m2p3", xpi, perm)
+	if( DEBUGLEVEL .gt. 1 ) call DDump("D0m2p3", para,1, perm)
 
 	m3 = Mx(3)
 	s = m3 - Px(5)
@@ -1192,7 +1246,7 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 	else
 	  p34 = p3 + m3 - m4
 	  c = -4*p3*m3
-	  d = sqrt(DCMPLX(p34**2 + c))
+	  d = sqrt(ToComplex(p34**2 + c))
 
 	  x43(1) = -p34 - d
 	  x43(2) =  p34 - d
@@ -1213,7 +1267,7 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 	    x43(4) = c/x43(3)
 	  endif
 
-	  if( abs(DIMAG(d)) .lt. eps ) then
+	  if( abs(Im(d)) .lt. eps ) then
 	    case = 2
 	    logs = lnrat(x43(1), x43(3))**2 +
      &             lnrat(x43(2), x43(4))**2
@@ -1221,7 +1275,7 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 	    case = 3
 	    r43p = x43(1)/x43(3)
 	    r43m = x43(2)/x43(4)
-	    logs = cln(r43p, 0D0)**2 + cln(r43m, 0D0)**2
+	    logs = ln(r43p, 0)**2 + ln(r43m, 0)**2
 	  endif
 	endif
 
@@ -1303,11 +1357,6 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 * qlbox11a: D0(0, p2, p3, p4; m3, m4; 0, 0, m3, m4)
 	if( DEBUGLEVEL .gt. 1 ) print *, "D0m2p3: qlbox11"
 
-	m3mu = sqrt(m3*mudim)
-	m4mu = sqrt(m4*mudim)
-	ls = lnrat(s, m3mu)
-	lt = lnrat(t, m4mu)
-
 	res = fac*(.25D0*log(m3/m4)**2 - .5D0*(logs + pi**2) +
      &    2*lnrat(s, sqrt(m3*mudim))*lnrat(t, sqrt(m4*mudim)))
 	return
@@ -1323,27 +1372,28 @@ c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 * M. Rauch: implemented the log branch cuts for k13 < 2
 * (from Denner, Nierste, Scharf; Nucl Phys B367 (1991) 637)
 
-c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
-#define AddEps(k) DCMPLX(k, -eps*max(abs(k), 1D0))
-#define k2r(k) (.5D0*k*(1 + sqrt(DCMPLX((1 - 2/k)*(1 + 2/k)))))
+c#define AddEps(k) k*ToComplex(1D0, -sign(eps, k))
+#define AddEps(k) (k - max(abs(k), 1D0)*cIeps)
+c#define k2r(k) (.5D0*k*(1 + sqrt(ToComplex((1 - 2/k)*(1 + 2/k)))))
+#define k2r(k) (.5D0*(k + sign(1D0, Re(k))*sqrt(ToComplex((k - 2)*(k + 2)))))
 
-	subroutine D0m4(res, xpi)
+	subroutine D0m4(res, para)
 	implicit none
-	double complex res
-	double precision xpi(13)
+	ComplexType res
+	RealType para(1,*)
 
 #include "lt.h"
 #include "perm.h"
 
-	double precision tmp, ir1324, gamma, s1, s2
-	double precision kij(6), irij(6), ix(2,4)
-	double complex rij(6), x(2,4), l(2,4), q13, q24
-	double complex a, b, c, d, disc, ki, etas
+	RealType tmp, ir1324, gamma, s1, s2
+	RealType kij(6), irij(6), ix(2,4)
+	ComplexType rij(6), x(2,4), l(2,4), q13, q24
+	ComplexType a, b, c, d, disc, ki, etas
 	integer j
 
-	double precision k12, k13, k14, k23, k24, k34
-	double precision ir12, ir13, ir14, ir23, ir24, ir34
-	double complex r12, r14, r13, r23, r24, r34
+	RealType k12, k13, k14, k23, k24, k34
+	RealType ir12, ir13, ir14, ir23, ir24, ir34
+	ComplexType r12, r14, r13, r23, r24, r34
 	equivalence (kij(1), k12), (rij(1), r12), (irij(1), ir12)
 	equivalence (kij(2), k23), (rij(2), r23), (irij(2), ir23)
 	equivalence (kij(3), k34), (rij(3), r34), (irij(3), ir34)
@@ -1351,11 +1401,11 @@ c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
 	equivalence (kij(5), k13), (rij(5), r13), (irij(5), ir13)
 	equivalence (kij(6), k24), (rij(6), r24), (irij(6), ir24)
 
-	double complex cln, xspence, xeta, xetatilde
+	ComplexType xspence, xeta, xetatilde
 	integer eta
-	external cln, xspence, xeta, xetatilde, eta
+	external xspence, xeta, xetatilde, eta
 
-	if( DEBUGLEVEL .gt. 0 ) call DDump("D0m4", xpi, p1234)
+	if( DEBUGLEVEL .gt. 0 ) call DDump("D0m4", para,1, p1234)
 
 	k12 = (M(1) + M(2) - P(1))/sqrt(M(1)*M(2))
 	k23 = (M(2) + M(3) - P(2))/sqrt(M(2)*M(3))
@@ -1423,25 +1473,25 @@ c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
 	r24 = 1/k2r(k24)
 
 	do j = 1, 6
-	  if( DIMAG(rij(j)) .eq. 0 ) then
-	    ki = kij(j) - cI*eps
+	  if( Im(rij(j)) .eq. 0 ) then
+	    ki = kij(j) - cIeps
 	    irij(j) = sign(1D0, abs(rij(j)) - 1)*
-     &        DIMAG(k2r(ki))
+     &        Im(k2r(ki))
 	  else
 	    irij(j) = 0
 	  endif
 	enddo
 
-	ir1324 = sign(1D0, DBLE(r24))*ir13 -
-     &           sign(1D0, DBLE(r13))*ir24
+	ir1324 = sign(1D0, Re(r24))*ir13 -
+     &           sign(1D0, Re(r13))*ir24
 
 	a = k34/r24 - k23 + (k12 - k14/r24)*r13
 	b = (1/r13 - r13)*(1/r24 - r24) + k12*k34 - k14*k23
 	c = k34*r24 - k23 + (k12 - k14*r24)/r13
 	d = k23 + (r24*k14 - k12)*r13 - r24*k34
-	disc = sqrt(b**2 - 4*a*(c + cI*eps*d))
-	ix(1,4) = DIMAG(.5D0/a*(b - disc))
-	ix(2,4) = DIMAG(.5D0/a*(b + disc))
+	disc = sqrt(b**2 - 4*a*(c + d*cIeps))
+	ix(1,4) = Im(.5D0/a*(b - disc))
+	ix(2,4) = Im(.5D0/a*(b + disc))
 
 	disc = sqrt(b**2 - 4*a*c)
 	x(1,4) = .5D0/a*(b - disc)
@@ -1459,14 +1509,14 @@ c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
 	x(1,3) = x(1,4)*r13
 	x(2,3) = x(2,4)*r13
 
-	s1 = sign(1D0, DBLE(x(1,4)))
-	s2 = sign(1D0, DBLE(x(2,4)))
-	ix(1,1) = ix(1,4)*DBLE(x(1,1))*s1
-	ix(2,1) = ix(2,4)*DBLE(x(2,1))*s2
-	ix(1,2) = ix(1,4)*DBLE(x(1,2))*s1
-	ix(2,2) = ix(2,4)*DBLE(x(2,2))*s2
-	ix(1,3) = ix(1,4)*DBLE(x(1,3))*s1
-	ix(2,3) = ix(2,4)*DBLE(x(2,3))*s2
+	s1 = sign(1D0, Re(x(1,4)))
+	s2 = sign(1D0, Re(x(2,4)))
+	ix(1,1) = ix(1,4)*Re(x(1,1))*s1
+	ix(2,1) = ix(2,4)*Re(x(2,1))*s2
+	ix(1,2) = ix(1,4)*Re(x(1,2))*s1
+	ix(2,2) = ix(2,4)*Re(x(2,2))*s2
+	ix(1,3) = ix(1,4)*Re(x(1,3))*s1
+	ix(2,3) = ix(2,4)*Re(x(2,3))*s2
  
 	res = 0
 	do j = 1, 4
@@ -1475,11 +1525,11 @@ c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
      &      xspence(x(1,j), ix(1,j), 1/rij(j), -irij(j)) )
 	enddo
 
-	gamma = sign(1D0, DBLE(a*(x(2,4) - x(1,4))))
+	gamma = sign(1D0, Re(a*(x(2,4) - x(1,4))))
 	l(1,4) = c2ipi*eta(r13, ir13, 1/r24, -ir24, ir1324)
 	l(2,4) = l(1,4)
 
-	if( DIMAG(r13) .eq. 0 ) then
+	if( Im(r13) .eq. 0 ) then
 	  r12 = k12 - r24*k14
 	  r23 = k23 - r24*k34
 	  r34 = k34 - r13*k14
@@ -1487,28 +1537,28 @@ c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
 	  q13 = k13 - 2*r13
 	  q24 = k24 - 2*r24
 
-	  c = gamma*sign(1D0, DIMAG(r24) + ir24)
-	  l(1,1) = cln(-x(1,1), -ix(1,1)) +
-     &      cln(r14 - q13/x(1,1), -1D0) +
-     &      cln((r12 - q24*x(1,4))/d, c)
-	  l(2,1) = cln(-x(2,1), -ix(2,1)) +
-     &      cln(r14 - q13/x(2,1), -1D0) +
-     &      cln((r12 - q24*x(2,4))/d, -c)
+	  c = gamma*sign(1D0, Im(r24) + ir24)
+	  l(1,1) = ln(-x(1,1), -ix(1,1)) +
+     &      ln(r14 - q13/x(1,1), -1) +
+     &      ln((r12 - q24*x(1,4))/d, c)
+	  l(2,1) = ln(-x(2,1), -ix(2,1)) +
+     &      ln(r14 - q13/x(2,1), -1) +
+     &      ln((r12 - q24*x(2,4))/d, -c)
 
-	  c = gamma*sign(1D0, DBLE(r13)*(DIMAG(r24) + ir24))
-	  l(1,2) = cln(-x(1,2), -ix(1,2)) +
-     &      cln(r14 - q13/x(1,1), -1D0) +
-     &      cln((r23 - q24*x(1,3))/d, c)
-	  l(2,2) = cln(-x(2,2), -ix(2,2)) +
-     &      cln(r14 - q13/x(2,1), -1D0) +
-     &      cln((r23 - q24*x(2,3))/d, -c)
+	  c = gamma*sign(1D0, Re(r13)*(Im(r24) + ir24))
+	  l(1,2) = ln(-x(1,2), -ix(1,2)) +
+     &      ln(r14 - q13/x(1,1), -1) +
+     &      ln((r23 - q24*x(1,3))/d, c)
+	  l(2,2) = ln(-x(2,2), -ix(2,2)) +
+     &      ln(r14 - q13/x(2,1), -1) +
+     &      ln((r23 - q24*x(2,3))/d, -c)
 
-	  l(1,3) = cln(-x(1,3), -ix(1,3)) +
-     &      cln(r34 - q13/x(1,4), -1D0) +
-     &      cln((r23 - q24*x(1,3))/d, c)
-	  l(2,3) = cln(-x(2,3), -ix(2,3)) +
-     &      cln(r34 - q13/x(2,4), -1D0) +
-     &      cln((r23 - q24*x(2,3))/d, -c)
+	  l(1,3) = ln(-x(1,3), -ix(1,3)) +
+     &      ln(r34 - q13/x(1,4), -1) +
+     &      ln((r23 - q24*x(1,3))/d, c)
+	  l(2,3) = ln(-x(2,3), -ix(2,3)) +
+     &      ln(r34 - q13/x(2,4), -1) +
+     &      ln((r23 - q24*x(2,3))/d, -c)
 
 	  etas =
      &      xetatilde(x(1,4), ix(1,4), r13, ir13, l(1,3)) +
@@ -1518,9 +1568,9 @@ c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
 	else
 	  do j = 1, 3
 	    l(1,j) = log(-x(1,j)) +
-     &        cln(kij(j) - 1/x(1,j) - x(1,j), -x(1,j)*b*gamma)
+     &        ln(kij(j) - 1/x(1,j) - x(1,j), -x(1,j)*b*gamma)
 	    l(2,j) = log(-x(2,j)) +
-     &        cln(kij(j) - 1/x(2,j) - x(2,j), -x(2,j)*b*gamma)
+     &        ln(kij(j) - 1/x(2,j) - x(2,j), -x(2,j)*b*gamma)
 	  enddo
 
 	  etas =
@@ -1528,7 +1578,7 @@ c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
      &      xeta(x(1,4), ix(1,4), 1/r24, -ir24, ix(1,1), l(1,1)) -
      &      xeta(x(1,4), ix(1,4), r13/r24, ir1324, ix(1,2), l(1,2)) +
      &      xeta(x(1,4), ix(1,4), -r13/r24, -ir1324, ix(1,4), l(1,4))*
-     &        (1 - sign(1D0, DBLE(b))*gamma)
+     &        (1 - sign(1D0, Re(b))*gamma)
  	endif
 
 	res = (res - c2ipi*etas + (l(2,2) - l(1,2))*l(1,4))/
@@ -1537,25 +1587,25 @@ c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
 
 ************************************************************************
 
-	subroutine D0m3(res, xpi, perm)
+	subroutine D0m3(res, para, perm)
 	implicit none
-	double complex res
-	double precision xpi(13)
+	ComplexType res
+	RealType para(1,*)
 	integer perm
 
 #include "lt.h"
 
-	double precision m2, m3, m4, p1, p2, p3, p4, p1p2, p2p3
-	double precision m, k12, k13, k14, k23, k24, k34
-	double precision ir12, ir14, ir24, ix1(2), ix4(2)
-	double complex r12, r14, r24, q12, q24
-	double complex x1(2), x4(2), l4(2)
-	double complex a, b, c, d
+	RealType m2, m3, m4, p1, p2, p3, p4, p1p2, p2p3
+	RealType m, k12, k13, k14, k23, k24, k34
+	RealType ir12, ir14, ir24, ix1(2), ix4(2)
+	ComplexType r12, r14, r24, q12, q24
+	ComplexType x1(2), x4(2), l4(2)
+	ComplexType a, b, c, d
 
-	double complex cln, xspence, xetatilde
-	external cln, xspence, xetatilde
+	ComplexType xspence, xetatilde
+	external xspence, xetatilde
 
-	if( DEBUGLEVEL .gt. 1 ) call DDump("D0m3", xpi, perm)
+	if( DEBUGLEVEL .gt. 1 ) call DDump("D0m3", para,1, perm)
 
 	m2 = Mx(2)
 	m3 = Mx(3)
@@ -1595,7 +1645,7 @@ c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
 	a = k34/r24 - k23
 	b = k12*k34 - k13*q24 - k14*k23
 	c = k13*q12 + r24*k34 - k23
-	d = sqrt(DCMPLX((k12*k34 - k13*k24 - k14*k23)**2 -
+	d = sqrt(ToComplex((k12*k34 - k13*k24 - k14*k23)**2 -
      &    4*(k13*(k13 - k23*(k12 - k14*k24)) +
      &       k23*(k23 - k24*k34) + k34*(k34 - k13*k14))))
 	x4(1) = .5D0/a*(b - d)
@@ -1607,52 +1657,52 @@ c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
 	endif
 
 	d = -k34*r24 + k23
-	ix4(1) = sign(1D0, DBLE(d))
+	ix4(1) = sign(1D0, Re(d))
 	ix4(2) = -ix4(1)
 
 	x1(1) = x4(1)/r24
 	x1(2) = x4(2)/r24
-	ix1(1) = sign(1D0, ix4(1)*DBLE(r24))
+	ix1(1) = sign(1D0, ix4(1)*Re(r24))
 	ix1(2) = -ix1(1)
 
-	c = cln(DCMPLX(k13), -1D0)
-	l4(1) = c + cln((q12 + q24*x4(1))/d, DBLE(q24*ix4(1)/d))
-	l4(2) = c + cln((q12 + q24*x4(2))/d, DBLE(q24*ix4(2)/d))
+	c = ln(k13, -1)
+	l4(1) = c + ln((q12 + q24*x4(1))/d, Re(q24*ix4(1)/d))
+	l4(2) = c + ln((q12 + q24*x4(2))/d, Re(q24*ix4(2)/d))
 
 	res = (
      &    xspence(x4, ix4, r14, ir14) +
      &    xspence(x4, ix4, 1/r14, -ir14) -
-     &    xspence(x4, ix4, DCMPLX(k34/k13), -k13) -
+     &    xspence(x4, ix4, ToComplex(k34/k13), -k13) -
      &    xspence(x1, ix1, r12, ir12) -
      &    xspence(x1, ix1, 1/r12, -ir12) +
-     &    xspence(x1, ix1, DCMPLX(k23/k13), -k13) -
+     &    xspence(x1, ix1, ToComplex(k23/k13), -k13) -
      &    c2ipi*xetatilde(x4, ix4, 1/r24, -ir24, l4)
      &  )/(m3*m*a*(x4(2) - x4(1)))
 	end
 
 ************************************************************************
 
-	subroutine D0m2(res, xpi, perm)
+	subroutine D0m2(res, para, perm)
 	implicit none
-	double complex res
-	double precision xpi(13)
+	ComplexType res
+	RealType para(1,*)
 	integer perm
 
 #include "lt.h"
 
-	double precision m3, m4, p1, p2, p3, p4, p1p2, p2p3
-	double precision m, k12, k13, k14, k23, k24, k34
-	double complex k12c, k13c, k23c, k24c, k34c
-	double complex r14, x4(2)
-	double complex a, b, c, disc
+	RealType m3, m4, p1, p2, p3, p4, p1p2, p2p3
+	RealType m, k12, k13, k14, k23, k24, k34
+	ComplexType k12c, k13c, k23c, k24c, k34c
+	ComplexType r14, x4(2)
+	ComplexType a, b, c, disc
 
-	double complex xspence
+	ComplexType xspence
 	external xspence
 
-	double precision imzero(2)
+	RealType imzero(2)
 	data imzero /0D0, 0D0/
 
-	if( DEBUGLEVEL .gt. 1 ) call DDump("D0m2", xpi, perm)
+	if( DEBUGLEVEL .gt. 1 ) call DDump("D0m2", para,1, perm)
 
 	m3 = Mx(3)
 	m4 = Mx(4)
@@ -1679,11 +1729,11 @@ c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
 	k34c = AddEps(k34)/k13c
 	k14 = (m3 + m4 - p3)/m
 	r14 = k2r(k14)
-	r14 = r14*DCMPLX(1D0, sign(eps, DBLE(1/r14 - r14)))
+	r14 = r14*ToComplex(1D0, sign(eps, Re(1/r14 - r14)))
 
 	a = k34*k24 - k23
 	b = k13*k24 + k12*k34 - k14*k23
-	c = k13*k12 - k23*(1 - cI*eps)
+	c = k13*k12 - k23*(1 - cIeps)
 	disc = sqrt(b**2 - 4*a*c)
 	x4(1) = .5D0/a*(b - disc)
 	x4(2) = .5D0/a*(b + disc)
@@ -1705,26 +1755,26 @@ c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
 
 ************************************************************************
 
-	subroutine D0m1(res, xpi, perm)
+	subroutine D0m1(res, para, perm)
 	implicit none
-	double complex res
-	double precision xpi(13)
+	ComplexType res
+	RealType para(1,*)
 	integer perm
 
 #include "lt.h"
 
-	double precision m4, k12, k13, k14, k23, k24, k34
-	double complex k12c, k13c, k14c, k23c, k24c, k34c
-	double precision a, b
-	double complex c, disc, x4(2)
+	RealType m4, k12, k13, k14, k23, k24, k34
+	ComplexType k12c, k13c, k14c, k23c, k24c, k34c
+	RealType a, b
+	ComplexType c, disc, x4(2)
 
-	double complex xspence
+	ComplexType xspence
 	external xspence
 
-	double precision imzero(2)
+	RealType imzero(2)
 	data imzero /0D0, 0D0/
 
-	if( DEBUGLEVEL .gt. 1 ) call DDump("D0m1", xpi, perm)
+	if( DEBUGLEVEL .gt. 1 ) call DDump("D0m1", para,1, perm)
 
 	m4 = Mx(4)
 	k12 = (m4 - Px(3))/m4
@@ -1742,7 +1792,7 @@ c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
 
 	a = k34*k24
 	b = k13*k24 + k12*k34 - k14*k23
-	c = k13*k12 - k23*(1 - cI*eps)
+	c = k13*k12 - k23*(1 - cIeps)
 	disc = sqrt(b*b - 4*a*c)
 	x4(1) = .5D0/a*(b - disc)
 	x4(2) = .5D0/a*(b + disc)
@@ -1763,26 +1813,26 @@ c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
 
 ************************************************************************
 
-	subroutine D0m0(res, xpi)
+	subroutine D0m0(res, para)
 	implicit none
-	double complex res
-	double precision xpi(13)
+	ComplexType res
+	RealType para(1,*)
 
 #include "lt.h"
 #include "perm.h"
 
-	double precision m2, k12, k13, k14, k23, k24, k34
-	double complex k12c, k13c, k14c, k23c, k24c, k34c
-	double precision a, b
-	double complex c, disc, x4(2)
+	RealType m2, k12, k13, k14, k23, k24, k34
+	ComplexType k12c, k13c, k14c, k23c, k24c, k34c
+	RealType a, b
+	ComplexType c, disc, x4(2)
 
-	double complex xspence
+	ComplexType xspence
 	external xspence
 
-	double precision imzero(2)
+	RealType imzero(2)
 	data imzero /0D0, 0D0/
 
-	if( DEBUGLEVEL .gt. 1 ) call DDump("D0m0", xpi, p1234)
+	if( DEBUGLEVEL .gt. 1 ) call DDump("D0m0", para,1, p1234)
 
 	m2 = abs(P(6))
 	k12 = -P(1)/m2
@@ -1800,7 +1850,7 @@ c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
 
 	a = k34*k24
 	b = k13*k24 + k12*k34 - k14*k23
-	c = k13*k12 + cI*eps*k23
+	c = k13*k12 + k23*cIeps
 	disc = sqrt(b*b - 4*a*c)
 	x4(1) = .5D0/a*(b - disc)
 	x4(2) = .5D0/a*(b + disc)
@@ -1821,14 +1871,14 @@ c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
 
 ************************************************************************
 
-	double complex function xspence(z1, im1, z2, im2)
+	ComplexType function xspence(z1, im1, z2, im2)
 	implicit none
-	double complex z1(2), z2
-	double precision im1(2), im2
+	ComplexType z1(2), z2
+	RealType im1(2), im2
 
 #include "lt.h"
 
-	double complex cspence
+	ComplexType cspence
 	external cspence
 
 	xspence = cspence(z1(2), im1(2), z2, im2) -
@@ -1837,46 +1887,46 @@ c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
 
 ************************************************************************
 
-	double complex function cspence(z1, im1, z2, im2)
+	ComplexType function cspence(z1, im1, z2, im2)
 	implicit none
-	double complex z1, z2
-	double precision im1, im2
+	ComplexType z1, z2
+	RealType im1, im2
 
 #include "lt.h"
 
-	double complex cln, spence
+	ComplexType spence
 	integer eta
-	external cln, spence, eta
+	external spence, eta
 
-	double complex z12
-	double precision im12
+	ComplexType z12
+	RealType im12
 	integer etas
 
 	z12 = z1*z2
-	im12 = im2*sign(1D0, DBLE(z1))
-	if( DBLE(z12) .gt. .5D0 ) then
-	  cspence = spence(1 - z12, 0D0)
+	im12 = im2*sign(1D0, Re(z1))
+	if( Re(z12) .gt. .5D0 ) then
+	  cspence = spence(1, z12, 0D0)
 	  etas = eta(z1, im1, z2, im2, im12)
 	  if( etas .ne. 0 ) cspence = cspence +
-     &      etas*cln(1 - z12, -im12)*c2ipi
+     &      etas*ln(1 - z12, -im12)*c2ipi
 	else if( abs(z12) .lt. 1D-4 ) then
 	  cspence = pi6
 	  if( abs(z12) .gt. 1D-14 ) cspence = cspence -
-     &      spence(z12, 0D0) +
-     &      (cln(z1, im1) + cln(z2, im2))*z12*
+     &      spence(0, z12, 0D0) +
+     &      (ln(z1, im1) + ln(z2, im2))*z12*
      &        (1 + z12*(.5D0 + z12*(1/3D0 + z12/4D0)))
 	else
-	  cspence = pi6 - spence(z12, 0D0) -
-     &      (cln(z1, im1) + cln(z2, im2))*cln(1 - z12, 0D0)
+	  cspence = pi6 - spence(0, z12, 0D0) -
+     &      (ln(z1, im1) + ln(z2, im2))*ln(1 - z12, 0)
 	endif
 	end
 
 ************************************************************************
 
-	double complex function xeta(z1, im1, z2, im2, im12, l1)
+	ComplexType function xeta(z1, im1, z2, im2, im12, l1)
 	implicit none
-	double complex z1(2), z2, l1(2)
-	double precision im1(2), im2, im12
+	ComplexType z1(2), z2, l1(2)
+	RealType im1(2), im2, im12
 
 #include "lt.h"
 
@@ -1889,10 +1939,10 @@ c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
 
 ************************************************************************
 
-	double complex function xetatilde(z1, im1, z2, im2, l1)
+	ComplexType function xetatilde(z1, im1, z2, im2, l1)
 	implicit none
-	double complex z1(2), z2, l1(2)
-	double precision im1(2), im2
+	ComplexType z1(2), z2, l1(2)
+	RealType im1(2), im2
 
 #include "lt.h"
 
@@ -1907,20 +1957,20 @@ c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
 
 	integer function etatilde(c1, im1x, c2, im2x)
 	implicit none
-	double complex c1, c2
-	double precision im1x, im2x
+	ComplexType c1, c2
+	RealType im1x, im2x
 
-	double precision im1, im2
+	RealType im1, im2
 
 	integer eta
 	external eta
 
-	im1 = DIMAG(c1)
+	im1 = Im(c1)
 	if( im1 .eq. 0 ) im1 = im1x
-	im2 = DIMAG(c2)
+	im2 = Im(c2)
 	if( im2 .ne. 0 ) then
 	  etatilde = eta(c1, im1x, c2, 0D0, 0D0)
-	else if( DBLE(c2) .gt. 0 ) then
+	else if( Re(c2) .gt. 0 ) then
 	  etatilde = 0
 	else if( im1 .gt. 0 .and. im2x .gt. 0 ) then
 	  etatilde = -1
@@ -1929,8 +1979,8 @@ c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
 	else
 	  etatilde = 0
 #ifdef WARNINGS
-	  if( im1 .eq. 0 .and. DBLE(c1) .lt. 0 .or.
-     &        im2x .eq. 0 .and. DBLE(c1*c2) .lt. 0 )
+	  if( im1 .eq. 0 .and. Re(c1) .lt. 0 .or.
+     &        im2x .eq. 0 .and. Re(c1*c2) .lt. 0 )
      &      print *, "etatilde not defined"
 #endif
 	endif

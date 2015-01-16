@@ -9,6 +9,8 @@
 
 #if QUAD
 
+#define RealType long double
+
 #pragma pack(push, 1)
 typedef union {
   long double r10;
@@ -22,34 +24,43 @@ typedef union {
     unsigned short exp;
   } i16;
   unsigned long long i8[2];
-} real16;
+unsigned char b[16];
+} REAL;
 #pragma pack(pop)
 
-static inline real16 ToREAL(long double r) {
-  real16 new;
+static inline REAL ToREAL(const RealType r) {
+  REAL new;
   new.i8[0] = 0;
-  new.i16.frac = ((real16 *)&r)->i10.frac << 1;
-  new.i16.exp = ((real16 *)&r)->i10.exp;
+  new.i16.frac = ((REAL *)&r)->i10.frac << 1;
+  new.i16.exp = ((REAL *)&r)->i10.exp;
   return new;
 }
 
-static inline long double ToReal(real16 r) {
-  real16 new;
+static inline RealType ToReal(const REAL r) {
+  REAL new;
   const long long z = r.i16.frac | (r.i16.exp & 0x7fff);
-  new.i10.frac = (r.i16.frac >> 1) | ((z | -z) & 0x8000000000000000);
+  new.i10.frac = (r.i16.frac >> 1) | ((z | -z) & 0x8000000000000000LL);
   new.i10.exp = r.i16.exp;
   return new.r10;
 }
 
-#define Real long double
-typedef real16 REAL;
+static inline void ToRealArray(RealType *out, const REAL *in, const int n) {
+  int i;
+  for( i = 0; i < n; ++i ) out[i] = ToReal(in[i]);
+}
+
+static inline void ToREALArray(REAL *out, const RealType *in, const int n) {
+  int i;
+  for( i = 0; i < n; ++i ) out[i] = ToREAL(in[i]);
+}
 
 #else
 
+#define RealType double
+typedef double REAL;
+
 #define ToReal(r) (r)
 #define ToREAL(r) (r)
-#define Real double
-typedef double REAL;
 
 #endif
 
@@ -64,25 +75,42 @@ typedef const CHARACTER CCHARACTER;
 #ifdef __cplusplus
 
 #include <complex>
-typedef std::complex<Real> Complex;
-#define ToComplex(c) Complex(ToReal((c).re), ToReal((c).im))
-#define ToComplex2(r,i) Complex(r, i)
+typedef std::complex<RealType> ComplexType;
+#define ToComplex(c) ComplexType(ToReal((c).re), ToReal((c).im))
+#define ToComplex2(r,i) ComplexType(r, i)
 #define Re(x) std::real(x)
 #define Im(x) std::imag(x)
+#define Conjugate(x) std::conj(x)
+
+#elif __STDC_VERSION__ >= 199901L
+
+#include <complex.h>
+typedef RealType complex ComplexType;
+#define ToComplex(c) (ToReal((c).re) + I*ToReal((c).im))
+#define ToComplex2(r,i) (r + I*(i))
+#if QUAD
+#define Re(x) creall(x)
+#define Im(x) cimagl(x)
+#define Conjugate(x) conjl(x)
+#else
+#define Re(x) creal(x)
+#define Im(x) cimag(x)
+#define Conjugate(x) conj(x)
+#endif
 
 #else
 
-#include <complex.h>
-typedef Real complex Complex;
-#define ToComplex(c) (ToReal((c).re) + I*ToReal((c).im))
-#define ToComplex2(r,i) (r + I*(i))
-#define Re(x) creal(x)
-#define Im(x) cimag(x)
+typedef struct { RealType re, im; } ComplexType;
+#define ToComplex(c) (ComplexType){ToReal((c).re), ToReal((c).im)}
+#define ToComplex2(r,i) (ComplexType){r, i}
+#define Re(x) (x).re
+#define Im(x) (x).im
+#define Conjugate(x) (ComplexType){(c).re, -(c).im}
 
 #endif
 
-typedef const Real cReal;
-typedef const Complex cComplex;
+typedef const RealType cRealType;
+typedef const ComplexType cComplexType;
 
 #endif
 

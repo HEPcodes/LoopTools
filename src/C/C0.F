@@ -1,118 +1,117 @@
 * C0.F
 * the scalar three-point function
 * this file is part of LoopTools
-* last modified 22 Nov 11 th
+* last modified 7 Jan 13 th
 
+#include "externals.h"
+#include "types.h"
+
+#define npoint 3
 #include "defs.h"
 
-#define legs 3
-#define M(i) xpi(i)
-#define P(i) xpi(i+legs)
 
-
-	double complex function C0(p1, p2, p1p2, m1, m2, m3)
+	ComplexType function C0(p1, p2, p1p2, m1, m2, m3)
 	implicit none
-	double precision p1, p2, p1p2, m1, m2, m3
+	RealType p1, p2, p1p2, m1, m2, m3
+
+#include "lt.h"
+
+	RealType para(1,Pcc)
+
+	P(1) = p1
+	P(2) = p2
+	P(3) = p1p2
+
+	M(1) = m1
+	if( abs(M(1)) .lt. minmass ) M(1) = 0
+	M(2) = m2
+	if( abs(M(2)) .lt. minmass ) M(2) = 0
+	M(3) = m3
+	if( abs(M(3)) .lt. minmass ) M(3) = 0
+
+	call C0para(C0, para)
+	end
+
+************************************************************************
+
+* subroutine version for C++
+
+	subroutine c0sub(res, p1, p2, p1p2, m1, m2, m3)
+	implicit none
+	ComplexType res
+	RealType p1, p2, p1p2, m1, m2, m3
+
+#include "lt.h"
+
+	RealType para(1,Pcc)
+
+	P(1) = p1
+	P(2) = p2
+	P(3) = p1p2
+
+	M(1) = m1
+	if( abs(M(1)) .lt. minmass ) M(1) = 0
+	M(2) = m2
+	if( abs(M(2)) .lt. minmass ) M(2) = 0
+	M(3) = m3
+	if( abs(M(3)) .lt. minmass ) M(3) = 0
+
+	call C0para(res, para)
+	end
+
+************************************************************************
+
+	subroutine C0para(res, para)
+	implicit none
+	ComplexType res
+	RealType para(1,*)
 
 #include "lt.h"
 
 	external C0soft, C0coll, C0softDR, C0collDR
 
-	double complex res(0:1)
-	double precision xpi(6)
-	integer key, ier
-
-	M(1) = m1
-	M(2) = m2
-	M(3) = m3
-	P(1) = p1
-	P(2) = p2
-	P(3) = p1p2
-
 	if( lambda .le. 0 ) then
-	  call CDispatch(C0, xpi, C0softDR, C0collDR)
-	  return
+	  call CDispatch(res, para, C0softDR, C0collDR)
+	else
+	  call CDispatch(res, para, C0soft, C0coll)
 	endif
-
-	ier = 0
-	key = ibits(versionkey, KeyC0, 2)
-
-	if( key .ne. 1 ) then
-	  call ffxc0(res(0), xpi, ier)
-	  if( ier .gt. warndigits ) then
-	    ier = 0
-	    call ffxc0r(res(0), xpi, ier)
-	    if( ier .gt. warndigits ) key = ior(key, 2)
-	  endif
-	endif
-
-	if( key .ne. 0 ) then
-	  call CDispatch(res(1), xpi, C0soft, C0coll)
-	  if( key .gt. 1 .and.
-     &        abs(res(0) - res(1)) .gt. maxdev*abs(res(0)) ) then
-	    print *, "Discrepancy in C0:"
-	    print *, "  p1   =", p1
-	    print *, "  p2   =", p2
-	    print *, "  p1p2 =", p1p2
-	    print *, "  m1   =", m1
-	    print *, "  m2   =", m2
-	    print *, "  m3   =", m3
-	    print *, "C0 a   =", res(0)
-	    print *, "C0 b   =", res(1)
-	    if( ier .gt. errdigits ) res(0) = res(1)
-	  endif
-	endif
-
-	C0 = res(iand(key, 1))
-	end
-
-************************************************************************
-* adapter code for C++
-
-	subroutine c0sub(res, p1, p2, p1p2, m1, m2, m3)
-	implicit none
-	double complex res
-	double precision p1, p2, p1p2, m1, m2, m3
-
-	double complex C0
-	external C0
-
-	res = C0(p1, p2, p1p2, m1, m2, m3)
 	end
 
 ************************************************************************
 
-	subroutine CDispatch(res, xpi, soft, coll)
+	subroutine CDispatch(res, para, soft, coll)
 	implicit none
-	double complex res
-	double precision xpi(6)
+	ComplexType res
+	RealType para(1,*)
 	external soft, coll
 
 #include "lt.h"
 #include "perm.h"
 
-	integer i, z, c, perm
+	integer i, z, c, s, perm, ier, key
+	ComplexType alt
 
-	double complex C0p3, C0p2, C0p1, C0p0
+	ComplexType C0p3, C0p2, C0p1, C0p0
 	external C0p3, C0p2, C0p1, C0p0
 
-	integer xpiperm(3)
-	data xpiperm /p123, p231, p312/
+	integer paraperm(3)
+	data paraperm /p123, p231, p312/
 
 #define Px(j) P(ibits(perm,3*(3-j),3))
 #define Mx(j) M(ibits(perm,3*(3-j),3))
 
 555	z = 0
 	c = 0
+	s = 0
 	do i = 1, 3
-	  perm = xpiperm(i)
+	  perm = paraperm(i)
 	  if( abs(Mx(1)) .lt. eps ) then
 	    if( abs(Px(1) - Mx(2)) +
      &          abs(Px(3) - Mx(3)) .lt. acc ) then
 	      if( DEBUGLEVEL .gt. 0 )
      &          print '("soft C0, perm = ",O3)', perm
-	      call soft(res, xpi, perm)
-	      return
+	      s = perm
+	      goto 556
 	    endif
 	    if( abs(Px(1)) + abs(Mx(2)) .lt. eps ) c = perm
 	  endif
@@ -122,36 +121,75 @@
 	if( c .ne. 0 ) then
 	  if( DEBUGLEVEL .gt. 0 )
      &      print '("collinear C0, perm = ",O3)', perm
-	  call coll(res, xpi, c)
+	  call coll(res, para, c)
 	  if( res .eq. c ) goto 555
 	  return
 	endif
 
-	if( lambda .lt. 0 ) then
+556	if( lambda .lt. 0 .or. (s .ne. 0 .and. lambda .eq. 0) ) then
 	  res = 0
+	  if( s .ne. 0 ) call soft(res, para, s)
 	  return
+	endif
+
+	key = ibits(versionkey, KeyC0, 2)
+
+	if( key .ne. 1 ) then
+	  ier = 0
+	  call ffxc0(res, para, ier)
+	  if( ier .gt. warndigits ) then
+	    ier = 0
+	    call ffxc0r(res, para, ier)
+	    if( ier .gt. warndigits ) key = ior(key, 2)
+	    if( ier .ge. errdigits ) key = ior(key, 3)
+	  endif
+	  if( key .eq. 0 ) return
+	  alt = res
+	endif
+
+	if( s .ne. 0 ) then
+	  call soft(res, para, s)
+	  goto 9
 	endif
 
 	goto (1, 2, 3) z
 
-	res = C0p3(xpi, p123) + C0p3(xpi, p231) + C0p3(xpi, p312)
-	return
+	res = C0p3(para, p123) + C0p3(para, p231) + C0p3(para, p312)
+	goto 9
 
-1	res = C0p2(xpi, p123) + C0p2(xpi, p231) + C0p2(xpi, p312)
-	return
+1	res = C0p2(para, p123) + C0p2(para, p231) + C0p2(para, p312)
+	goto 9
 
-2	res = C0p1(xpi, p123) + C0p1(xpi, p231) + C0p1(xpi, p312)
-	return
+2	res = C0p1(para, p123) + C0p1(para, p231) + C0p1(para, p312)
+	goto 9
 
-3	res = C0p0(xpi, p123)
+3	res = C0p0(para)
+
+9	if( key .ne. 0 ) then
+	  if( key .gt. 1 .and.
+     &        abs(res - alt) .gt. maxdev*abs(alt) ) then
+	    print *, "Discrepancy in C0:"
+	    print *, "  p1   =", P(1)
+	    print *, "  p2   =", P(2)
+	    print *, "  p1p2 =", P(3)
+	    print *, "  m1   =", M(1)
+	    print *, "  m2   =", M(2)
+	    print *, "  m3   =", M(3)
+	    print *, "C0 a   =", alt
+	    print *, "C0 b   =", res
+	    if( ier .gt. errdigits ) alt = res
+	  endif
+	endif
+
+	if( .not. btest(key, 0) ) res = alt
 	end
 
 ************************************************************************
 
-	subroutine CDump(s, xpi, perm)
+	subroutine CDump(s, para, perm)
 	implicit none
 	character*(*) s
-	double precision xpi(6)
+	RealType para(1,*)
 	integer perm
 
 #include "lt.h"
@@ -174,24 +212,24 @@
 
 * all mom-squares != 0
 
-	double complex function C0p3(xpi, perm)
+	ComplexType function C0p3(para, perm)
 	implicit none
-	double precision xpi(6)
+	RealType para(1,*)
 	integer perm
 
 #include "lt.h"
 
-	double precision m1, m2, m3, p1, p2, p3, pp1, pp2, pp3
-	double precision m12, m13, m23, a2, n, n1, n2, n3, n123
-	double complex a, b, c
-	double complex y1, y2, y3, y4, x1, x2, x3, x4, z3, z4
+	RealType m1, m2, m3, p1, p2, p3, pp1, pp2, pp3
+	RealType m12, m13, m23, a2, n, n1, n2, n3, n123, s
+	ComplexType a, b, c
+	ComplexType y1, y2, y3, y4, x1, x2, x3, x4, z3, z4
 	integer z3z4, x1z3, x3z3, x2z4, x4z4
 
-	double complex spence
+	ComplexType spence
 	integer eta
 	external spence, eta
 
-	if( DEBUGLEVEL .gt. 0 ) call CDump("C0p3", xpi, perm)
+	if( DEBUGLEVEL .gt. 0 ) call CDump("C0p3", para, perm)
 
 	m1 = Mx(1)
 	m2 = Mx(2)
@@ -205,7 +243,7 @@
 	m23 = m2 - m3
 
 	a2 = (p1 - p2 - p3)**2 - 4*p2*p3
-	a = sqrt(DCMPLX(a2))
+	a = sqrt(ToComplex(a2))
 	n = .5D0/p1
 	c = (p1*(p1 - p2 - p3 - m13 - m23) - m12*(p2 - p3))/a
 
@@ -225,7 +263,7 @@
 	y4 = n*(c + (p1 + m12))
 	if( abs(y2) .lt. abs(y4) ) y2 = n2/(a2*p1*y4)
 
-	b = sqrt(DCMPLX((p1 - m12)**2 - 4*p1*m2))
+	b = sqrt(ToComplex((p1 - m12)**2 - 4*p1*m2))
 	y3 = n*(c + b)
 	y4 = n*(c - b)
 	if( abs(y3) .lt. abs(y4) ) then
@@ -233,20 +271,15 @@
 	else
 	  y4 = n3/(a2*p1*y3)
 	endif
-	c = a*b
-	if( c .ne. 0 ) then
-	  y3 = y3 + cI*eps*abs(c*y3)/c
-	  y4 = y4 - cI*eps*abs(c*y4)/c
-	else
-	  y3 = y3*(1 + cI*eps)
-	  y4 = y4*(1 - cI*eps)
-	endif
+	s = Re(a*b)
+	y3 = y3 + sign(abs(y3), s)*cIeps
+	y4 = y4 - sign(abs(y4), s)*cIeps
 
-	C0p3 = spence(y2/y3, 0D0) + spence(y2/y4, 0D0) -
-     &           spence(y1/y3, 0D0) - spence(y1/y4, 0D0)
+	C0p3 = spence(0, y2/y3, 0D0) + spence(0, y2/y4, 0D0) -
+     &    spence(0, y1/y3, 0D0) - spence(0, y1/y4, 0D0)
 
-	if( DIMAG(a) .ne. 0 ) then
-	  c = eps*cI
+	if( Im(a) .ne. 0 ) then
+	  c = cIeps
 	  if( abs(b) .ne. 0 ) c = abs(b)/b*c
 	  x1 = c - n*( p1 - m12 + b)
 	  x2 = c - n*( p1 - m12 - b)
@@ -265,7 +298,7 @@
      &                 z3z4 - x3z3 - x4z4) +
      &        log(y3)*(x1z3 - x3z3) +
      &        log(y4)*(x2z4 - x4z4)
-	  if( DIMAG(a) .gt. 0 .and. p1 .lt. 0 ) c = c - log(y1/y2)
+	  if( Im(a) .gt. 0 .and. p1 .lt. 0 ) c = c - log(y1/y2)
 	  C0p3 = C0p3 + c2ipi*c
 	endif
 
@@ -275,21 +308,21 @@
 ************************************************************************
 * one mom-square zero
 
-	double complex function C0p2(xpi, perm)
+	ComplexType function C0p2(para, perm)
 	implicit none
-	double precision xpi(6)
+	RealType para(1,*)
 	integer perm
 
 #include "lt.h"
 
-	double precision m1, m2, m3, p1, p2, p3
-	double precision m12, m23, m13, a, c, y1, y2
-	double complex b, y3, y4
+	RealType m1, m2, m3, p1, p2, p3
+	RealType m12, m23, m13, a, c, y1, y2
+	ComplexType b, y3, y4
 
-	double complex spence
+	ComplexType spence
 	external spence
 
-	if( DEBUGLEVEL .gt. 0 ) call CDump("C0p2", xpi, perm)
+	if( DEBUGLEVEL .gt. 0 ) call CDump("C0p2", para, perm)
 
 	if( abs(Px(1)) .lt. eps ) then
 	  C0p2 = 0
@@ -318,7 +351,7 @@
 	endif
 
 	c = p1*(p1 - p2 - p3 - m13 - m23) - m12*(p2 - p3)
-	b = a*sqrt(DCMPLX((p1 - m12)**2 - 4*p1*m2))
+	b = a*sqrt(ToComplex((p1 - m12)**2 - 4*p1*m2))
 	y3 = c + b
 	y4 = c - b
 	c = 4*p1*(
@@ -331,36 +364,31 @@
 	  y4 = c/y3
 	endif
 	c = a/p1
-	if( c .ne. 0 ) then
-	  y3 = y3 + cI*eps*abs(c*y3)/c
-	  y4 = y4 - cI*eps*abs(c*y4)/c
-	else
-	  y3 = y3*(1 + cI*eps)
-	  y4 = y4*(1 - cI*eps)
-	endif
+	y3 = y3 + sign(abs(y3), c)*cIeps
+	y4 = y4 - sign(abs(y4), c)*cIeps
 
-	C0p2 = (spence(y2/y3, 0D0) + spence(y2/y4, 0D0) -
-     &            spence(y1/y3, 0D0) - spence(y1/y4, 0D0))/a
+	C0p2 = (spence(0, y2/y3, 0D0) + spence(0, y2/y4, 0D0) -
+     &    spence(0, y1/y3, 0D0) - spence(0, y1/y4, 0D0))/a
 	end
 
 ************************************************************************
 * two mom-squares zero
 
-	double complex function C0p1(xpi, perm)
+	ComplexType function C0p1(para, perm)
 	implicit none
-	double precision xpi(6)
+	RealType para(1,*)
 	integer perm
 
 #include "lt.h"
 
-	double precision m1, m2, m3, p1, p2, p3
-	double precision m12, m23, m13, c, y1, y2
-	double complex b, y3, y4
+	RealType m1, m2, m3, p1, p2, p3
+	RealType m12, m23, m13, c, y1, y2
+	ComplexType b, y3, y4
 
-	double complex spence
+	ComplexType spence
 	external spence
 
-	if( DEBUGLEVEL .gt. 0 ) call CDump("C0p1", xpi, perm)
+	if( DEBUGLEVEL .gt. 0 ) call CDump("C0p1", para, perm)
 
 	if( abs(Px(1)) .lt. eps ) then
 	  C0p1 = 0
@@ -384,15 +412,15 @@
 	  y1 = m23 - p1
 	  y2 = m23
 	  c = m23 + p1*m3/m13
-	  y3 = c - cI*eps*sign(1D0, p1/m13)*abs(c)
-	  C0p1 = spence(y1/y3, 0D0) - spence(y2/y3, 0D0)
+	  y3 = c - sign(c, p1/m13)*cIeps
+	  C0p1 = spence(0, y1/y3, 0D0) - spence(0, y2/y3, 0D0)
 	endif
 
 	y1 = -2*p1*m23
 	y2 = -2*p1*(m23 - p1)
 
 	c = p1*(p1 - m13 - m23)
-	b = p1*sqrt(DCMPLX((p1 - m12)**2 - 4*p1*m2))
+	b = p1*sqrt(ToComplex((p1 - m12)**2 - 4*p1*m2))
 	y3 = c - b
 	y4 = c + b
 	c = 4*p1**2*(p1*m3 + m13*m23)
@@ -401,27 +429,27 @@
 	else
 	  y4 = c/y3
 	endif
-	y3 = y3 - cI*eps*abs(y3)
-	y4 = y4 + cI*eps*abs(y4)
+	y3 = y3 - abs(y3)*cIeps
+	y4 = y4 + abs(y4)*cIeps
 
 	C0p1 = (C0p1 +
-     &    spence(y1/y3, 0D0) + spence(y1/y4, 0D0) -
-     &    spence(y2/y3, 0D0) - spence(y2/y4, 0D0))/p1
+     &    spence(0, y1/y3, 0D0) + spence(0, y1/y4, 0D0) -
+     &    spence(0, y2/y3, 0D0) - spence(0, y2/y4, 0D0))/p1
 	end
 
 ************************************************************************
 
-	double complex function C0p0(xpi, perm)
+	ComplexType function C0p0(para)
 	implicit none
-	double precision xpi(6)
-	integer perm
+	RealType para(1,*)
 
 #include "lt.h"
+#include "perm.h"
 
-	double precision m1, m2, m3
-	double precision m12, m23, m13
+	RealType m1, m2, m3
+	RealType m12, m23, m13
 
-	if( DEBUGLEVEL .gt. 0 ) call CDump("C0p0", xpi, perm)
+	if( DEBUGLEVEL .gt. 0 ) call CDump("C0p0", para, p123)
 
 	m1 = M(1)
 	m2 = M(2)
@@ -450,25 +478,25 @@
 
 ************************************************************************
 
-	subroutine C0soft(res, xpi, perm)
+	subroutine C0soft(res, para, perm)
 	implicit none
-	double complex res
-	double precision xpi(6)
+	ComplexType res
+	RealType para(1,*)
 	integer perm
 
 #include "lt.h"
 
-	double complex ln, spence
-	external ln, spence
+	ComplexType spence
+	external spence
 
-	double precision s, m1, m2
-	double precision a, h1, h2, h3, ps
-	double complex ls
+	RealType s, m1, m2
+	RealType a, h1, h2, h3, ps
+	ComplexType ls
 
 	logical ini
 	data ini /.FALSE./
 
-	if( DEBUGLEVEL .gt. 0 ) call CDump("C0soft", xpi, perm)
+	if( DEBUGLEVEL .gt. 0 ) call CDump("C0soft", para, perm)
 
 	s = Px(2)
 	m1 = Px(1)
@@ -520,21 +548,22 @@
 	  h3 = -2*m1*s/(a + ps)
 	endif
 
-	ls = ln(-a/s, -1D0)
+	ls = ln(-a/s, -1)
 	res = (-pi6 +
-     &    spence(DCMPLX(h2/a), -1D0) + spence(DCMPLX(h3/a), -1D0) -
-     &    .5D0*(ln(-h2/s, -1D0)**2 + ln(-h3/s, -1D0)**2) +
-     &    .25D0*(ln(-m1/s, -1D0)**2 + ln(-m2/s, -1D0)**2) -
-     &    ls*(ln(-h1/s, -1D0) - ls) +
-     &    ln(-lambda/s, -1D0)*ln(h1/sqrt(m1*m2), 1D0))/a
+     &    spence(0, ToComplex(h2/a), -1D0) +
+     &    spence(0, ToComplex(h3/a), -1D0) -
+     &    .5D0*(ln(-h2/s, -1)**2 + ln(-h3/s, -1)**2) +
+     &    .25D0*(ln(-m1/s, -1)**2 + ln(-m2/s, -1)**2) -
+     &    ls*(ln(-h1/s, -1) - ls) +
+     &    ln(-lambda/s, -1)*ln(h1/sqrt(m1*m2), 1))/a
 	end
 
 ************************************************************************
 
-	subroutine C0coll(res, xpi, perm)
+	subroutine C0coll(res, para, perm)
 	implicit none
-	double complex res
-	double precision xpi(6)
+	ComplexType res
+	RealType para(1,*)
 	integer perm
 
 #include "lt.h"
@@ -542,7 +571,7 @@
 	logical ini
 	data ini /.FALSE./
 
-	if( DEBUGLEVEL .gt. 0 ) call CDump("C0coll", xpi, perm)
+	if( DEBUGLEVEL .gt. 0 ) call CDump("C0coll", para, perm)
 
 	Px(1) = max(minmass, 1D-14)
 	res = perm
@@ -554,22 +583,22 @@
 
 ************************************************************************
 
-	subroutine C0softDR(res, xpi, perm)
+	subroutine C0softDR(res, para, perm)
 	implicit none
-	double complex res
-	double precision xpi(6)
+	ComplexType res
+	RealType para(1,*)
 	integer perm
 
 #include "lt.h"
 
-	double precision s, m1, m2
-	double precision m, dm, r
-	double complex root, fac, ls, lm, mK, lmK
+	RealType s, m1, m2
+	RealType m, dm, r
+	ComplexType root, fac, ls, lm, mK, lmK
 
-	double complex Li2omx2, lnrat, cln, spence
-	external Li2omx2, lnrat, cln, spence
+	ComplexType Li2omx2, spence
+	external Li2omx2, spence
 
-	if( DEBUGLEVEL .gt. 0 ) call CDump("C0softDR", xpi, perm)
+	if( DEBUGLEVEL .gt. 0 ) call CDump("C0softDR", para, perm)
 
 	s = Px(2)
 	m1 = Px(1)
@@ -620,7 +649,7 @@
 	    ls = lnrat(m1, m1 - s)
 	    lm = lnrat(mudim, m1)
 	    res = (lm*(.25D0*lm + ls) + .5D0*ls**2 + pi12 -
-     &        spence(DCMPLX(s/(s - m1)), 0D0))/(s - m1)
+     &        spence(0, ToComplex(s/(s - m1)), 0D0))/(s - m1)
 	  endif
 	  return
 	endif
@@ -634,7 +663,7 @@
 	if( DEBUGLEVEL .gt. 1 ) print *, "C0softDR: qltri6"
 	dm = sqrt(m1) - sqrt(m2)
 	r = s - dm**2
-	root = sqrt(DCMPLX((r - 4*m)/r))
+	root = sqrt(ToComplex((r - 4*m)/r))
 	mK = -4*m/(r*(1 + root)**2)
 
 	if( abs(mK - 1) .lt. acc ) then
@@ -649,7 +678,7 @@
 	  return
 	endif
 
-	lmK = cln(mK, 1D0)
+	lmK = ln(mK, 1)
 	fac = 1/(r*root)
 
 	if( lambda .eq. -1 ) then
@@ -658,29 +687,29 @@
 	  res = fac*( lmK*(.5D0*lmK + log(mudim/m)) -
      &      .125D0*log(m1/m2)**2 +
      &      Li2omx2(mK, 1D0, mK, 1D0) -
-     &      Li2omx2(mK, 1D0, DCMPLX(sqrt(m1/m2)), 0D0) -
-     &      Li2omx2(mK, 1D0, DCMPLX(sqrt(m2/m1)), 0D0) )
+     &      Li2omx2(mK, 1D0, ToComplex(sqrt(m1/m2)), 0D0) -
+     &      Li2omx2(mK, 1D0, ToComplex(sqrt(m2/m1)), 0D0) )
 	endif
 	end
 
 ************************************************************************
 
-	subroutine C0collDR(res, xpi, perm)
+	subroutine C0collDR(res, para, perm)
 	implicit none
-	double complex res
-	double precision xpi(6)
+	ComplexType res
+	RealType para(1,*)
 	integer perm
 
 #include "lt.h"
 
-	double precision s1, s2, m
-	double precision m1, m2, r
-	double complex l1, l2, lm
+	RealType s1, s2, m
+	RealType m1, m2, r
+	ComplexType l1, l2, lm
 
-	double complex Li2omrat, lnrat
-	external Li2omrat, lnrat
+	ComplexType Li2omrat
+	external Li2omrat
 
-	if( DEBUGLEVEL .gt. 0 ) call CDump("C0collDR", xpi, perm)
+	if( DEBUGLEVEL .gt. 0 ) call CDump("C0collDR", para, perm)
 
 	if( lambda .eq. -2 ) then
 	  res = 0

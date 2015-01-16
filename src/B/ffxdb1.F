@@ -1,4 +1,5 @@
 #include "externals.h"
+#include "types.h"
 
 
 *###[ ffxdb1:
@@ -15,14 +16,14 @@
 *
 *	arguments
 *
-	DOUBLE COMPLEX cdb1
-	DOUBLE PRECISION p, m1, m2
+	ComplexType cdb1
+	RealType p, m1, m2
 	integer ier
 
-	DOUBLE COMPLEX ffpvf, ffypvf
+	ComplexType ffpvf, ffypvf
 	external ffpvf, ffypvf
 
-	DOUBLE COMPLEX xp, xm, yp, ym, r
+	ComplexType xp, xm, yp, ym, r
 
 #include "ff.h"
 
@@ -54,10 +55,10 @@
 	  if( abs(xp - xm) .gt. acc*abs(xp + xm) ) then
 	    cdb1 = (ffypvf(2, xp, yp) - ffypvf(2, xm, ym))/r
 	  else if( abs(xp) .gt. 10 ) then
-	    cdb1 = DBLE( (2/3D0 +
+	    cdb1 = Re( (2/3D0 +
      +       (2 - 3*xp)*ffpvf(3, xp, yp))/xp**2 )/p
 	  else if( abs(yp) .gt. acc ) then
-	    cdb1 = DBLE( (3/2D0 +
+	    cdb1 = Re( (3/2D0 +
      +       (2 - 3*xp)*ffpvf(1, xp, yp)) )/p
 	  else
 	    call fferr(101, ier)
@@ -66,8 +67,8 @@
 
 *		zero momentum case
 	else if( abs(m1 - m2) .gt. acc*(m1 + m2) ) then
-	  xm = (1 - cI*eps)*m1/(m1 - m2)
-	  ym = (1 - cI*eps)*m2/(m2 - m1)
+	  xm = (1 - cIeps)*m1/(m1 - m2)
+	  ym = (1 - cIeps)*m2/(m2 - m1)
 	  if( abs(xm) .lt. 10 ) then
 	    cdb1 = -(1/3D0 + ffypvf(2, xm, ym))/(m1 - m2)
 	  else
@@ -94,14 +95,14 @@
 *
 *	arguments
 *
-	DOUBLE COMPLEX cdb11
-	DOUBLE PRECISION p, m1, m2
+	ComplexType cdb11
+	RealType p, m1, m2
 	integer ier
 
-	DOUBLE COMPLEX ffpvf, ffypvf
+	ComplexType ffpvf, ffypvf
 	external ffpvf, ffypvf
 
-	DOUBLE COMPLEX xp, xm, yp, ym, r
+	ComplexType xp, xm, yp, ym, r
 
 #include "ff.h"
 *
@@ -113,10 +114,10 @@
 	  if( abs(xp - xm) .gt. acc*abs(xp + xm) ) then
 	    cdb11 = (ffypvf(3, xm, ym) - ffypvf(3, xp, yp))/r
 	  else if( abs(xp) .gt. 10 ) then
-	    cdb11 = DBLE( (-3/4D0 +
+	    cdb11 = Re( (-3/4D0 +
      +       (4*xp - 3)*ffpvf(4, xp, yp))/xp**2 )/p
 	  else if( abs(yp) .gt. acc ) then
-	    cdb11 = DBLE( (-4/3D0 +
+	    cdb11 = Re( (-4/3D0 +
      +       (4*xp - 3)*ffpvf(2, xp, yp))/p )
 	  else
 c	    call fferr(102, ier)
@@ -125,8 +126,8 @@ c	    call fferr(102, ier)
 
 *		zero momentum case
 	else if( abs(m1 - m2) .gt. acc*(m1 + m2) ) then
-	  xm = (1 - cI*eps)*m1/(m1 - m2)
-	  ym = (1 - cI*eps)*m2/(m2 - m1)
+	  xm = (1 - cIeps)*m1/(m1 - m2)
+	  ym = (1 - cIeps)*m2/(m2 - m1)
 	  if( abs(xm) .lt. 10 ) then
 	    cdb11 = (1/4D0 + ffypvf(3, xm, ym))/(m1 - m2)
 	  else
@@ -153,14 +154,14 @@ c	    call fferr(102, ier)
 *
 *	arguments
 *
-	DOUBLE COMPLEX cb111
-	DOUBLE PRECISION p, m1, m2
+	ComplexType cb111
+	RealType p, m1, m2
 	integer ier
 
-	DOUBLE COMPLEX ffpvf, ffypvf, ffthf, ffxlogx
+	ComplexType ffpvf, ffypvf, ffthf, ffxlogx
 	external ffpvf, ffypvf, ffthf, ffxlogx
 
-	DOUBLE COMPLEX xp, xm, yp, ym, r
+	ComplexType xp, xm, yp, ym, r
 
 #include "ff.h"
 *
@@ -173,7 +174,7 @@ c	    call fferr(102, ier)
 	    cb111 = 1/4D0*( log(m2/mudim) - delta +
      &        ffpvf(4, xp, yp) + ffpvf(4, xm, ym) )
 	  else if( abs(xp) .lt. 10 .and. abs(xm) .lt. 10 ) then
-	    cb111 = 1/4D0*( log(p/mudim*(1 - cI*eps)) -
+	    cb111 = 1/4D0*( log(p/mudim*(1 - cIeps)) -
      &        delta - 1/2D0 +
      &        (1 + xp)*(1 + xp**2)*ffxlogx(yp) -
      &        xp*(1/3D0 + xp*(1/2D0 + xp*(1 + ffxlogx(-xp)))) +
@@ -189,8 +190,8 @@ c	    call fferr(102, ier)
 
 *		zero momentum case
 	else if( abs(m1 - m2) .gt. acc*(m1 + m2) ) then
-	  xm = (1 - cI*eps)*m1/(m1 - m2)
-	  ym = (1 - cI*eps)*m2/(m2 - m1)
+	  xm = (1 - cIeps)*m1/(m1 - m2)
+	  ym = (1 - cIeps)*m2/(m2 - m1)
 	  if( abs(ym) .gt. .5D0 ) then
 	    cb111 = 1/4D0*(log(m2/mudim) - delta + ffpvf(4, xm, ym))
 	  else
@@ -222,11 +223,11 @@ c	    call fferr(102, ier)
 *
 *	arguments
 *
-	DOUBLE PRECISION p, m1, m2
-	DOUBLE COMPLEX xp, xm, yp, ym, r
+	RealType p, m1, m2
+	ComplexType xp, xm, yp, ym, r
 	integer ier
 
-	DOUBLE PRECISION qx, qy
+	RealType qx, qy
 
 #include "ff.h"
 *
@@ -242,7 +243,7 @@ c	    call fferr(102, ier)
 	qx = m1 - m2 + p
 	qy = m2 - m1 + p
 
-	r = sqrt(DCMPLX(p*(p - m1 - m2) - m1*qy - m2*qx))
+	r = sqrt(ToComplex(p*(p - m1 - m2) - m1*qy - m2*qx))
 	xp = .5D0*(qx + r)/p
 	xm = .5D0*(qx - r)/p
 	if( abs(xm) .gt. abs(xp) ) then
@@ -250,8 +251,8 @@ c	    call fferr(102, ier)
 	else if( abs(xp) .gt. abs(xm) ) then
 	  xm = m1/(p*xp)
 	endif
-	xp = xp + abs(p*xp)/p*eps*cI
-	xm = xm - abs(p*xm)/p*eps*cI
+	xp = xp + sign(abs(xp), p)*cIeps
+	xm = xm - sign(abs(xm), p)*cIeps
 
 	ym = .5D0*(qy + r)/p
 	yp = .5D0*(qy - r)/p
@@ -260,14 +261,13 @@ c	    call fferr(102, ier)
 	else if( abs(yp) .gt. abs(ym) ) then
 	  ym = m2/(p*yp)
 	endif
-	yp = yp - abs(p*yp)/p*eps*cI
-	ym = ym + abs(p*ym)/p*eps*cI
-
+	yp = yp - sign(abs(yp), p)*cIeps
+	ym = ym + sign(abs(ym), p)*cIeps
 	end
 
 
 *###[ ffpvf
-	DOUBLE COMPLEX function ffpvf(n, x, y)
+	ComplexType function ffpvf(n, x, y)
 ***#[*comment:***********************************************************
 *									*
 *	Passarino-Veltman function f(n, x)				*
@@ -280,9 +280,9 @@ c	    call fferr(102, ier)
 *	arguments
 *
 	integer n
-	DOUBLE COMPLEX x, y
+	ComplexType x, y
 
-	DOUBLE COMPLEX xm
+	ComplexType xm
 	integer m
 
 #include "ff.h"
@@ -314,7 +314,7 @@ c	    call fferr(102, ier)
 
 
 *###[ ffypvf
-	DOUBLE COMPLEX function ffypvf(n, x, y)
+	ComplexType function ffypvf(n, x, y)
 ***#[*comment:***********************************************************
 *									*
 *	y*ffpvf(n, x, y)						*
@@ -326,9 +326,9 @@ c	    call fferr(102, ier)
 *	arguments
 *
 	integer n
-	DOUBLE COMPLEX x, y
+	ComplexType x, y
 
-	DOUBLE COMPLEX ffpvf
+	ComplexType ffpvf
 	external ffpvf
 *
 *  #] declarations:
@@ -342,7 +342,7 @@ c	    call fferr(102, ier)
 
 
 *###[ ffypvf
-	DOUBLE COMPLEX function ffxlogx(x)
+	ComplexType function ffxlogx(x)
 ***#[*comment:***********************************************************
 *									*
 *	x*log(x)							*
@@ -353,7 +353,7 @@ c	    call fferr(102, ier)
 *
 *	arguments
 *
-	DOUBLE COMPLEX x
+	ComplexType x
 *
 *  #] declarations:
 
@@ -366,7 +366,7 @@ c	    call fferr(102, ier)
 
 
 *###[ ffthf
-	DOUBLE COMPLEX function ffthf(n, x, y)
+	ComplexType function ffthf(n, x, y)
 ***#[*comment:***********************************************************
 *									*
 *	y*ffpvf(n, x, y)						*
@@ -378,12 +378,12 @@ c	    call fferr(102, ier)
 *	arguments
 *
 	integer n
-	DOUBLE COMPLEX x, y
+	ComplexType x, y
 
-	DOUBLE COMPLEX ffpvf
+	ComplexType ffpvf
 	external ffpvf
 
-	DOUBLE COMPLEX xm
+	ComplexType xm
 	integer m
 
 #include "ff.h"
