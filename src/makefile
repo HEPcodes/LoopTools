@@ -23,15 +23,15 @@ OBJS = $(OBJS-quad) \
   ffxb2p.o ffcb2p.o \
   ffxdb0.o ffcdb0.o ffxdb1.o \
   ffdel2.o ffcel2.o \
-  C0para.o C0paraC.o Cget.o CgetC.o \
+  C0func.o C0funcC.o Cget.o CgetC.o \
   ffxc0.o ffcc0.o ffxc0i.o ffxc0p0.o \
   ffxc0p.o ffcc0p.o ffdxc0.o ffdcc0.o \
   ffdel3.o ffcel3.o \
-  D0para.o D0paraC.o Dget.o DgetC.o \
+  D0func.o D0funcC.o Dget.o DgetC.o \
   ffxd0.o ffxd0h.o ffxd0i.o ffxd0p.o \
   ffxd0m0.o ffxd0tra.o ffxdbd.o ffdel4.o ffd0c.o \
   ffTn.o ffT13.o ffS2.o ffS3n.o ffRn.o \
-  E0para.o E0paraC.o Eget.o EgetC.o \
+  E0func.o E0funcC.o Eget.o EgetC.o \
   Ecoeffa.o EcoeffaC.o Ecoeffb.o EcoeffbC.o \
   ffxe0.o ffdel5.o \
   ini.o auxCD.o solve.o solveC.o \
@@ -96,10 +96,10 @@ ffdel2.o: ffdel2.F $(FFINC)
 ffcel2.o: ffcel2.F $(FFINC)
 	$(XFC) -c -o ffcel2.o ffcel2.F
 
-C0para.o: C0para.F $(LTINC) perm.h
-	$(XFC) -c -o C0para.o C0para.F
-C0paraC.o: C0paraC.F $(LTINC)
-	$(XFC) -c -o C0paraC.o C0paraC.F
+C0func.o: C0func.F $(LTINC) perm.h
+	$(XFC) -c -o C0func.o C0func.F
+C0funcC.o: C0funcC.F $(LTINC)
+	$(XFC) -c -o C0funcC.o C0funcC.F
 Cget.o: Cget.F $(LTINC)
 	$(XFC) -c -o Cget.o Cget.F
 CgetC.o: Cget.F $(LTINC)
@@ -123,10 +123,10 @@ ffdel3.o: ffdel3.F $(FFINC)
 ffcel3.o: ffcel3.F $(FFINC)
 	$(XFC) -c -o ffcel3.o ffcel3.F
 
-D0para.o: D0para.F $(LTINC) perm.h
-	$(XFC) -c -o D0para.o D0para.F
-D0paraC.o: D0paraC.F $(LTINC)
-	$(XFC) -c -o D0paraC.o D0paraC.F
+D0func.o: D0func.F $(LTINC) perm.h
+	$(XFC) -c -o D0func.o D0func.F
+D0funcC.o: D0funcC.F $(LTINC)
+	$(XFC) -c -o D0funcC.o D0funcC.F
 Dget.o: Dget.F $(LTINC)
 	$(XFC) -c -o Dget.o Dget.F
 DgetC.o: Dget.F $(LTINC)
@@ -162,10 +162,10 @@ ffS3n.o: ffS3n.F $(FFINC)
 ffRn.o: ffRn.F $(FFINC)
 	$(XFC) -c -o ffRn.o ffRn.F
 
-E0para.o: E0para.F $(LTINC)
-	$(XFC) -c -o E0para.o E0para.F
-E0paraC.o: E0para.F $(LTINC)
-	$(CFC) -c -o E0paraC.o E0para.F
+E0func.o: E0func.F $(LTINC)
+	$(XFC) -c -o E0func.o E0func.F
+E0funcC.o: E0func.F $(LTINC)
+	$(CFC) -c -o E0funcC.o E0func.F
 Eget.o: Eget.F $(LTINC)
 	$(XFC) -c -o Eget.o Eget.F
 EgetC.o: Eget.F $(LTINC)
@@ -245,7 +245,7 @@ $(LIB): $(OBJS)
 
 
 $(FE): lt.F $(LTINC) $(LIB)
-	$(XFC) -o $(FE) lt.F $(LIB)
+	$(XFC) -o $(FE) lt.F $(LIB) -lpthread
 	-rm -f lt.o
 
 clooptools.h: clooptools.h.in ftypes.h
@@ -262,7 +262,7 @@ LoopTools$(EXE): LoopTools.tm clooptools.h fortranflush.o $(LIB) fcc
 	CXX="./f++" REALCXX="$(CXX) $(CXXFLAGS)" \
 	PATH="$$PATH:." \
 	  "$(MCC)" LoopTools.tm -o LoopTools$(EXE) $(MCFLAGS) \
-	    fortranflush.o $(LIB) -lpthread
+	    fortranflush.o $(LIB) $(MCLIBS)
 	rm -f LoopTools.tm.c
 
 LoopTools-quad$(EXE): LoopTools.tm clooptools.h fortranflush.o $(LIB) fcc

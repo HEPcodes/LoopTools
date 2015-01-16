@@ -1,7 +1,7 @@
 * lt.h
 * internal common blocks for the LoopTools routines
 * this file is part of LoopTools
-* last modified 30 Jan 14 th
+* last modified 6 Mar 14 th
 
 
 #include "ff.h"
@@ -36,8 +36,7 @@
 	ComplexType cache(2,ncaches)
 	equivalence (cacheptr, cache)
 
-#ifndef sig
-#define sig(c) int(sign(1D0,Re(r))
+#ifndef DEBUGLEVEL
 #define DEBUGLEVEL ibits(debugkey,8,2)
 #endif
 

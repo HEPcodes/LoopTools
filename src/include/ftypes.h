@@ -12,36 +12,38 @@
 #define RealType long double
 
 #pragma pack(push, 1)
-typedef union {
-  long double r10;
-  struct {
-    unsigned long long frac;
-    unsigned short exp;
-  } i10;
-  struct {
-    char zero[6];
-    unsigned long long frac;
-    unsigned short exp;
-  } i16;
-  unsigned long long i8[2];
-unsigned char b[16];
-} REAL;
+typedef struct {
+  unsigned long long frac;
+  unsigned short exp;
+} REAL10;
+typedef struct {
+  char zero[6];
+  unsigned long long frac;
+  unsigned short exp;
+} REAL16;
 #pragma pack(pop)
 
+typedef union {
+  long double r10;
+  REAL10 i10;
+  REAL16 i16;
+  unsigned long long i8[2];
+} REAL;
+
 static inline REAL ToREAL(const RealType r) {
-  REAL new;
-  new.i8[0] = 0;
-  new.i16.frac = ((REAL *)&r)->i10.frac << 1;
-  new.i16.exp = ((REAL *)&r)->i10.exp;
-  return new;
+  REAL n;
+  n.i8[0] = 0;
+  n.i16.frac = ((REAL *)&r)->i10.frac << 1;
+  n.i16.exp = ((REAL *)&r)->i10.exp;
+  return n;
 }
 
 static inline RealType ToReal(const REAL r) {
-  REAL new;
+  REAL n;
   const long long z = r.i16.frac | (r.i16.exp & 0x7fff);
-  new.i10.frac = (r.i16.frac >> 1) | ((z | -z) & 0x8000000000000000LL);
-  new.i10.exp = r.i16.exp;
-  return new.r10;
+  n.i10.frac = (r.i16.frac >> 1) | ((z | -z) & 0x8000000000000000LL);
+  n.i10.exp = r.i16.exp;
+  return n.r10;
 }
 
 static inline void ToRealArray(RealType *out, const REAL *in, const int n) {
@@ -105,7 +107,7 @@ typedef struct { RealType re, im; } ComplexType;
 #define ToComplex2(r,i) (ComplexType){r, i}
 #define Re(x) (x).re
 #define Im(x) (x).im
-#define Conjugate(x) (ComplexType){(c).re, -(c).im}
+#define Conjugate(x) (ComplexType){(x).re, -(x).im}
 
 #endif
 

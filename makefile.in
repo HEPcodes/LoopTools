@@ -25,6 +25,7 @@ ARGS = $(PARALLEL) \
   ML="$(ML)" \
   MCC="$(MCC)" \
   MCFLAGS="$(MCFLAGS)" \
+  MCLIBS="$(MCLIBS)" \
   AR="$(AR)" \
   RANLIB="$(RANLIB)" \
   NM="$(NM)" \
@@ -44,6 +45,8 @@ install: lib frontend
 	cp -p $(INCLUDE$(QUADSUFFIX)) $(INCLUDEDIR)
 	strip $(BLD)/$(FE)
 	cp -p $(BLD)/fcc $(BLD)/$(FE) $(BINDIR)
+	rm -f $(BINDIR)/f++
+	ln -s fcc $(BINDIR)/f++
 	test ! -f $(BLD)/$(MFE) || { strip $(BLD)/$(MFE) ; cp -p $(BLD)/$(MFE) $(BINDIR); }
 
 force: $(BLD)/timestamp

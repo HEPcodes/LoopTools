@@ -1,17 +1,23 @@
 * defs.h
 * internal definitions for the LoopTools routines
 * this file is part of LoopTools
-* last modified 4 Feb 14 th
+* last modified 28 Feb 14 th
 
 
 #ifdef COMPLEXPARA
 
-#define XA0 A0C
-#define XA00 A00C
-#define XA0i A0iC
 #define XAget AgetC
 #define XAput AputC
+#define XAputnocache AputnocacheC
+#define XA0i A0iC
+#define XA0 A0C
+#define XA00 A00C
 #define XAcoeff AcoeffC
+#define XBpara BparaC
+#define XBget BgetC
+#define XBput BputC
+#define XBputnocache BputnocacheC
+#define XB0i B0iC
 #define XB0 B0C
 #define XB1 B1C
 #define XB00 B00C
@@ -23,29 +29,34 @@
 #define XDB00 DB00C
 #define XDB11 DB11C
 #define XDB001 DB001C
-#define XB0i B0iC
-#define XBget BgetC
-#define XBput BputC
 #define XBcoeff BcoeffC
 #define XBcoeffFF BcoeffFFC
-#define XC0 C0C
-#define XC0para C0Cpara
-#define XC0i C0iC
+#define XC0func C0funcC
+#define XCpara CparaC
 #define XCget CgetC
 #define XCput CputC
+#define XC0nocache C0nocacheC
+#define XC0i C0iC
+#define XC0 C0C
+#define XCcoefx CcoefxC
 #define XCcoeff CcoeffC
-#define XD0 D0C
-#define XD0para D0Cpara
-#define XD0i D0iC
+#define XD0func D0funcC
+#define XDpara DparaC
 #define XDget DgetC
 #define XDput DputC
+#define XD0nocache D0nocacheC
+#define XD0i D0iC
+#define XD0 D0C
+#define XDcoefx DcoefxC
 #define XDcoeff DcoeffC
-#define XE0 E0C
-#define XE0sub e0subc
-#define XE0para E0Cpara
-#define XE0i E0iC
+#define XE0func E0funcC
+#define XEpara EparaC
 #define XEget EgetC
 #define XEput EputC
+#define XE0nocache E0nocacheC
+#define XE0i E0iC
+#define XE0 E0C
+#define XEcoefx EcoefxC
 #define XEcoeff EcoeffC
 #define XEcoeffa EcoeffaC
 #define XEcoeffb EcoeffbC
@@ -79,12 +90,18 @@
 
 #else
 
-#define XA0 A0
-#define XA00 A00
-#define XA0i A0i
 #define XAget Aget
 #define XAput Aput
+#define XAputnocache Aputnocache
+#define XA0i A0i
+#define XA0 A0
+#define XA00 A00
 #define XAcoeff Acoeff
+#define XBpara Bpara
+#define XBget Bget
+#define XBput Bput
+#define XBputnocache Bputnocache
+#define XB0i B0i
 #define XB0 B0
 #define XB1 B1
 #define XB00 B00
@@ -96,29 +113,34 @@
 #define XDB00 DB00
 #define XDB11 DB11
 #define XDB001 DB001
-#define XB0i B0i
-#define XBget Bget
-#define XBput Bput
 #define XBcoeff Bcoeff
 #define XBcoeffFF BcoeffFF
-#define XC0 C0
-#define XC0para C0para
-#define XC0i C0i
+#define XC0func C0func
+#define XCpara Cpara
 #define XCget Cget
 #define XCput Cput
+#define XC0nocache C0nocache
+#define XC0i C0i
+#define XC0 C0
+#define XCcoefx Ccoefx
 #define XCcoeff Ccoeff
-#define XD0 D0
-#define XD0para D0para
-#define XD0i D0i
+#define XD0func D0func
+#define XDpara Dpara
 #define XDget Dget
 #define XDput Dput
+#define XD0nocache D0nocache
+#define XD0i D0i
+#define XD0 D0
+#define XDcoefx Dcoefx
 #define XDcoeff Dcoeff
-#define XE0 E0
-#define XE0sub e0sub
-#define XE0para E0para
-#define XE0i E0i
+#define XE0func E0func
+#define XEpara Epara
 #define XEget Eget
 #define XEput Eput
+#define XE0nocache E0nocache
+#define XE0i E0i
+#define XE0 E0
+#define XEcoefx Ecoefx
 #define XEcoeff Ecoeff
 #define XEcoeffa Ecoeffa
 #define XEcoeffb Ecoeffb
@@ -592,11 +614,16 @@
 
 #define memindex integer*8
 
-#define Aval(id,p) cache(p+id,RC)
-#define Bval(id,p) cache(p+id,RC+2)
-#define Cval(id,p) cache(p+id,RC+4)
-#define Dval(id,p) cache(p+id,RC+6)
-#define Eval(id,p) cache(p+id,RC+8)
+#define Ano RC
+#define Bno RC+2
+#define Cno RC+4
+#define Dno RC+6
+#define Eno RC+8
+#define Aval(id,p) cache(p+id,Ano)
+#define Bval(id,p) cache(p+id,Bno)
+#define Cval(id,p) cache(p+id,Cno)
+#define Dval(id,p) cache(p+id,Dno)
+#define Eval(id,p) cache(p+id,Eno)
 #define offsetC 2
 
 #define M(i) para(1,i)

@@ -2,7 +2,7 @@
 * retrieve the five-point tensor coefficients
 * this file is part of LoopTools
 * written by M. Rauch
-* last modified 26 Jan 14 th
+* last modified 8 May 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -11,24 +11,15 @@
 #include "defs.h"
 
 
-	memindex function XEget(p1, p2, p3, p4, p5, 
+	subroutine XEpara(para, p1, p2, p3, p4, p5, 
      &    p1p2, p2p3, p3p4, p4p5, p5p1, m1, m2, m3, m4, m5)
 	implicit none
+	DVAR para(1,*)
 	DVAR p1, p2, p3, p4, p5
 	DVAR p1p2, p2p3, p3p4, p4p5, p5p1
 	DVAR m1, m2, m3, m4, m5
 
 #include "lt.h"
-
-	memindex cacheindex
-	external cacheindex, XEcoeff
-
-#ifdef COMPLEXPARA
-	memindex Eget
-	external Eget
-#endif
-
-	DVAR para(1,Pee)
 
 	P(1) = p1
 	P(2) = p2
@@ -46,7 +37,7 @@
      &      abs(Im(P(5))) + abs(Im(P(6))) +
      &      abs(Im(P(7))) + abs(Im(P(8))) +
      &      abs(Im(P(9))) + abs(Im(P(10))) .gt. 0 )
-     &    print *, "EgetC: Complex momenta not implemented"
+     &    print *, "Complex momenta not implemented"
 #endif
 
 	M(1) = m1
@@ -59,16 +50,41 @@
 	if( abs(M(4)) .lt. minmass ) M(4) = 0
 	M(5) = m5
 	if( abs(M(5)) .lt. minmass ) M(5) = 0
+	end
+
+************************************************************************
+
+	memindex function XEget(p1, p2, p3, p4, p5, 
+     &    p1p2, p2p3, p3p4, p4p5, p5p1, m1, m2, m3, m4, m5)
+	implicit none
+	DVAR p1, p2, p3, p4, p5
+	DVAR p1p2, p2p3, p3p4, p4p5, p5p1
+	DVAR m1, m2, m3, m4, m5
+
+#include "lt.h"
+
+	memindex cacheindex
+	external cacheindex, XEcoefx
+
 #ifdef COMPLEXPARA
-	if( abs(Im(M(1))) + abs(Im(M(2))) +
-     &      abs(Im(M(3))) + abs(Im(M(4))) + abs(Im(M(5))) .eq. 0 ) then
+	memindex Eget
+	external Eget
+#endif
+
+	DVAR para(1,Pee)
+
+#ifdef COMPLEXPARA
+	if( abs(Im(m1)) + abs(Im(m2)) +
+     &      abs(Im(m3)) + abs(Im(m4)) + abs(Im(m5)) .eq. 0 ) then
 	  XEget = Eget(p1, p2, p3, p4, p1p2, p2p3,
      &      m1, m2, m3, m4) - offsetC
 	  return
 	endif
 #endif
 
-	XEget = cacheindex(para, Eval(1,0), XEcoeff, RC*Pee, Nee)
+	call XEpara(para, p1, p2, p3, p4, p5,
+     &    p1p2, p2p3, p3p4, p4p5, p5p1, m1, m2, m3, m4, m5)
+	XEget = cacheindex(para, Eval(1,0), XEcoefx, RC*Pee, Nee, Eno)
 	end
 
 ************************************************************************
@@ -83,49 +99,52 @@
 
 #include "lt.h"
 
-	external XEcoeff
+	external XEcoefx
 
 	DVAR para(1,Pee)
 
-	P(1) = p1
-	P(2) = p2
-	P(3) = p3
-	P(4) = p4
-	P(5) = p5
-	P(6) = p1p2
-	P(7) = p2p3
-	P(8) = p3p4
-	P(9) = p4p5
-	P(10) = p5p1
 #ifdef COMPLEXPARA
-	if( abs(Im(P(1))) + abs(Im(P(2))) +
-     &      abs(Im(P(3))) + abs(Im(P(4))) +
-     &      abs(Im(P(5))) + abs(Im(P(6))) +
-     &      abs(Im(P(7))) + abs(Im(P(8))) +
-     &      abs(Im(P(9))) + abs(Im(P(10))) .gt. 0 )
-     &    print *, "EgetC: Complex momenta not implemented"
-#endif
-
-	M(1) = m1
-	if( abs(M(1)) .lt. minmass ) M(1) = 0
-	M(2) = m2
-	if( abs(M(2)) .lt. minmass ) M(2) = 0
-	M(3) = m3
-	if( abs(M(3)) .lt. minmass ) M(3) = 0
-	M(4) = m4
-	if( abs(M(4)) .lt. minmass ) M(4) = 0
-	M(5) = m5
-	if( abs(M(5)) .lt. minmass ) M(5) = 0
-#ifdef COMPLEXPARA
-	if( abs(Im(M(1))) + abs(Im(M(2))) +
-     &      abs(Im(M(3))) + abs(Im(M(4))) + abs(Im(M(5))) .eq. 0 ) then
+	if( abs(Im(m1)) + abs(Im(m2)) +
+     &      abs(Im(m3)) + abs(Im(m4)) + abs(Im(m5)) .eq. 0 ) then
 	  call Eput(res, p1, p2, p3, p4, p1p2, p2p3,
      &      m1, m2, m3, m4)
 	  return
 	endif
 #endif
 
-	call cachecopy(res, para, Eval(1,0), XEcoeff, RC*Pee, Nee)
+	call XEpara(para, p1, p2, p3, p4, p5,
+     &    p1p2, p2p3, p3p4, p4p5, p5p1, m1, m2, m3, m4, m5)
+	call cachecopy(res, para, Eval(1,0), XEcoefx, RC*Pee, Nee, Eno)
+	end
+
+************************************************************************
+
+	subroutine XE0nocache(res, p1, p2, p3, p4, p5, 
+     &    p1p2, p2p3, p3p4, p4p5, p5p1, m1, m2, m3, m4, m5)
+	implicit none
+	ComplexType res(*)
+	DVAR p1, p2, p3, p4, p5
+	DVAR p1p2, p2p3, p3p4, p4p5, p5p1
+	DVAR m1, m2, m3, m4, m5
+
+#include "lt.h"
+
+	DVAR para(1,Pee)
+	ComplexType D2345(0:2), D1345(0:2), D1245(0:2)
+	ComplexType D1235(0:2), D1234(0:2)
+
+#ifdef COMPLEXPARA
+	if( abs(Im(m1)) + abs(Im(m2)) +
+     &      abs(Im(m3)) + abs(Im(m4)) + abs(Im(m5)) .eq. 0 ) then
+	  call E0nocache(res, p1, p2, p3, p4, p1p2, p2p3,
+     &      m1, m2, m3, m4)
+	  return
+	endif
+#endif
+
+	call XEpara(para, p1, p2, p3, p4, p5,
+     &    p1p2, p2p3, p3p4, p4p5, p5p1, m1, m2, m3, m4, m5)
+	call XE0func(res, para, D2345, D1345, D1245, D1235, D1234, 0)
 	end
 
 ************************************************************************
@@ -170,9 +189,39 @@
 
 ************************************************************************
 
-	subroutine XEcoeff(res, para)
+	subroutine XEcoefx(res, para)
 	implicit none
 	ComplexType res(*)
+	DVAR para(1,*)
+
+#include "lt.h"
+
+	memindex d2345, d1345, d1245, d1235, d1234
+
+	memindex XDget
+	external XDget
+
+	d2345 = XDget(P(2), P(3), P(4), P(10), P(7), P(8),
+     &    M(2), M(3), M(4), M(5))
+	d1345 = XDget(P(6), P(3), P(4), P(5), P(9), P(8),
+     &    M(1), M(3), M(4), M(5))
+	d1245 = XDget(P(1), P(7), P(4), P(5), P(9), P(10),
+     &    M(1), M(2), M(4), M(5))
+	d1235 = XDget(P(1), P(2), P(8), P(5), P(6), P(10),
+     &    M(1), M(2), M(3), M(5))
+	d1234 = XDget(P(1), P(2), P(3), P(9), P(6), P(7),
+     &    M(1), M(2), M(3), M(4))
+
+	call XEcoeff(res, para, Dval(1,d2345), Dval(1,d1345),
+     &    Dval(1,d1245), Dval(1,d1235), Dval(1,d1234))
+	end
+
+************************************************************************
+
+	subroutine XEcoeff(res, para, D2345, D1345, D1245, D1235, D1234)
+	implicit none
+	ComplexType res(*)
+	ComplexType D2345(*), D1345(*), D1245(*), D1235(*), D1234(*)
 	DVAR para(1,*)
 
 #include "lt.h"
@@ -185,16 +234,20 @@
 	goto (1, 2, 3) ibits(versionkey, KeyEget, 2)
 #endif
 
-	call XEcoeffa(res, para)
+	call XEcoeffa(res, para, D2345, D1345, D1245, D1235, D1234)
 	return
 
-1	call XEcoeffb(res, para)
+1	call XEcoeffb(res, para, D2345, D1345, D1245, D1235, D1234)
 	return
 
-2	call XEcheck(res, cmp, para)
+2	call XEcoeffa(res, para, D2345, D1345, D1245, D1235, D1234)
+	call XEcoeffb(cmp, para, D2345, D1345, D1245, D1235, D1234)
+	call XEcheck(res, cmp, para)
 	return
 
-3	call XEcheck(cmp, res, para)
+3	call XEcoeffa(cmp, para, D2345, D1345, D1245, D1235, D1234)
+	call XEcoeffb(res, para, D2345, D1345, D1245, D1235, D1234)
+	call XEcheck(cmp, res, para)
 	end
 
 ************************************************************************
@@ -213,9 +266,6 @@
 
 	QVAR Ginv(4,4)
 	common /XInvGramE/ Ginv
-
-	call XEcoeffa(Ea, para)
-	call XEcoeffb(Eb, para)
 
 	dE(EE0) = 0
 	dE(EE1) = 0
@@ -391,7 +441,7 @@
      &        .5D0*maxdev*abs(Ea(i) + Eb(i)) ) then
 	    if( ini ) then
 #ifdef COMPLEXPARA
-	      print *, "Discrepancy in CEget:"
+	      print *, "Discrepancy in EgetC:"
 #else
 	      print *, "Discrepancy in Eget:"
 #endif

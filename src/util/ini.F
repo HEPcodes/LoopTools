@@ -1,7 +1,7 @@
 * ini.F
 * routines for initializing and setting some parameters
 * this file is part of LoopTools
-* last modified 18 Feb 14 th
+* last modified 28 Feb 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -333,7 +333,7 @@
 
 #include "lt.h"
 
-	cmpbits = cmpbits_
+	cmpbits = max(cmpbits_, 8 + KIND*4)
 	end
 
 ************************************************************************

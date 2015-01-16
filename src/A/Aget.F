@@ -1,7 +1,7 @@
 * Aget.F
 * retrieve the one-point tensor coefficients
 * this file is part of LoopTools
-* last modified 3 Feb 14 th
+* last modified 28 Feb 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -24,7 +24,7 @@
 	M(1) = m
 	if( abs(M(1)) .lt. minmass ) M(1) = 0
 
-	XAget = cacheindex(para, Aval(1,0), XAcoeff, RC*Paa, Naa)
+	XAget = cacheindex(para, Aval(1,0), XAcoeff, RC*Paa, Naa, Ano)
 	end
 
 ************************************************************************
@@ -43,7 +43,24 @@
 	M(1) = m
 	if( abs(M(1)) .lt. minmass ) M(1) = 0
 
-	call cachecopy(res, para, Aval(1,0), XAcoeff, RC*Paa, Naa)
+	call cachecopy(res, para, Aval(1,0), XAcoeff, RC*Paa, Naa, Ano)
+	end
+
+************************************************************************
+
+	subroutine XAputnocache(res, m)
+	implicit none
+	ComplexType res(*)
+	DVAR m
+
+#include "lt.h"
+
+	DVAR para(1,Paa)
+
+	M(1) = m
+	if( abs(M(1)) .lt. minmass ) M(1) = 0
+
+	call Acoeff(res, para)
 	end
 
 ************************************************************************

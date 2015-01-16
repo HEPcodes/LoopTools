@@ -1,7 +1,7 @@
 * Bget.F
 * retrieve the two-point tensor coefficients
 * this file is part of LoopTools
-* last modified 26 Jan 14 th
+* last modified 28 Feb 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -9,6 +9,27 @@
 #define npoint 2
 #include "defs.h"
 
+
+	subroutine XBpara(para, p, m1, m2)
+	implicit none
+	DVAR para(1,*)
+	DVAR p, m1, m2
+
+#include "lt.h"
+
+	P(1) = p
+#ifdef COMPLEXPARA
+	if( abs(Im(P(1))) .gt. 0 )
+     &    print *, "Complex momenta not implemented"
+#endif
+
+	M(1) = m1
+	if( abs(M(1)) .lt. minmass ) M(1) = 0
+	M(2) = m2
+	if( abs(M(2)) .lt. minmass ) M(2) = 0
+	end
+
+************************************************************************
 
 	memindex function XBget(p, m1, m2)
 	implicit none
@@ -26,24 +47,15 @@
 
 	DVAR para(1,Pbb)
 
-	P(1) = p
 #ifdef COMPLEXPARA
-	if( abs(Im(P(1))) .gt. 0 )
-     &    print *, "BgetC: Complex momenta not implemented"
-#endif
-
-	M(1) = m1
-	if( abs(M(1)) .lt. minmass ) M(1) = 0
-	M(2) = m2
-	if( abs(M(2)) .lt. minmass ) M(2) = 0
-#ifdef COMPLEXPARA
-	if( abs(Im(M(1))) + abs(Im(M(2))) .eq. 0 ) then
+	if( abs(Im(m1)) + abs(Im(m2)) .eq. 0 ) then
 	  XBget = Bget(p, m1, m2) - offsetC
 	  return
 	endif
 #endif
 
-	XBget = cacheindex(para, Bval(1,0), XBcoeff, RC*Pbb, Nbb)
+	call XBpara(para, p, m1, m2)
+	XBget = cacheindex(para, Bval(1,0), XBcoeff, RC*Pbb, Nbb, Bno)
 	end
 
 ************************************************************************
@@ -59,24 +71,39 @@
 
 	DVAR para(1,Pbb)
 
-	P(1) = p
 #ifdef COMPLEXPARA
-	if( abs(Im(P(1))) .gt. 0 )
-     &    print *, "BputC: Complex momenta not implemented"
-#endif
-
-	M(1) = m1
-	if( abs(M(1)) .lt. minmass ) M(1) = 0
-	M(2) = m2
-	if( abs(M(2)) .lt. minmass ) M(2) = 0
-#ifdef COMPLEXPARA
-	if( abs(Im(M(1))) + abs(Im(M(2))) .eq. 0 ) then
+	if( abs(Im(m1)) + abs(Im(m2)) .eq. 0 ) then
 	  call Bput(res, p, m1, m2)
 	  return
 	endif
 #endif
 
-	call cachecopy(res, para, Bval(1,0), XBcoeff, RC*Pbb, Nbb)
+	call XBpara(para, p, m1, m2)
+	call cachecopy(res, para, Bval(1,0), XBcoeff, RC*Pbb, Nbb, Bno)
+	end
+
+************************************************************************
+
+	subroutine XBputnocache(res, p, m1, m2)
+	implicit none
+	ComplexType res(*)
+	DVAR p, m1, m2
+
+#include "lt.h"
+
+	external XBcoeff
+
+	DVAR para(1,Pbb)
+
+#ifdef COMPLEXPARA
+	if( abs(Im(m1)) + abs(Im(m2)) .eq. 0 ) then
+	  call Bputnocache(res, p, m1, m2)
+	  return
+	endif
+#endif
+
+	call XBpara(para, p, m1, m2)
+	call XBcoeff(res, para)
 	end
 
 ************************************************************************

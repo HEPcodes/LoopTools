@@ -1,8 +1,8 @@
-* E0para.F
+* E0func.F
 * the scalar four-point function
 * this file is part of LoopTools
 * written by M. Rauch
-* last modified 25 Jan 14 th
+* last modified 21 Feb 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -12,10 +12,13 @@
 
 
 #ifndef COMPLEXPARA
-	subroutine E0para(res, para)
+	subroutine E0func(res, para,
+     &    D2345, D1345, D1245, D1235, D1234, dvalid)
 	implicit none
 	ComplexType res(0:2)
 	RealType para(1,*)
+	ComplexType D2345(*), D1345(*), D1245(*), D1235(*), D1234(*)
+	integer dvalid
 
 #include "lt.h"
 
@@ -25,7 +28,8 @@
 	key = ibits(versionkey, KeyE0, 2)
 
 	if( key .ne. 1 ) then
-	  call E0parab(res, para)
+	  call E0funcb(res, para,
+     &      D2345, D1345, D1245, D1235, D1234, dvalid)
 	  if( key .eq. 0 ) return
 	  alt = res(0)
 	endif
@@ -64,18 +68,18 @@
 ************************************************************************
 
 #ifdef COMPLEXPARA
-	subroutine E0Cpara(res, para)
+	subroutine E0funcC(
 #else
-	subroutine E0parab(res, para)
+	subroutine E0funcb(
 #endif
+     &    res, para, D2345, D1345, D1245, D1235, D1234, dvalid)
 	implicit none
 	ComplexType res(0:2)
 	DVAR para(1,*)
+	ComplexType D2345(*), D1345(*), D1245(*), D1235(*), D1234(*)
+	integer dvalid
 
 #include "lt.h"
-
-	memindex XDget
-	external XDget
 
 	DVAR p1, p2, p3, p4, p5
 	DVAR p1p2, p2p3, p3p4, p4p5, p5p1
@@ -83,7 +87,6 @@
 
 	QVAR Y(5,5), Yi(5,5), eta(5), detY
 	integer i, j
-	memindex D2345, D1345, D1245, D1235, D1234
 
 	QVAR Yflat(25), Yiflat(25)
 	equivalence (Y, Yflat)
@@ -163,18 +166,25 @@
 
 	call XDet(5, Y,5, detY)
 
-	D2345 = XDget(p2, p3, p4, p5p1, p2p3, p3p4, m2, m3, m4, m5)
-	D1345 = XDget(p1p2, p3, p4, p5, p4p5, p3p4, m1, m3, m4, m5)
-	D1245 = XDget(p1, p2p3, p4, p5, p4p5, p5p1, m1, m2, m4, m5)
-	D1235 = XDget(p1, p2, p3p4, p5, p1p2, p5p1, m1, m2, m3, m5)
-	D1234 = XDget(p1, p2, p3, p4p5, p1p2, p2p3, m1, m2, m3, m4)
+	if( dvalid .eq. 0 ) then
+	  call XD0nocache(D2345, p2, p3, p4, p5p1, p2p3, p3p4,
+     &      m2, m3, m4, m5)
+	  call XD0nocache(D1345, p1p2, p3, p4, p5, p4p5, p3p4,
+     &      m1, m3, m4, m5)
+	  call XD0nocache(D1245, p1, p2p3, p4, p5, p4p5, p5p1,
+     &      m1, m2, m4, m5)
+	  call XD0nocache(D1235, p1, p2, p3p4, p5, p1p2, p5p1,
+     &      m1, m2, m3, m5)
+	  call XD0nocache(D1234, p1, p2, p3, p4p5, p1p2, p2p3,
+     &      m1, m2, m3, m4)
+	endif
 
 	res(0) = -(
-     &    eta(1)*Dval(dd0,D2345) +
-     &    eta(2)*Dval(dd0,D1345) +
-     &    eta(3)*Dval(dd0,D1245) +
-     &    eta(4)*Dval(dd0,D1235) +
-     &    eta(5)*Dval(dd0,D1234)
+     &    eta(1)*D2345(dd0) +
+     &    eta(2)*D1345(dd0) +
+     &    eta(3)*D1245(dd0) +
+     &    eta(4)*D1235(dd0) +
+     &    eta(5)*D1234(dd0)
      &  )/detY
 	res(1) = 0
 	res(2) = 0

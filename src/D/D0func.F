@@ -1,7 +1,7 @@
-* D0para.F
+* D0func.F
 * the scalar four-point function
 * this file is part of LoopTools
-* last modified 27 Jan 14 th
+* last modified 13 Jun 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -10,7 +10,7 @@
 #include "defs.h"
 
 
-	subroutine D0para(res, para)
+	subroutine D0func(res, para)
 	implicit none
 	ComplexType res(0:2)
 	RealType para(1,*)
@@ -263,7 +263,7 @@
      &        spence(0, xs**2, 0D0) +
      &        lxs*(2*zfflo1(xs**2, ier) - c))
 	  endif
-	  return
+	  goto 9
 	endif
 
 * massive case
@@ -297,6 +297,8 @@
      &      spence(0, xs*x2*x3, 0D0) -
      &      (lxs + lx2 + lx3)*zfflo1(xs*x2*x3, ier) )
 	endif
+
+9	if( DEBUGLEVEL .gt. 1 ) print *, "D0soft =", res
 	end
 
 ************************************************************************
@@ -394,7 +396,7 @@
 	    if( DEBUGLEVEL .gt. 1 ) print *, "D0softDR: qlbox14"
 	    res(1) = 2*res(1)
 	    res(0) = res(1)*lnrat(mudim, t)
-	    return
+	    goto 9
 	  endif
 
 * qlbox15: D0(m2, p2, p3, m4; p1p2, p2p3; 0, m2, 0, m4)
@@ -407,7 +409,7 @@
 	    res(0) = fac*( lxs*(lxs + log(mudim/m24) +
      &        2*lnrat(q2 + q3, t)) +
      &        Li2omx2(xs, 1D0, xs, 1D0) )
-	    return
+	    goto 9
 	  endif
 
 	  y = r1*q3/(r4*q2)
@@ -425,7 +427,7 @@
      &        Li2omx2(xs, 1D0, y, sy) -
      &        Li2omx2(xs, 1D0, 1/y, -sy) )
 	  endif
-	  return
+	  goto 9
 	endif
 
 * qlbox16: D0(m2, p2, p3, m4; p1p2, p2p3; 0, m2, m3, m4)
@@ -456,6 +458,12 @@
      &      Li2omx3(xs, 1D0, 1/x2, -1D0, 1/x3, -1D0) -
      &      Li2omx3(xs, 1D0, x2, 1D0, 1/x3, -1D0) -
      &      Li2omx3(xs, 1D0, 1/x2, -1D0, x3, 1D0))
+	endif
+
+9	if( DEBUGLEVEL .gt. 1 ) then
+	  print *, "D0softDR:0 =", res(0)
+	  print *, "D0softDR:1 =", res(1)
+	  print *, "D0softDR:2 =", res(2)
 	endif
 	end
 
@@ -743,6 +751,12 @@
 	res(0) = fac*((ltm - pi)*(ltm + pi) - (lts - lsm)*(lts + lsm))
 	res(1) = -2*fac*(lsm + ltm)
 	res(2) = 4*fac
+
+	if( DEBUGLEVEL .gt. 1 ) then
+	  print *, "D0m0p0:0 =", res(0)
+	  print *, "D0m0p0:1 =", res(1)
+	  print *, "D0m0p0:2 =", res(2)
+	endif
 	end
 
 ************************************************************************
@@ -774,12 +788,18 @@
 	ls = lnrat(s, mudim)
 	lt = lnrat(t, mudim)
 	l4 = lnrat(m4, mudim)
-	l1 = sqrt(lt**2 + l4**2 + ls**2 + lnrat(m4, s)**2)
+	l1 = sqrt(lt**2 + ls**2 + lnrat(m4, s)**2 + lnrat(m4, t)**2)
 	l2 = sqrt(l4**2 + lnrat(t, s)**2)
 	res(0) = fac*((l1 - l2)*(l1 + l2) +
      &    2*(Li2omrat(t, m4) + Li2omrat(s, m4) - pi6))
 	res(1) = 2*fac*(l4 - lt - ls)
 	res(2) = 2*fac
+
+	if( DEBUGLEVEL .gt. 1 ) then
+	  print *, "D0m0p1:0 =", res(0)
+	  print *, "D0m0p1:1 =", res(1)
+	  print *, "D0m0p1:2 =", res(2)
+	endif
 	end
 
 ************************************************************************
@@ -841,25 +861,30 @@
 	    res(1) = 2*fac*(lnrat(q2, s) + lnrat(q4, t))
 	    res(2) = 0
 	  endif
-	  return
-	endif
-
+	else
 * qlbox4: D0(0, 0, p3, p4; p1p2, p2p3; 0, 0, 0, 0)
 * Bern, Dixon, Kosower, NPB 412 (1994) 751 [hep-ph/9306240], Eq. (I.14)
-	if( DEBUGLEVEL .gt. 1 ) print *, "D0m0p2: qlbox4"
+	  if( DEBUGLEVEL .gt. 1 ) print *, "D0m0p2: qlbox4"
 
-	ls = lnrat(s, mudim)
-	lt = lnrat(t, mudim)
-	lq3 = lnrat(q3, mudim)
-	lq4 = lnrat(q4, mudim)
-	lsq3 = lnrat(s, q3)
-	res(0) = fac*(
-     &    .5D0*((ls - lq3)*(ls + lq3) +
-     &          (lt - lq4)*(lt + lq4) + lt**2) +
-     &    lsq3*lnrat(s, q4) - lnrat(s, t)**2 -
-     &    2*(Li2omrat(q3, t) + Li2omrat(q4, t)) )
-	res(1) = -fac*(lsq3 + lnrat(t, q4) + lt)
-	res(2) = fac
+	  ls = lnrat(s, mudim)
+	  lt = lnrat(t, mudim)
+	  lq3 = lnrat(q3, mudim)
+	  lq4 = lnrat(q4, mudim)
+	  lsq3 = lnrat(s, q3)
+	  res(0) = fac*(
+     &      .5D0*((ls - lq3)*(ls + lq3) +
+     &            (lt - lq4)*(lt + lq4) + lt**2) +
+     &      lsq3*lnrat(s, q4) - lnrat(s, t)**2 -
+     &      2*(Li2omrat(q3, t) + Li2omrat(q4, t)) )
+	  res(1) = -fac*(lsq3 + lnrat(t, q4) + lt)
+	  res(2) = fac
+	endif
+
+	if( DEBUGLEVEL .gt. 1 ) then
+	  print *, "D0m0p2:0 =", res(0)
+	  print *, "D0m0p2:1 =", res(1)
+	  print *, "D0m0p2:2 =", res(2)
+	endif
 	end
 
 ************************************************************************
@@ -921,6 +946,12 @@
 	  res(1) = fac*(l2 + l4)
 	  res(2) = 0
 	endif
+
+	if( DEBUGLEVEL .gt. 1 ) then
+	  print *, "D0m0p3:0 =", res(0)
+	  print *, "D0m0p3:1 =", res(1)
+	  print *, "D0m0p3:2 =", res(2)
+	endif
 	end
 
 ************************************************************************
@@ -970,7 +1001,7 @@
      &    lnrat(q3, mudim)*lnrat(q3, m4) -
      &    lnrat(q4, mudim)*lnrat(q4, m4))
 	res(1) = fac*(lnrat(q3, t) + lnrat(q4, t) - lm)
-	return
+	goto 9
 
 1	continue
 * qlbox7: D0(0, 0, m4, p4; p1p2, p2p3; 0, 0, 0, m4)
@@ -983,7 +1014,7 @@
      &    lm*(.75D0*lm - 2*lt - ls + lq) -
      &    2*Li2omrat(q4, t))
 	res(1) = fac*(1.5D0*lm - 2*lt - ls + lq)
-	return
+	goto 9
 
 2	continue
 * qlbox6: D0(0, 0, m4, m4; p1p2, p2p3; 0, 0, 0, m4)
@@ -993,6 +1024,12 @@
 	lm = lnrat(mudim, m4)
 	res(0) = fac*((lm - ls)*(lm - 2*lt) - .5D0*pi**2)
 	res(1) = fac*(2*(lm - lt) - ls)
+
+9	if( DEBUGLEVEL .gt. 1 ) then
+	  print *, "D0m1p2:0 =", res(0)
+	  print *, "D0m1p2:1 =", res(1)
+	  print *, "D0m1p2:2 =", res(2)
+	endif
 	end
 
 ************************************************************************
@@ -1038,22 +1075,27 @@
      &      2*Li2omrat(s, q2) + ll**2 + pi12)
 	  res(1) = -fac*ll
 	  res(2) = .5D0*fac
-	  return
+	else
+* qlbox10: D0(0, p2, p3, p4; p1p2, p2p3; 0, 0, 0, m4)
+	  if( DEBUGLEVEL .gt. 1 ) print *, "D0m1p3: qlbox10"
+	  fac = 1/(s*t - q2*q4)
+	  ll = lnrat(q2, mudim) + lnrat(q4, mudim) -
+     &      lnrat(s, mudim) - lnrat(t, mudim)
+	  res(0) = fac*(
+     &      2*ll*lnrat(m4mu, t) +
+     &      Li2omrat2(q3, q2, t, m4) -
+     &      Li2omrat2(q3, s, q4, m4) +
+     &      2*(Li2omrat2(q2, s, q4, t) -
+     &        Li2omrat(q2, s) + Li2omrat(t, q4)) )
+	  res(1) = fac*ll
+	  res(2) = 0
 	endif
 
-* qlbox10: D0(0, p2, p3, p4; p1p2, p2p3; 0, 0, 0, m4)
-	if( DEBUGLEVEL .gt. 1 ) print *, "D0m1p3: qlbox10"
-	fac = 1/(s*t - q2*q4)
-	ll = lnrat(q2, mudim) + lnrat(q4, mudim) -
-     &    lnrat(s, mudim) - lnrat(t, mudim)
-	res(0) = fac*(
-     &    2*ll*lnrat(m4mu, t) +
-     &    Li2omrat2(q3, q2, t, m4) -
-     &    Li2omrat2(q3, s, q4, m4) +
-     &    2*(Li2omrat2(q2, s, q4, t) -
-     &      Li2omrat(q2, s) + Li2omrat(t, q4)) )
-	res(1) = fac*ll
-	res(2) = 0
+	if( DEBUGLEVEL .gt. 1 ) then
+	  print *, "D0m1p3:0 =", res(0)
+	  print *, "D0m1p3:1 =", res(1)
+	  print *, "D0m1p3:2 =", res(2)
+	endif
 	end
 
 ************************************************************************
@@ -1187,7 +1229,7 @@
      &      Li2omrat2(q3, s, q4, t) - ls*lt) +
      &    (lt - lq3)*log(m3/mudim) + (ls - lq4)*log(m4/mudim))
 	res(1) = fac*(lq3 + lq4 - ls - lt)
-	return
+	goto 9
 
 1	continue
 * qlbox12: D0(0, m3, p3, p4; p1p2, p2p3; 0, 0, m3, m4)
@@ -1215,7 +1257,7 @@
      &    2*(Li2omrat(q4, t) - ls*lt) +
      &    lq4**2 + (ls - lq4)*log(m4/m3))
 	res(1) = fac*(lq4 - ls - lt)
-	return
+	goto 9
 
 2	continue
 * qlbox11: D0(0, m3, p3, m4; p1p2, p2p3; 0, 0, m3, m4)
@@ -1229,6 +1271,12 @@
 	res(0) = fac*(.25D0*log(m3/m4)**2 -
      &    .5D0*(logs + pi**2) + 2*ls*lt)
 	res(1) = -fac*(ls + lt)
+
+9	if( DEBUGLEVEL .gt. 1 ) then
+	  print *, "D0m2p3:0 =", res(0)
+	  print *, "D0m2p3:1 =", res(1)
+	  print *, "D0m2p3:2 =", res(2)
+	endif
 	end
 
 ************************************************************************
@@ -1449,6 +1497,8 @@ c#define k2r(k) (.5D0*k*(1 + sqrt(ToComplex((1 - 2/k)*(1 + 2/k)))))
 
 	res = (res - c2ipi*etas + (l(2,2) - l(1,2))*l(1,4))/
      &    (sqrt(M(1)*M(2)*M(3)*M(4))*disc)
+
+	if( DEBUGLEVEL .gt. 1 ) print *, "D0m4 =", res
 	end
 
 ************************************************************************
@@ -1544,6 +1594,8 @@ c#define k2r(k) (.5D0*k*(1 + sqrt(ToComplex((1 - 2/k)*(1 + 2/k)))))
      &    xspence(x1, ix1, ToComplex(k23/k13), -k13) -
      &    c2ipi*xetatilde(x4, ix4, 1/r24, -ir24, l4)
      &  )/(m3*m*a*(x4(2) - x4(1)))
+
+	if( DEBUGLEVEL .gt. 1 ) print *, "D0m3 =", res
 	end
 
 ************************************************************************
@@ -1617,6 +1669,8 @@ c#define k2r(k) (.5D0*k*(1 + sqrt(ToComplex((1 - 2/k)*(1 + 2/k)))))
      &    (log(x4(2)) - log(x4(1)))*
      &      (log(k12c) + log(k13c) - log(k23c))
      &  )/(m3*m*a*(x4(2) - x4(1)))
+
+	if( DEBUGLEVEL .gt. 1 ) print *, "D0m2 =", res
 	end
 
 ************************************************************************
@@ -1675,6 +1729,8 @@ c#define k2r(k) (.5D0*k*(1 + sqrt(ToComplex((1 - 2/k)*(1 + 2/k)))))
      &    (log(x4(2)) - log(x4(1)))*
      &      (log(k12c) + log(k13c) - log(k23c))
      &  )/(m4**2*a*(x4(2) - x4(1)))
+
+	if( DEBUGLEVEL .gt. 1 ) print *, "D0m1 =", res
 	end
 
 ************************************************************************
@@ -1733,6 +1789,8 @@ c#define k2r(k) (.5D0*k*(1 + sqrt(ToComplex((1 - 2/k)*(1 + 2/k)))))
      &    xspence(x4, imzero, k34c, 0D0) -
      &    xspence(x4, imzero, k24c, 0D0)
      &  )/(m2**2*a*(x4(2) - x4(1)))
+
+	if( DEBUGLEVEL .gt. 1 ) print *, "D0m0 =", res
 	end
 
 ************************************************************************

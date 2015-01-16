@@ -1,7 +1,7 @@
 * C0.F
 * the scalar three-point function
 * this file is part of LoopTools
-* last modified 20 Jan 14 th
+* last modified 13 Jun 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -10,7 +10,7 @@
 #include "defs.h"
 
 
-	subroutine C0para(res, para)
+	subroutine C0func(res, para)
 	implicit none
 	ComplexType res(0:2)
 	RealType para(1,*)
@@ -256,6 +256,8 @@
 	endif
 
 	C0p3 = C0p3/a
+
+	if( DEBUGLEVEL .gt. 1 ) print *, "C0p3 =", C0p3
 	end
 
 ************************************************************************
@@ -322,6 +324,8 @@
 
 	C0p2 = (spence(0, y2/y3, 0D0) + spence(0, y2/y4, 0D0) -
      &    spence(0, y1/y3, 0D0) - spence(0, y1/y4, 0D0))/a
+
+	if( DEBUGLEVEL .gt. 1 ) print *, "C0p2 =", C0p2
 	end
 
 ************************************************************************
@@ -388,6 +392,8 @@
 	C0p1 = (C0p1 +
      &    spence(0, y1/y3, 0D0) + spence(0, y1/y4, 0D0) -
      &    spence(0, y2/y3, 0D0) - spence(0, y2/y4, 0D0))/p1
+
+	if( DEBUGLEVEL .gt. 1 ) print *, "C0p1 =", C0p1
 	end
 
 ************************************************************************
@@ -427,6 +433,8 @@
 	    C0p0 = m3/(m13*m23)*log(m1/m3) - m2/(m12*m23)*log(m1/m2)
 	  endif
 	endif
+
+	if( DEBUGLEVEL .gt. 1 ) print *, "C0p0 =", C0p0
 	end
 
 ************************************************************************
@@ -509,6 +517,8 @@
      &    .25D0*(ln(-m1/s, -1)**2 + ln(-m2/s, -1)**2) -
      &    ls*(ln(-h1/s, -1) - ls) +
      &    ln(-lambda/s, -1)*ln(h1/sqrt(m1*m2), 1))/a
+
+	if( DEBUGLEVEL .gt. 1 ) print *, "C0soft =", res
 	end
 
 ************************************************************************
@@ -546,7 +556,7 @@
 #include "lt.h"
 
 	RealType s, m1, m2
-	RealType m, dm, r
+	RealType m, dm, r, f
 	ComplexType root, fac, ls, lm, mK, lmK
 
 	ComplexType Li2omx2, spence
@@ -568,35 +578,37 @@
 	        res(0) = nan
 	        res(1) = nan
 	        res(2) = nan
-	        return
+	        goto 9
 	      endif
 * qltri1
 	      if( DEBUGLEVEL .gt. 1 ) print *, "C0softDR: qltri1"
 	      lm = lnrat(mudim, -s)
-	      res(0) = .5D0*lm**2/s
-	      res(1) = lm/s
 	      res(2) = 1/s
-	      return
+	      res(1) = lm/s
+	      res(0) = .5D0*lm*res(1)
+	      goto 9
 	    endif
 	  endif
 	  if( abs(s - m1) .lt. acc ) then
 * qltri5
 	    if( DEBUGLEVEL .gt. 1 ) print *, "C0softDR: qltri5"
-	    res(0) = (-.5D0*lnrat(mudim, m1) + 1)/m1
-	    res(1) = -.5D0/m1
+	    f = -.5D0/m1
+	    res(1) = f
+	    res(0) = f*(lnrat(mudim, m1) - 2)
 	    res(2) = 0
-	    return
+	    goto 9
 	  endif
 
 * qltri4
 	  if( DEBUGLEVEL .gt. 1 ) print *, "C0softDR: qltri4"
 	  ls = lnrat(m1, m1 - s)
 	  lm = lnrat(mudim, m1)
-	  res(0) = (lm*(.25D0*lm + ls) + .5D0*ls**2 + pi12 -
-     &      spence(0, ToComplex(s/(s - m1)), 0D0))/(s - m1)
-	  res(1) = (.5D0*lm + ls)/(s - m1)
-	  res(2) = .5D0/(s - m1)
-	  return
+	  f = .5D0/(s - m1)
+	  res(2) = f
+	  res(1) = f*(lm + 2*ls)
+	  res(0) = f*((ls + lm*(1 - 1/sqrt2))*(ls + lm*(1 + 1/sqrt2)) +
+     &      pi6 - 2*spence(0, ToComplex(s/(s - m1)), 0D0))
+	  goto 9
 	endif
 
 * qltri6
@@ -610,10 +622,11 @@
 	  r = 0
 	  if( abs(m1 - m2) .gt. acc )
      &      r = 2 + .5D0*(sqrt(m1) + sqrt(m2))/dm*log(m2/m1)
-	  res(0) = .5D0/m*(log(mudim/m) - r)
-	  res(1) = .5D0/m
+	  f = .5D0/m
+	  res(1) = f
+	  res(0) = f*(log(mudim/m) - r)
 	  res(2) = 0
-	  return
+	  goto 9
 	endif
 
 	lmK = ln(mK, 1)
@@ -625,6 +638,12 @@
      &    Li2omx2(mK, 1D0, ToComplex(sqrt(m2/m1)), 0D0) )
 	res(1) = fac*lmK
 	res(2) = 0
+
+9	if( DEBUGLEVEL .gt. 1 ) then
+	  print *, "C0softDR:0 =", res(0)
+	  print *, "C0softDR:1 =", res(1)
+	  print *, "C0softDR:2 =", res(2)
+	endif
 	end
 
 ************************************************************************
@@ -658,14 +677,14 @@
 	    res(0) = (lnrat(mudim, -s1)*(1 - r) - r)/s1
 	    res(1) = (1 - r*mudim/s1)/s1
 	    res(2) = 0
-	    return
+	    goto 9
 	  endif
 	  l1 = lnrat(mudim, -s1)
 	  l2 = lnrat(mudim, -s2)
 	  res(1) = (l1 - l2)/(s1 - s2)
 	  res(0) = .5D0*(l1 + l2)*res(1)
 	  res(2) = 0
-	  return
+	  goto 9
 	endif
 
 * qltri3
@@ -682,7 +701,7 @@
      &      r*((m*(m - 2) - 1)*l2 + lm))/m1
 	  res(1) = (1 - r)/m1
 	  res(2) = 0
-	  return
+	  goto 9
 	endif
 
 	l1 = lnrat(m1, m)
@@ -690,5 +709,11 @@
      &    Li2omrat(m1, m) - Li2omrat(m2, m))/(s1 - s2)
 	res(1) = (l2 - l1)/(s1 - s2)
 	res(2) = 0
+
+9	if( DEBUGLEVEL .gt. 1 ) then
+	  print *, "C0collDR:0 =", res(0)
+	  print *, "C0collDR:1 =", res(1)
+	  print *, "C0collDR:2 =", res(2)
+	endif
 	end
 

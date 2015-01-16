@@ -82,9 +82,10 @@
 91	continue
 
 	call getenv("LTCMPBITS", env)
-	cmpbits = 62 + (KIND-1)*4
+	cmpbits = 58 + KIND*4
 	read(env, *, end=92, err=92) cmpbits
 	print *, "env LTCMPBITS =", cmpbits
+	cmpbits = max(cmpbits, 8 + KIND*4)
 92	continue
 
 	call getenv("LTVERSION", env)

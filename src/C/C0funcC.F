@@ -1,7 +1,7 @@
-* C0Cpara.F
+* C0funcC.F
 * the scalar three-point function for complex parameters
 * this file is part of LoopTools
-* last modified 24 Jan 14 th
+* last modified 20 Feb 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -10,7 +10,7 @@
 #include "defs.h"
 
 
-	subroutine C0Cpara(res, para)
+	subroutine C0funcC(res, para)
 	implicit none
 	ComplexType res, para(1,*)
 

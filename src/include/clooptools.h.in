@@ -2,7 +2,7 @@
 	clooptools.h
 		the C/C++ header file with all definitions for LoopTools
 		this file is part of LoopTools
-		last modified 19 Feb 14 th
+		last modified 21 Feb 14 th
 */
 
 
@@ -295,26 +295,36 @@ extern memindex FORTRAN(aget)(AARGS(_lt_Fr_));
 extern memindex FORTRAN(agetc)(AARGS(_lt_Fc_));
 extern void FORTRAN(aput)(COMPLEX *res, AARGS(_lt_Fr_));
 extern void FORTRAN(aputc)(COMPLEX *res, AARGS(_lt_Fc_));
+extern void FORTRAN(aputnocache)(COMPLEX *res, AARGS(_lt_Fr_));
+extern void FORTRAN(aputnocachec)(COMPLEX *res, AARGS(_lt_Fc_));
 
 extern memindex FORTRAN(bget)(BARGS(_lt_Fr_));
 extern memindex FORTRAN(bgetc)(BARGS(_lt_Fc_));
 extern void FORTRAN(bput)(COMPLEX *res, BARGS(_lt_Fr_));
 extern void FORTRAN(bputc)(COMPLEX *res, BARGS(_lt_Fc_));
+extern void FORTRAN(bputnocache)(COMPLEX *res, BARGS(_lt_Fr_));
+extern void FORTRAN(bputnocachec)(COMPLEX *res, BARGS(_lt_Fc_));
 
 extern memindex FORTRAN(cget)(CARGS(_lt_Fr_));
 extern memindex FORTRAN(cgetc)(CARGS(_lt_Fc_));
 extern void FORTRAN(cput)(COMPLEX *res, CARGS(_lt_Fr_));
 extern void FORTRAN(cputc)(COMPLEX *res, CARGS(_lt_Fc_));
+extern void FORTRAN(c0nocache)(COMPLEX *res, CARGS(_lt_Fr_));
+extern void FORTRAN(c0nocachec)(COMPLEX *res, CARGS(_lt_Fc_));
 
 extern memindex FORTRAN(dget)(DARGS(_lt_Fr_));
 extern memindex FORTRAN(dgetc)(DARGS(_lt_Fc_));
 extern void FORTRAN(dput)(COMPLEX *res, DARGS(_lt_Fr_));
 extern void FORTRAN(dputc)(COMPLEX *res, DARGS(_lt_Fc_));
+extern void FORTRAN(d0nocache)(COMPLEX *res, DARGS(_lt_Fr_));
+extern void FORTRAN(d0nocachec)(COMPLEX *res, DARGS(_lt_Fc_));
 
 extern memindex FORTRAN(eget)(EARGS(_lt_Fr_));
 extern memindex FORTRAN(egetc)(EARGS(_lt_Fc_));
 extern void FORTRAN(eput)(COMPLEX *res, EARGS(_lt_Fr_));
 extern void FORTRAN(eputc)(COMPLEX *res, EARGS(_lt_Fc_));
+extern void FORTRAN(e0nocache)(COMPLEX *res, EARGS(_lt_Fr_));
+extern void FORTRAN(e0nocachec)(COMPLEX *res, EARGS(_lt_Fc_));
 
 extern void FORTRAN(li2sub)(COMPLEX *res, XARGS(_lt_Fr_));
 extern void FORTRAN(li2csub)(COMPLEX *res, XARGS(_lt_Fc_));
@@ -384,6 +394,22 @@ static inline void AputC(ComplexType *res, AARGS(_lt_Cc_))
   _lt_Fax_(res, Naa);
 }
 
+static inline void Aputnocache(ComplexType *res, AARGS(_lt_Cr_))
+{
+  _lt_Frd_(AARGS);
+  _lt_Fad_(res, Naa);
+  FORTRAN(aputnocache)(_lt_Fap_(res), AARGS(_lt_Frp_));
+  _lt_Fax_(res, Naa);
+}
+
+static inline void AputnocacheC(ComplexType *res, AARGS(_lt_Cc_))
+{
+  _lt_Fcd_(AARGS);
+  _lt_Fad_(res, Naa);
+  FORTRAN(aputnocachec)(_lt_Fap_(res), AARGS(_lt_Fcp_));
+  _lt_Fax_(res, Naa);
+}
+
 static inline COMPLEX *Acache(const memindex integral)
   { return CACHEPTR(0,integral); }
 
@@ -439,6 +465,22 @@ static inline void BputC(ComplexType *res, BARGS(_lt_Cc_))
   _lt_Fcd_(BARGS);
   _lt_Fad_(res, Nbb);
   FORTRAN(bputc)(_lt_Fap_(res), BARGS(_lt_Fcp_));
+  _lt_Fax_(res, Nbb);
+}
+
+static inline void Bputnocache(ComplexType *res, BARGS(_lt_Cr_))
+{
+  _lt_Frd_(BARGS);
+  _lt_Fad_(res, Nbb);
+  FORTRAN(bputnocache)(_lt_Fap_(res), BARGS(_lt_Frp_));
+  _lt_Fax_(res, Nbb);
+}
+
+static inline void BputnocacheC(ComplexType *res, BARGS(_lt_Cc_))
+{
+  _lt_Fcd_(BARGS);
+  _lt_Fad_(res, Nbb);
+  FORTRAN(bputnocachec)(_lt_Fap_(res), BARGS(_lt_Fcp_));
   _lt_Fax_(res, Nbb);
 }
 
@@ -532,6 +574,22 @@ static inline void CputC(ComplexType *res, CARGS(_lt_Cc_))
   _lt_Fax_(res, Ncc);
 }
 
+static inline void C0nocache(ComplexType *res, CARGS(_lt_Cr_))
+{
+  _lt_Frd_(CARGS);
+  _lt_Fad_(res, 3);
+  FORTRAN(c0nocache)(_lt_Fap_(res), CARGS(_lt_Frp_));
+  _lt_Fax_(res, 3);
+}
+
+static inline void C0nocacheC(ComplexType *res, CARGS(_lt_Cc_))
+{
+  _lt_Fcd_(CARGS);
+  _lt_Fad_(res, 3);
+  FORTRAN(c0nocachec)(_lt_Fap_(res), CARGS(_lt_Fcp_));
+  _lt_Fax_(res, 3);
+}
+
 static inline COMPLEX *Ccache(const memindex integral)
   { return CACHEPTR(4,integral); }
 
@@ -586,6 +644,22 @@ static inline void DputC(ComplexType *res, DARGS(_lt_Cc_))
   _lt_Fax_(res, Ndd);
 }
 
+static inline void D0nocache(ComplexType *res, DARGS(_lt_Cr_))
+{
+  _lt_Frd_(DARGS);
+  _lt_Fad_(res, 3);
+  FORTRAN(d0nocache)(_lt_Fap_(res), DARGS(_lt_Frp_));
+  _lt_Fax_(res, 3);
+}
+
+static inline void D0nocacheC(ComplexType *res, DARGS(_lt_Cc_))
+{
+  _lt_Fcd_(DARGS);
+  _lt_Fad_(res, 3);
+  FORTRAN(d0nocachec)(_lt_Fap_(res), DARGS(_lt_Fcp_));
+  _lt_Fax_(res, 3);
+}
+
 static inline COMPLEX *Dcache(const memindex integral)
   { return CACHEPTR(6,integral); }
 
@@ -638,6 +712,22 @@ static inline void EputC(ComplexType *res, EARGS(_lt_Cc_))
   _lt_Fad_(res, Nee);
   FORTRAN(eputc)(_lt_Fap_(res), EARGS(_lt_Fcp_));
   _lt_Fax_(res, Nee);
+}
+
+static inline void E0nocache(ComplexType *res, EARGS(_lt_Cr_))
+{
+  _lt_Frd_(EARGS);
+  _lt_Fad_(res, 3);
+  FORTRAN(e0nocache)(_lt_Fap_(res), EARGS(_lt_Frp_));
+  _lt_Fax_(res, 3);
+}
+
+static inline void E0nocacheC(ComplexType *res, EARGS(_lt_Cc_))
+{
+  _lt_Fcd_(EARGS);
+  _lt_Fad_(res, 3);
+  FORTRAN(e0nocachec)(_lt_Fap_(res), EARGS(_lt_Fcp_));
+  _lt_Fax_(res, 3);
 }
 
 static inline COMPLEX *Ecache(const memindex integral)

@@ -94,9 +94,12 @@
 	Setting it to less than 64 (double precision) makes the comparison more robust against numerical noise.";
 	GetCmpBits::usage = "GetCmpBits[] returns the number of bits compared of each real number in cache lookups."
 
-:Evaluate: DRResult::usage = "DRResult[c0, c1, c2] arranges the coefficients of DR1eps into the final returned to the user."
+:Evaluate:
+	DRResult::usage = "DRResult[c0, c1, c2] arranges the coefficients of DR1eps into the final returned to the user.";
+	DR1eps::usage = "DR1eps represents 1/eps where D = 4 - 2 eps."
 
-:Evaluate: DR1eps::usage = "DR1eps represents 1/eps where D = 4 - 2 eps."
+:Evaluate:
+	LTwrite[s_] := WriteString[$Output, s]
 
 :Evaluate:
 	LTids = Thread[# -> 3 Range[Length[#]] - 2]&/@ {
@@ -674,7 +677,7 @@
 	LoopTools.tm
 		provides the LoopTools functions in Mathematica
 		this file is part of LoopTools
-		last modified 5 Feb 14 th
+		last modified 10 Jul 14 th
 */
 
 
@@ -684,8 +687,10 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <pthread.h>
 #include <sched.h>
+#include <pthread.h>
+#include <sys/socket.h>
+#include <assert.h>
 
 #include "mathlink.h"
 #ifndef MLCONST
@@ -693,12 +698,6 @@
 #endif
 
 #include "clooptools.h"
-
-#ifdef __MINGW32__
-#include <io.h>
-#include <fcntl.h>
-#define pipe(fds) _pipe(fds, 4096, _O_BINARY)
-#endif
 
 typedef unsigned char byte;
 typedef MLCONST char cchar;
@@ -719,69 +718,55 @@ static inline void MLPutREALList(MLINK mlp, CREAL *s, long n)
 #define MLPutREALList MLPutRealList
 #endif
 
+static int stdoutorig, stdoutpipe[2], stdoutthr;
+
 extern void FORTRAN(fortranflush)();
 
 #define Flush() \
   FORTRAN(fortranflush)(); \
   fflush(stdout)
 
+#define BeginRedirect() \
+  dup2(stdoutpipe[1], 1)
+
+#define EndRedirect() \
+  Flush(); \
+  if( stdoutthr ) { \
+    char eot = 0; \
+    write(1, &eot, 1); \
+    read(1, &eot, 1); \
+  } \
+  dup2(stdoutorig, 1)
+
+
 /******************************************************************/
 
-static int forcestderr = 0;
-static int stdoutorig;
-static int stdoutpipe[2];
-static pthread_t stdouttid;
-static int stdoutthr;
-
-static void *MLstdout(void *fd)
+static void *MLstdout(void *pfd)
 {
-  static byte *buf = NULL;
-  static long size = 0;
+  int fd = ((int *)pfd)[0];
+  byte *buf = NULL;
+  long size = 0;
   enum { unit = 10240 };
-  long len = 0, n = 0;
+  long len = 0, n;
 
   do {
-    len += n;
     if( size - len < 128 ) buf = realloc(buf, size += unit);
-    n = read(*(int *)fd, buf + len, size - len);
+    len += n = read(fd, buf + len, size - len);
+    if( len > 0 && buf[len-1] == 0 ) {
+      if( len > 1 ) {
+        MLPutFunction(stdlink, "EvaluatePacket", 1);
+        MLPutFunction(stdlink, "LTwrite", 1);
+        MLPutByteString(stdlink, buf, len - 1);
+        MLEndPacket(stdlink);
+        MLNextPacket(stdlink);
+        MLNewPacket(stdlink);
+      }
+      len = 0;
+      write(fd, "", 1);
+    }
   } while( n > 0 );
 
-  if( len ) {
-    MLPutFunction(stdlink, "EvaluatePacket", 1);
-    MLPutFunction(stdlink, "WriteString", 2);
-    MLPutString(stdlink, "stdout");
-    MLPutByteString(stdlink, buf, len);
-    MLEndPacket(stdlink);
-
-    MLNextPacket(stdlink);
-    MLNewPacket(stdlink);
-  }
-
   return NULL;
-}
-
-/******************************************************************/
-
-static inline void BeginRedirect()
-{
-  stdoutthr = forcestderr == 0 &&
-    pipe(stdoutpipe) != -1 &&
-    pthread_create(&stdouttid, NULL, MLstdout, stdoutpipe) == 0;
-  if( !stdoutthr ) stdoutpipe[1] = 2;
-
-  dup2(stdoutpipe[1], 1);
-  close(stdoutpipe[1]);
-}
-
-/******************************************************************/
-
-static void EndRedirect()
-{
-  void *ret;
-
-  Flush();
-  dup2(stdoutorig, 1);
-  if( stdoutthr ) pthread_join(stdouttid, &ret);
 }
 
 /******************************************************************/
@@ -1142,25 +1127,36 @@ static int mgetcmpbits(void)
 int main(int argc, char **argv)
 {
   int fd, ret;
+  pthread_t stdouttid;
+  void *thr_ret;
 
 	/* make sure a pipe will not overlap with 0, 1, 2 */
   do fd = open("/dev/null", O_WRONLY); while( fd <= 2 );
   close(fd);
 
-  if( getenv("LTFORCESTDERR") ) forcestderr = 1;
   stdoutorig = dup(1);
 
   dup2(2, 1);
   ltini();
   Flush();
-
   dup2(stdoutorig, 1);
+
+  stdoutthr = getenv("LTFORCESTDERR") == NULL &&
+    socketpair(AF_LOCAL, SOCK_STREAM, 0, stdoutpipe) != -1 &&
+    pthread_create(&stdouttid, NULL, MLstdout, stdoutpipe) == 0;
+  if( stdoutthr == 0 ) stdoutpipe[1] = 2;
 
   ret = MLMain(argc, argv);
 
   dup2(2, 1);
   ltexi();
   Flush();
+  dup2(stdoutorig, 1);
+
+  if( stdoutthr ) {
+    close(stdoutpipe[1]);
+    pthread_join(stdouttid, &thr_ret);
+  }
 
   return ret;
 }

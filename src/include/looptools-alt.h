@@ -2,7 +2,7 @@
 looptools.h
 the header file for Fortran with all definitions for LoopTools
 this file is part of LoopTools
-last modified 30 Jan 14 th
+last modified 27 Feb 14 th
 #endif
 
 
@@ -245,7 +245,7 @@ last modified 30 Jan 14 th
 #endif
 
 	integer ncaches
-	parameter (ncaches = 8)
+	parameter (ncaches = 10)
 
 	ComplexType cache(2,ncaches)
 	common /ltvars/ cache

@@ -2,7 +2,7 @@
 * the two-point tensor coefficients from Ansgar Denner's bcanew.f,
 * adapted to the conventions of LoopTools
 * this file is part of LoopTools
-* last modified 30 Jan 14 th
+* last modified 6 Mar 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -90,7 +90,7 @@
 	    mu = mu + fth(4, x1, y1) + fth(4, x2, y2)
 	    B(bb111) = 1/4D0*mu
 	  else
-	    print *, "Bcoeffb not defined for"
+	    print *, "BcoeffAD not defined for"
 	    print *, "  p  =", p
 	    print *, "  m1 =", m1
 	    print *, "  m2 =", m2
@@ -124,11 +124,15 @@
 	    sel = 4
 	  endif
 
-	  if( m1*m2 .eq. 0 .and.
+	  la = lambda
+	  if( la .le. 0 ) la = mudim
+
+	  if( abs(m1) + abs(m2) .eq. 0 ) then
+	    B(dbb0) = nan
+	    if( p .ne. 0 ) B(dbb0) = -1/p
+	  else if( m1*m2 .eq. 0 .and.
      &        abs(p - m1 - m2) .lt. acc ) then
 * IR divergent case
-	    la = lambda
-	    if( la .le. 0 ) la = mudim
 	    B(dbb0) = -(1 + .5D0*log(la/p))/p
 	  else if( sel .eq. 1 ) then
 	    B(dbb0) = (yfpv(1, x2, y2) - yfpv(1, x1, y1))/r
@@ -141,7 +145,10 @@
 	    B(dbb0) = nan
 	  endif
 
-          if( m2 .eq. 0 .and. abs(p - m1) .lt. acc ) then
+	  if( abs(m1) + abs(m2) .eq. 0 ) then
+	    B(dbb1) = nan
+	    if( p .ne. 0 ) B(dbb1) = .5D0/p
+	  else if( m2 .eq. 0 .and. abs(p - m1) .lt. acc ) then
 * IR divergent case
 	    B(dbb1) = .5D0*(3 + log(la/p))/p
 	  else if( sel .eq. 1 ) then

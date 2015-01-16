@@ -3,14 +3,19 @@
 		caching of tensor coefficients in
 		dynamically allocated memory
 		this file is part of LoopTools
-		last modified 21 Sep 12 th
+		last modified 28 Feb 14 th
 */
 
+
+#define MUTEX
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#ifdef MUTEX
+#include <pthread.h>
+#endif
 #include "cexternals.h"
 
 #if NOUNDERSCORE
@@ -49,21 +54,30 @@ extern struct {
 } ltcache_;
 
 
-/* (a < 0) ? -1 : 0 */
-#define NegQ(a) ((a) >> (sizeof(a)*8 - 1))
+enum { ncaches = 10 };
 
-/* (a < 0) ? 0 : a */
-#define IDim(a) ((a) & NegQ(-(a)))
+#ifdef MUTEX
+static pthread_mutex_t mutex[ncaches] = {
+  PTHREAD_MUTEX_INITIALIZER, PTHREAD_MUTEX_INITIALIZER,
+  PTHREAD_MUTEX_INITIALIZER, PTHREAD_MUTEX_INITIALIZER,
+  PTHREAD_MUTEX_INITIALIZER, PTHREAD_MUTEX_INITIALIZER,
+  PTHREAD_MUTEX_INITIALIZER, PTHREAD_MUTEX_INITIALIZER,
+  PTHREAD_MUTEX_INITIALIZER, PTHREAD_MUTEX_INITIALIZER
+};
+#endif
 
 
-static inline int SignBit(const dblint i)
-{
+static inline int IDim(const int i) {
+  return i & (-i >> (8*sizeof i - 1));
+}
+
+
+static inline int SignBit(const dblint i) {
   return (udblint)i >> (8*sizeof i - 1);
 }
 
 
-static inline memindex PtrDiff(const void *a, const void *b)
-{
+static inline memindex PtrDiff(const void *a, const void *b) {
   return (char *)a - (char *)b;
 }
 
@@ -103,7 +117,7 @@ static dblint CmpParaLo(cRealType *para1, cRealType *para2,
 
 static void *Lookup(cRealType *para, double *base,
   void (*calc)(RealType *, cRealType *),
-  const int npara, const int nval)
+  const int npara, const int nval, const int cacheno)
 {
   typedef struct node {
     struct node *next[2], *succ;
@@ -120,9 +134,13 @@ static void *Lookup(cRealType *para, double *base,
   Node **next = base_first;
   Node *node;
 
+#ifdef MUTEX
+  pthread_mutex_t *mx = &mutex[cacheno];
+#endif
+
   if( last == NULL ) last = next;
 
-  if( ltcache_.cmpbits > 0 ) {
+  {
     dblint mask = -(1ULL << IDim(64 - ltcache_.cmpbits));
 #if KIND == 2
     dblint (*cmp)(cRealType *, cRealType *, int, const dblint) = CmpPara;
@@ -136,9 +154,19 @@ static void *Lookup(cRealType *para, double *base,
 
     while( (node = *next) && node->serial < valid ) {
       const dblint i = cmp(para, node->para, npara, mask);
-      if( i == 0 ) return &node->para[npara];
+      if( i == 0 ) goto x0;
       next = &node->next[SignBit(i)];
     }
+
+#ifdef MUTEX
+    pthread_mutex_lock(mx);
+
+    while( (node = *next) && node->serial < valid ) {
+      const dblint i = cmp(para, node->para, npara, mask);
+      if( i == 0 ) goto x1;
+      next = &node->next[SignBit(i)];
+    }
+#endif
   }
 
   node = *last;
@@ -166,24 +194,30 @@ static void *Lookup(cRealType *para, double *base,
   memcpy(node->para, para, npara*sizeof(RealType));
   calc(&node->para[npara], para);
 
+#ifdef MUTEX
+x1:
+  pthread_mutex_unlock(mx);
+#endif
+
+x0:
   return &node->para[npara];
 }
 
 
 memindex cacheindex_(cRealType *para, double *base,
   void (*calc)(RealType *, cRealType *),
-  const int *pnpara, const int *pnval)
+  const int *pnpara, const int *pnval, const int *pcacheno)
 {
-  ComplexType *val = Lookup(para, base, calc, *pnpara, *pnval);
+  ComplexType *val = Lookup(para, base, calc, *pnpara, *pnval, *pcacheno);
   return PtrDiff(val, base)/(long)sizeof(ComplexType);
 }
 
 
 void cachecopy_(ComplexType *dest, cRealType *para, double *base,
   void (*calc)(RealType *, cRealType *),
-  const int *pnpara, const int *pnval)
+  const int *pnpara, const int *pnval, const int *pcacheno)
 {
-  ComplexType *val = Lookup(para, base, calc, *pnpara, *pnval);
+  ComplexType *val = Lookup(para, base, calc, *pnpara, *pnval, *pcacheno);
   memcpy(dest, val, *pnval*sizeof *dest);
 }
 

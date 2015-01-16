@@ -150,11 +150,11 @@
 
 \hfill\hbox{\underline{%
 \vrule width 0pt height 0pt depth 2ex%
-\Huge \LT~2.9~~~User's Guide}}
+\Huge \LT~2.10~~~User's Guide}}
 
 \vspace*{1ex}
 
-\hfill\hbox{February 5, 2014~~~~~Thomas Hahn}
+\hfill\hbox{February 26, 2014~~~~~Thomas Hahn}
 
 \clearpage
 
@@ -520,19 +520,21 @@ The distinction in the following for real and complex arguments
 is for Fortran and C/C++ only.  Mathematica automatically chooses 
 the right version.
 
+\indextt{nocache}%
+The `\Code{nocache}' versions do not make use of LoopTools' internal
+caching system.  They might be useful in parallel environments since the
+cached versions are not thread-safe.  They are not available in
+Mathematica.
+
 
 \subsection{One-point function}
 
 \indextt{Aget}%
-\indextt{AgetC}%
 \indextt{Aput}%
-\indextt{AputC}%
+\indextt{Aputnocache}%
 \indextt{A0i}%
-\indextt{A0iC}%
 \indextt{A0}%
-\indextt{A0C}%
 \indextt{A00}%
-\indextt{A00C}%
 \begin{center}
 \begin{tabular}{|l|l|l|} \hline
 Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
@@ -542,7 +544,9 @@ Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
 	all one-point tensor coefficients \\
 \Code{Aput(res,\,\Va)} & \Code{AputC(res,\,\Va)} &
 	all one-point tensor coefficients \\
-\textit{special cases:} && \\
+\Code{Aputnocache(res,\,\Va)} & \Code{AputnocacheC(res,\,\Va)} &
+	all one-point tensor coefficients \\
+\textit{special cases of \Code{A0i}:} && \\
 \Code{A0(\Va)} & \Code{A0C(\Va)} &
 	one-point function \\
 \Code{A00(\Va)} & \Code{A00C(\Va)} &
@@ -569,23 +573,15 @@ $} \\[3ex]
 \subsection{Two-point functions}
 
 \indextt{Bget}%
-\indextt{BgetC}%
 \indextt{Bput}%
-\indextt{BputC}%
+\indextt{Bputnocache}%
 \indextt{B0i}%
-\indextt{B0iC}%
 \indextt{B0}%
-\indextt{B0C}%
 \indextt{B1}%
-\indextt{B1C}%
 \indextt{B00}%
-\indextt{B00C}%
 \indextt{B11}%
-\indextt{B11C}%
 \indextt{B001}%
-\indextt{B001C}%
 \indextt{B111}%
-\indextt{B111C}%
 \begin{center}
 \begin{tabular}{|l|l|l|} \hline
 Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
@@ -595,7 +591,9 @@ Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
 	all two-point tensor coefficients \\
 \Code{Bput(res,\,\Va)} & \Code{BputC(res,\,\Va)} &
 	all two-point tensor coefficients \\
-\textit{special cases:} && \\
+\Code{Bputnocache(res,\,\Va)} & \Code{BputnocacheC(res,\,\Va)} &
+	all two-point tensor coefficients \\
+\textit{special cases of \Code{B0i}:} && \\
 \Code{B0(\Va)} & \Code{B0C(\Va)} &
 	scalar two-point function \\
 \Code{B1(\Va)} & \Code{B1C(\Va)} &
@@ -648,7 +646,9 @@ Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
 	all two-point tensor coefficients \\
 \Code{Bput(res,\,\Va)} & \Code{BputC(res,\,\Va)} &
 	all two-point tensor coefficients \\
-\textit{special cases:} && \\
+\Code{Bputnocache(res,\,\Va)} & \Code{BputnocacheC(res,\,\Va)} &
+	all two-point tensor coefficients \\
+\textit{special cases of \Code{B0i}:} && \\
 \Code{DB0(\Va)} & \Code{DB0C(\Va)} &
 	derivative of \Code{B0} \\
 \Code{DB1(\Va)} & \Code{DB1C(\Va)} &
@@ -678,6 +678,7 @@ derivatives, so there is no \Code{DB0i}, \Code{DBget}, or \Code{DBput}.
 \indextt{C0i}%
 \indextt{Cget}%
 \indextt{Cput}%
+\indextt{C0nocache}%
 \begin{center}
 \begin{tabular}{|l|l|l|} \hline
 Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
@@ -687,7 +688,9 @@ Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
 	all three-point tensor coefficients \\
 \Code{Cput(res,\,\Va)} & \Code{CputC(res,\,\Va)} &
 	all three-point tensor coefficients \\
-\textit{special case:} && \\
+\Code{C0nocache(res,\,\Va)} & \Code{C0nocacheC(res,\,\Va)} &
+	scalar three-point function \\
+\textit{special case of \Code{C0i}:} && \\
 \Code{C0(\Va)} & \Code{C0C(\Va)} &
 	scalar three-point function \\
 \hline
@@ -727,13 +730,10 @@ $} \\[12ex]
 \subsection{Four-point functions}
 
 \indextt{D0}%
-\indextt{D0C}%
 \indextt{D0i}%
-\indextt{D0iC}%
 \indextt{Dget}%
-\indextt{DgetC}%
 \indextt{Dput}%
-\indextt{DputC}%
+\indextt{D0nocache}%
 \begin{center}
 \begin{tabular}{|l|l|l|} \hline
 Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
@@ -743,7 +743,9 @@ Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
 	all four-point tensor coefficients \\
 \Code{Dput(res,\,\Va)} & \Code{DputC(res,\,\Va)} &
 	all four-point tensor coefficients \\
-\textit{special case:} && \\
+\Code{D0nocache(res,\,\Va)} & \Code{D0nocacheC(res,\,\Va)} &
+	scalar four-point function \\
+\textit{special case of \Code{D0i}:} && \\
 \Code{D0(\Va)} & \Code{D0C(\Va)} &
 	scalar four-point function \\
 \hline
@@ -791,23 +793,22 @@ $} \\[11ex]
 \subsection{Five-point functions}
 
 \indextt{E0}%
-\indextt{E0C}%
 \indextt{E0i}%
-\indextt{E0iC}%
 \indextt{Eget}%
-\indextt{EgetC}%
 \indextt{Eput}%
-\indextt{EputC}%
+\indextt{E0nocache}%
 \begin{center}
 \begin{tabular}{|l|l|l|} \hline
 Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
 \Code{E0i(id, \Va)} & \Code{E0iC(id, \Va)} &
 	five-point tensor coefficient \Code{id} \\
 \Code{Eget(\Va)} & \Code{EgetC(\Va)} &
-	all four-point tensor coefficients \\
+	all five-point tensor coefficients \\
 \Code{Eput(res,\,\Va)} & \Code{EputC(res,\,\Va)} &
-	all four-point tensor coefficients \\
-\textit{special case:} && \\
+	all five-point tensor coefficients \\
+\Code{E0nocache(res,\,\Va)} & \Code{E0nocacheC(res,\,\Va)} &
+	scalar five-point function \\
+\textit{special case of \Code{E0i}:} && \\
 \Code{E0(\Va)} & \Code{E0C(\Va)} &
 	scalar five-point function \\
 \hline
@@ -893,17 +894,26 @@ as array indices (in fact, they are just integer constants to the compiler).
 In an unoptimized program, the savings incurred by this mechanism can be 
 sizeable: typically 90\% of integrals requested can be retrieved from cache.
 
-The ``\Code{$N$get}'' functions (\Code{Bget}, \Code{Cget}, etc.) compute
-all $N$-point coefficients together.  Their use is slightly more involved
-(one needs to keep track of an extra index) but results in faster code 
-since only one cache lookup is needed, and not one for every coefficient.
+The ``\Code{$N$get}'' functions (\Code{Bget}, \Code{Cget}, etc.) compute 
+all $N$-point coefficients together.  Their use is slightly more 
+involved (one needs to keep track of an extra index) but results in 
+faster code since only one cache lookup is needed, and not one for every 
+coefficient.
 
-The ``\Code{$N$put}'' subroutines (\Code{Bput}, \Code{Cput}, etc.) have
-the same functionality as the \Code{$N$get} functions but allow the user
-control over the storage location, \ie the first argument is a complex
-array of dimension \Code{Nbb}, \Code{Ncc}, \dots\ into which the 
-coefficients are stored.  This is important \eg for parallel execution.
+The ``\Code{$N$put$[$nocache$]$}'' subroutines (\Code{Aput}, 
+\Code{Bput}, etc.) have the same functionality as the \Code{$N$get} 
+functions but allow the user control over the storage location, \ie the 
+first argument is a complex array of dimension \Code{Nbb}, \Code{Ncc}, 
+\dots\ into which the coefficients are stored.  This can be important 
+\eg for parallel execution.  The ``\Code{$N$put}'' subroutines are 
+nevertheless not thread-safe, due to the caching mechanism.
 
+\indextt{nocache}%
+The ``\Code{$N$putnocache}'' and ``\Code{$N$0nocache}'' subroutines do 
+not use the cache and can be used for parallel execution, provided the 
+Fortran compiler produces reentrant code (that is, the compiler must 
+not allocate local variables of a subroutine statically; this may be a 
+problem for older F77 compilers).
 
 \subsection{Cache Mechanism}
 \index{cache}%

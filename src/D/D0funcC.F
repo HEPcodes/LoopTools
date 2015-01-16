@@ -1,7 +1,7 @@
-* D0Cpara.F
+* D0funcC.F
 * the scalar four-point function with complex masses
 * this file is part of LoopTools
-* last modified 27 Jan 14 th
+* last modified 20 Feb 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -10,7 +10,7 @@
 #include "defs.h"
 
 
-	subroutine D0Cpara(res, para)
+	subroutine D0funcC(res, para)
 	implicit none
 	ComplexType res(0:2), para(1,*)
 
