@@ -150,11 +150,11 @@
 
 \hfill\hbox{\underline{%
 \vrule width 0pt height 0pt depth 2ex%
-\Huge \LT~2.6~~~User's Guide}}
+\Huge \LT~2.7~~~User's Guide}}
 
 \vspace*{1ex}
 
-\hfill\hbox{December 14, 2010~~~~~Thomas Hahn}
+\hfill\hbox{March 7, 2012~~~~~Thomas Hahn}
 
 \clearpage
 
@@ -224,7 +224,7 @@ based on the \FF\ package by G.J.~van~Oldenborgh \cite{vOV90}.  It provides
 the actual numerical implementations of the functions appearing in \FC\
 output.  These are the scalar one-loop functions of \FF\ and the 2-, 3-, 
 4-, and 5-point tensor-coefficient functions in the conventions of
-\cite{De93}.  \LT\ offers three interfaces, Fortran, C++, and \mma, so 
+\cite{De93}.  \LT\ offers three interfaces, Fortran, C/C++, and \mma, so 
 most programming tastes should be served.%
 \index{FF@\FF}%
 
@@ -235,12 +235,12 @@ most programming tastes should be served.%
 To compile the package, a Fortran 77 compiler and the GNU C compiler 
 (\Code{gcc}) are required.
 
-\LT\ comes in a compressed tar archive \Code{LoopTools-2.6.tar.gz}. 
+\LT\ comes in a compressed tar archive \Code{LoopTools-2.7.tar.gz}. 
 Execute the following commands to unpack and compile the package.
 \bbox
 \begin{verbatim}
-   gunzip -c LoopTools-2.6.tar.gz | tar xvf -
-   cd LoopTools-2.6
+   gunzip -c LoopTools-2.7.tar.gz | tar xvf -
+   cd LoopTools-2.7
    ./configure
    make
    make install
@@ -249,7 +249,7 @@ Execute the following commands to unpack and compile the package.
 \ebox
 The \Code{configure} script finds out the necessary system information 
 for the compilation.  \Code{make} then makes the following objects in
-the \Code{LoopTools/\$HOSTTYPE} directory:
+the \Code{LoopTools/\Var{hosttype}} directory:
 \begin{tabbing}
 \rlap{\Code{lib/libooptools.a}}\hspace{.3\linewidth} \=
 	the \LT\ library \\
@@ -273,7 +273,7 @@ The resulting directory structure is
 \begin{tabbing}
 \rlap{\Code{LoopTools/}}\hspace{.3\linewidth} \=
 	the \LT\ directory \\
-\Code{\greyed{LoopTools/}\$HOSTTYPE/} \>
+\Code{\greyed{LoopTools/}\Var{hosttype}/} \>
 	directory for the compiled programs and libraries \\
 \Code{\greyed{LoopTools/}include/} \>
 	directory of the include files \\
@@ -293,20 +293,20 @@ The resulting directory structure is
 	scripts for compilation
 \end{tabbing}
 
-\indextt{HOSTTYPE}%
-\Code{HOSTTYPE} is an environment variable that is set by most shells to
-a string identifying the system, \eg \Code{alpha}, \Code{hp9000s700}, or
-\Code{i586-linux}.  Its purpose as a directory name is to separate the
-binaries for different platforms.  To see what its value is on your system,
-type the following command at the shell prompt:
+\index{hosttype}%
+The \Var{hosttype} is a string identifying the system, \eg 
+\Code{i686-Linux} or \Code{alpha-OSF1}.  Its purpose as a directory 
+name is to separate the binaries for different platforms.  To see what 
+its value is on your system, type the following command at the shell 
+prompt:
 \begin{verbatim}
-   tcsh -c "echo $HOSTTYPE"
+   echo `uname -m`-`uname -s`
 \end{verbatim}
 
 In contrast to the original \FF\ library, the \LT\ libraries and
 executables depend on no additional files (error message catalogues etc.),
 so they may be installed in some ``public'' place instead of
-\Code{LoopTools/\$HOSTTYPE}.  To this end, configure with \eg
+\Code{LoopTools/\Var{hosttype}}.  To this end, configure with \eg
 \begin{verbatim}
   ./configure --prefix=/usr/local
 \end{verbatim}
@@ -351,15 +351,21 @@ Consider the following general one-loop diagram.
 \end{picture}
 \end{center}
 The integral contained in this diagram is
-\begin{equation}
+\begin{align}
 \label{eq:1loopint}%\tag{$*$}
-T_{\mu_1\ldots\mu_P}^N =
-\frac{(2\pi\mu)^{4 - D}}{\i\pi^2} \int\d^Dq\,
+T_{\mu_1\ldots\mu_P}^N &=
+\frac{\mu^{4 - D}}{\i\pi^{D/2}\,r_\Gamma}
+%\frac{(2\pi\mu)^{4 - D}}{\i\pi^2}
+\int\d^Dq\,
 \frac{q_{\mu_1}\cdots q_{\mu_P}}
   {\bigl[q^2 - m_1^2\bigr]\,
    \bigl[(q + k_1)^2 - m_2^2\bigr] \cdots
-   \bigl[(q + k_{N - 1})^2 - m_N^2\bigr]}
-\end{equation}
+   \bigl[(q + k_{N - 1})^2 - m_N^2\bigr]} \\[1ex]
+\notag
+r_\Gamma &= \frac{\Gamma^2(1 - \varepsilon)\Gamma(1+\varepsilon)}
+  {\Gamma(1 - 2\varepsilon)}\,,
+\quad D = 4 - 2\varepsilon\,,
+\end{align}
 where the momenta $k_i$ that appear in the denominators are related to
 the external momenta $p_i$ as
 \begin{equation}
@@ -553,8 +559,8 @@ Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
 \Vertex(50,40){2}
 \Text(96,40)[cl]{$m$}
 \end{picture}}
-= ~\frac{(2\pi\mu)^{4 - D}}{\i\pi^2}
-  \int\frac{\text{(numerator)}~\d^D q}{q^2 - m^2}
+= ~\frac{\mu^{4 - D}}{\i\pi^{D/2}\,r_\Gamma}
+\int\frac{\text{(numerator)}~\d^D q}{q^2 - m^2}
 $} \\[3ex]
 \hline
 \end{tabular}
@@ -615,8 +621,8 @@ Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
 \Text(72,63)[bc]{$m_1$}
 \Text(72,15)[tc]{$m_2$}
 \end{picture}}
-= \frac{(2\pi\mu)^{4 - D}}{\i\pi^2} \int
-\frac{\text{(numerator)}~\d^D q}
+= \frac{\mu^{4 - D}}{\i\pi^{D/2}\,r_\Gamma}
+\int\frac{\text{(numerator)}~\d^D q}
   {\bigl[q^2 - m_1^2\bigr]\,\bigl[(q + p)^2 - m_2^2\bigr]}
 $} \\[5ex]
 \hline
@@ -698,8 +704,8 @@ Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
 \Text(75,101)[bl]{$m_2$}
 \Text(75,58)[tl]{$m_3$}
 \end{picture}}
-~~= \frac{(2\pi\mu)^{4 - D}}{\i\pi^2} \int
-\frac{\text{(numerator)}~\d^Dq}
+~~= \frac{\mu^{4 - D}}{\i\pi^{D/2}\,r_\Gamma}
+\int\frac{\text{(numerator)}~\d^Dq}
   {\begin{aligned}
    \bigl[q^2 - &m_1^2\bigr]\,\bigl[(q + p_1)^2 - m_2^2\bigr] \\
    & \bigl[(q + p_1 + p_2)^2 - m_3^2\bigr]
@@ -757,8 +763,8 @@ Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
 \Text(100,62)[l]{$m_3$}
 \Text(62,24)[t]{$m_4$}
 \end{picture}}
-= \frac{(2\pi\mu)^{4 - D}}{\i\pi^2} \int
-\frac{\text{(numerator)}~\d^Dq}
+= \frac{\mu^{4 - D}}{\i\pi^{D/2}\,r_\Gamma}
+\int\frac{\text{(numerator)}~\d^Dq}
   {\begin{aligned}
    \bigl[q^2 &- m_1^2\bigr] \bigl[(q + p_1)^2 - m_2^2\bigr] \\
    & \bigl[(q + p_1 + p_2)^2 - m_3^2\bigr] \\
@@ -826,8 +832,8 @@ Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
 \Text(100,50)[t]{$m_4$}
 \Text(40,50)[t]{$m_5$}
 \end{picture}}
-= \frac{(2\pi\mu)^{4 - D}}{\i\pi^2} \int
-\frac{\text{(numerator)}~\d^Dq}
+= \frac{\mu^{4 - D}}{\i\pi^{D/2}\,r_\Gamma}
+\int\frac{\text{(numerator)}~\d^Dq}
   {\begin{aligned}
    \bigl[q^2 &- m_1^2\bigr] \bigl[(q + p_1)^2 - m_2^2\bigr] \\
    & \bigl[(q + p_1 + p_2)^2 - m_3^2\bigr] \\
@@ -1386,7 +1392,7 @@ bosonic part of the Higgs self-energy in the electroweak Standard Model.
      &    pi = 3.14159265358979D0,
      &    SW2 = 1 - MW2/MZ2)
 
-        SigmaH = Alfa/32D0/pi/SW2/MW2*
+        SigmaH = Alfa/(32*pi*SW2*MW2)*
      &    ( 3*MH2*A0(MH2) + 9*MH2**2*B0(k2, MH2, MH2)
      &    + 2*(MH2**2 - 4*MW2*(k2 - 3*MW2))*B0(k2, MW2, MW2)
      &    + 2*(6*MW2 + MH2)*A0(MW2) - 24*MW2**2
@@ -1396,10 +1402,10 @@ bosonic part of the Higgs self-energy in the electroweak Standard Model.
 \end{verbatim}
 
 
-\section{Using \LT\ with C++}
+\section{Using \LT\ with C/C++}
 
 \index{C++}%
-\index{g++ command line@\Code{g++} command line}%
+\index{c++ command line@\Code{c++} command line}%
 Some technical details:
 \begin{itemize}
 \item Like in the Fortran case, it saves a lot of typing to specify the
@@ -1417,26 +1423,17 @@ Fortran libraries, in this case \Code{libooptools.a}.  Note that in a
 makefile, you have to use parentheses around the environment variables,
 \ie \Code{\$(LT)} instead of \Code{\$LT}.
 
-\item In bare C there is no intrinsic type \Code{complex}, and using things
-like \Code{structs} is rather annoying.  Therefore, I have made no attempt
-to implement the tensor package in bare C.  Unfortunately, even in C++
-the type \Code{complex} is anything but standardized.  As it stands, the
-package will compile with \Code{g++} 2.7.2 and higher.  Using any non-GNU 
-C++ compiler is at your own risk.  If you really must work with a 
-different compiler, the most likely cause of problems is the different
-naming convention for complex variables.  If so, the following compiler
-switch will help:
-\begin{verbatim}
-   -Ddouble_complex=mycomplexname
-\end{verbatim}
-where \Code{mycomplexname} is your compiler's name for the complex data
-type, usually something like \Code{complex}, \Code{Complex} etc.
+\item To produce code valid for both C and C++ one can use the 
+\Code{Complex} data type defined by \Code{clooptools.h} which maps to
+\Code{std::complex<double>} in C++ and to \Code{double complex} in C.
+Note that the latter type is available only in C99.
 \end{itemize}
 
-To use the \LT\ functions in a C++ program, the file \Code{clooptools.h}
-must be included.  Similar to the Fortran case, before making the first
-call to any \LT\ function, \Code{ltini()} must be called and at the end
-\Code{ltexi()} may be called to get a summary of errors.
+To use the \LT\ functions in a C/C++ program, the file 
+\Code{clooptools.h} must be included.  Similar to the Fortran case, 
+before making the first call to any \LT\ function, \Code{ltini()} must 
+be called and at the end \Code{ltexi()} may be called to get a summary 
+of errors.
 
 In C++, an elementary program would be
 {\samepage
@@ -1453,13 +1450,11 @@ int main() {
 
 In the following the same example as for the Fortran case is given: the
 bosonic part of the Higgs self-energy in the electroweak Standard Model.
-At first sight, the C++ code looks more appealing, but remember that
-\Code{double\uscore complex} is not an intrinsic data type in C++ and that
-certainly compilation time and usually also the performance of the
-resulting program will be worse than in Fortran.
+This code is given in C syntax though it compiles also with C++ thanks 
+to the \Code{Complex} data type (a true C++ aficionado would eschew the 
+use of stdio, however).
 \begin{verbatim}
-#include <complex.h>
-#include <fstream.h>
+#include <stdio.h>
 #include "clooptools.h"
 
 #define MH2 (100.*100.)
@@ -1469,8 +1464,8 @@ resulting program will be worse than in Fortran.
 #define pi 3.14159265358979
 #define SW2 (1. - MW2/MZ2)
 
-static double_complex SigmaH(double k2) {
-  return Alfa/32./pi/SW2/MW2*
+static Complex SigmaH(double k2) {
+  return Alfa/(32*pi*SW2*MW2)*
     ( 3*MH2*A0(MH2) + 9*MH2*MH2*B0(k2, MH2, MH2)
       + 2*(MH2*MH2 - 4*MW2*(k2 - 3*MW2))*B0(k2, MW2, MW2)
       + 2*(6*MW2 + MH2)*A0(MW2) - 24*MW2*MW2
@@ -1479,11 +1474,12 @@ static double_complex SigmaH(double k2) {
 }
 
 int main() {
-  double s;
-
+  Real s;
   ltini();
-  for( s = 100; s <= 1000; s += 50 )
-    cout << s << "\t" << SigmaH(s) << endl;
+  for( s = 100; s <= 1000; s += 50 ) {
+    Complex sig = SigmaH(s);
+    printf("%g\t%g%+gi\n", s, Re(sig), Im(sig));
+  }
   ltexi();
 }
 \end{verbatim}

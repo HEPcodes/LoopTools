@@ -176,7 +176,7 @@
 *
 *	special case xp = xm
 *
-	elseif ( dmp.eq.0 ) then
+	elseif ( abs(dmp) .lt. acc ) then
 	    if ( lsmug ) then
 		if ( DBLE(cmipj(1,3)).lt.DBLE(cmipj(2,3)) ) then
 		    cdb0p = -1 - log(cmipj(1,3)*DBLE(1/xm))

@@ -2,7 +2,7 @@
 * the three-point tensor coefficients
 * this file is part of LoopTools
 * improvements by M. Rauch
-* last modified 16 Jun 11 th
+* last modified 25 Jul 11 th
 
 #include "defs.h"
 
@@ -86,7 +86,7 @@
 	if( abs(DIMAG(para(1,1))) +
      &      abs(DIMAG(para(1,2))) +
      &      abs(DIMAG(para(1,3))) .gt. 0 )
-     &    print *, "Warning: complex momenta not implemented"
+     &    print *, "Complex momenta not implemented"
 	if( abs(DIMAG(para(1,4))) +
      &      abs(DIMAG(para(1,5))) +
      &      abs(DIMAG(para(1,6))) .eq. 0 ) then

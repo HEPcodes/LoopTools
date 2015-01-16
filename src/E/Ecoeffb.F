@@ -2,7 +2,7 @@
 * the five-point tensor coefficients via Passarino-Veltman decomposition
 * this file is part of LoopTools
 * written by M. Rauch
-* last modified 3 Mar 11 th
+* last modified 15 Jul 11 th
 
 #include "defs.h"
 
@@ -72,7 +72,7 @@
      &      abs(DIMAG(para(1,8))) +
      &      abs(DIMAG(para(1,9))) +
      &      abs(DIMAG(para(1,10))) .gt. 0 )
-     &    print *, "Warning: complex momenta not implemented"
+     &    print *, "Complex momenta not implemented"
 	if( abs(DIMAG(para(1,11))) +
      &      abs(DIMAG(para(1,12))) +
      &      abs(DIMAG(para(1,13))) +

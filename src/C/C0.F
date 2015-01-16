@@ -1,7 +1,7 @@
 * C0.F
 * the scalar three-point function
 * this file is part of LoopTools
-* last modified 14 Apr 11 th
+* last modified 22 Nov 11 th
 
 #include "defs.h"
 
@@ -181,8 +181,8 @@
 
 #include "lt.h"
 
-	double precision m1, m2, m3, p1, p2, p3
-	double precision m12, m13, m23, a2, n
+	double precision m1, m2, m3, p1, p2, p3, pp1, pp2, pp3
+	double precision m12, m13, m23, a2, n, n1, n2, n3, n123
 	double complex a, b, c
 	double complex y1, y2, y3, y4, x1, x2, x3, x4, z3, z4
 	integer z3z4, x1z3, x3z3, x2z4, x4z4
@@ -209,28 +209,29 @@
 	n = .5D0/p1
 	c = (p1*(p1 - p2 - p3 - m13 - m23) - m12*(p2 - p3))/a
 
+	n123 = p1*(p2*p3 + m13*m23) + m12*(m13*p2 - m23*p3)
+	pp1 = p1*(p1 - p2 - p3)
+	pp2 = p2*(p1 - p2 + p3)
+	pp3 = p3*(p1 + p2 - p3)
+	n1 = n123 - m23*pp1 - m12*pp2
+	n2 = n123 - m13*pp1 + m12*pp3
+	n3 = n123 + m3*pp1 - m1*pp2 - m2*pp3
+
 	y1 = n*(c + (p1 - m12))
 	y4 = n*(c - (p1 - m12))
-	if( abs(y1) .lt. abs(y4) )
-     &    y1 = ((p1 - m12)*(p2 + m23)*p3 -
-     &      (p1 - p2 - m13)*(m12*p2 + m23*p1))/(a2*p1*y4)
+	if( abs(y1) .lt. abs(y4) ) y1 = n1/(a2*p1*y4)
 
 	y2 = n*(c - (p1 + m12))
 	y4 = n*(c + (p1 + m12))
-	if( abs(y2) .lt. abs(y4) )
-     &    y2 = ((p1 + m12)*(p3 + m13)*p2 +
-     &      (p1 - p3 - m23)*(m12*p3 - m13*p1))/(a2*p1*y4)
+	if( abs(y2) .lt. abs(y4) ) y2 = n2/(a2*p1*y4)
 
 	b = sqrt(DCMPLX((p1 - m12)**2 - 4*p1*m2))
 	y3 = n*(c + b)
 	y4 = n*(c - b)
-	n = (p1*((p1 - p2 - p3)*m3 + p2*p3 + m13*m23) +
-     &       p2*((p2 - p3 - p1)*m1 + m12*m13) +
-     &       p3*((p3 - p1 - p2)*m2 - m12*m23))/(a2*p1)
 	if( abs(y3) .lt. abs(y4) ) then
-	  y3 = n/y4
+	  y3 = n3/(a2*p1*y4)
 	else
-	  y4 = n/y3
+	  y4 = n3/(a2*p1*y3)
 	endif
 	c = a*b
 	if( c .ne. 0 ) then
@@ -247,10 +248,10 @@
 	if( DIMAG(a) .ne. 0 ) then
 	  c = eps*cI
 	  if( abs(b) .ne. 0 ) c = abs(b)/b*c
-	  x1 = -.5D0/p1*( p1 - m12 + b) - c
-	  x2 = -.5D0/p1*( p1 - m12 - b) - c
-	  x3 = -.5D0/p1*(-p1 - m12 + b) - c
-	  x4 = -.5D0/p1*(-p1 - m12 - b) - c
+	  x1 = c - n*( p1 - m12 + b)
+	  x2 = c - n*( p1 - m12 - b)
+	  x3 = c - n*(-p1 - m12 + b)
+	  x4 = c - n*(-p1 - m12 - b)
 	  z3 = 1/y3
 	  z4 = 1/y4
 	  z3z4 = eta(z3, 0D0, z4, 0D0, 0D0)

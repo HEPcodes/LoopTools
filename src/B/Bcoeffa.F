@@ -1,7 +1,7 @@
 * Bcoeffa.F
 * the two-point tensor coefficients from FF
 * this file is part of LoopTools
-* last modified 28 Sep 10 th
+* last modified 15 Jul 11 th
 
 #include "defs.h"
 
@@ -25,7 +25,7 @@
 
 #ifdef COMPLEXPARA
 	if( abs(DIMAG(para(1,1))) .gt. 0 )
-     &    print *, "Warning: complex momenta not implemented"
+     &    print *, "Complex momenta not implemented"
 	if( abs(DIMAG(para(1,2))) +
      &      abs(DIMAG(para(1,3))) .eq. 0 ) then
 	  call Bcoeffa(para, B, 2, ier)

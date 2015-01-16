@@ -1,7 +1,7 @@
 * D0.F
 * the scalar four-point function
 * this file is part of LoopTools
-* last modified 14 Apr 11 th
+* last modified 26 Jun 12 th
 
 #include "defs.h"
 
@@ -18,9 +18,7 @@
 
 #include "lt.h"
 
-	double complex res(0:1)
 	double precision xpi(13)
-	integer key, ier
 
 	external D0softDR, D0collDR, D0soft, D0coll
 
@@ -28,7 +26,7 @@
 	M(2) = m2
 	M(3) = m3
 	M(4) = m4
-	P(1) = p1 
+	P(1) = p1
 	P(2) = p2
 	P(3) = p3
 	P(4) = p4
@@ -40,44 +38,9 @@
 
 	if( lambda .le. 0 ) then
 	  call DDispatch(D0, xpi, D0softDR, D0collDR)
-	  return
+	else
+	  call DDispatch(D0, xpi, D0soft, D0coll)
 	endif
-
-	ier = 0
-	key = ibits(versionkey, KeyD0, 2)
-
-	if( key .ne. 1 ) then
-	  call ffxd0(res(0), xpi, ier)
-	  if( ier .gt. warndigits ) then
-	    ier = 0
-	    call ffxd0r(res(0), xpi, ier)
-	    if( ier .gt. warndigits ) key = ior(key, 2)
-	    if( ier .ge. errdigits ) key = ior(key, 3)
-	  endif
-	endif
-
-	if( key .ne. 0 ) then
-	  call DDispatch(res(1), xpi, D0soft, D0coll)
-	  if( key .gt. 1 .and.
-     &        abs(res(0) - res(1)) .gt. maxdev*abs(res(0)) ) then
-	    print *, "Discrepancy in D0:"
-	    print *, "  p1   =", p1
-	    print *, "  p2   =", p2
-	    print *, "  p3   =", p3
-	    print *, "  p4   =", p4
-	    print *, "  p1p2 =", p1p2
-	    print *, "  p2p3 =", p2p3
-	    print *, "  m1   =", m1
-	    print *, "  m2   =", m2
-	    print *, "  m3   =", m3
-	    print *, "  m4   =", m4
-	    print *, "D0 a   =", res(0)
-	    print *, "D0 b   =", res(1)
-	    if( ier .gt. errdigits ) res(0) = res(1)
-	  endif
-	endif
-
-	D0 = res(iand(key, 1))
 	end
 
 ************************************************************************
@@ -107,7 +70,8 @@
 #include "lt.h"
 #include "perm.h"
 
-	integer i, z, s, perm
+	integer i, z, s, perm, ier, key
+	double complex alt
 
 	integer xpiperm(12), mperm(0:7)
 	data xpiperm /
@@ -138,6 +102,9 @@
 	s = 0
 	do i = 1, 12
 	  perm = xpiperm(i)
+c	PRINT '(I3,O12)', i, perm
+c	PRINT '(6F14.2)', Px(1), Px(2), Px(3), Px(4), Px(5), Px(6)
+c	PRINT '(4F14.2)', Mx(1), Mx(2), Mx(3), Mx(4)
 	  if( abs(Mx(1)) .lt. eps ) then
 	    if( abs(Px(1)) + abs(Mx(2)) .lt. eps ) then
 	      call coll(res, xpi, perm)
@@ -160,9 +127,24 @@
 	  return
 	endif
 
+	key = ibits(versionkey, KeyD0, 2)
+
+	if( key .ne. 1 ) then
+	  ier = 0
+	  call ffxd0(res, xpi, ier)
+	  if( ier .gt. warndigits ) then
+	    ier = 0
+	    call ffxd0r(res, xpi, ier)
+	    if( ier .gt. warndigits ) key = ior(key, 2)
+	    if( ier .ge. errdigits ) key = ior(key, 3)
+	  endif
+	  if( key .eq. 0 ) return
+	  alt = res
+	endif
+
 	if( z .eq. 0 ) then
 	  call D0m4(res, xpi)
-	  return
+	  goto 9
 	endif
 
 	perm = z
@@ -186,15 +168,35 @@
 	goto (2, 2, 3, 2, 3, 3, 4) z
 
 	call D0m3(res, xpi, perm)
-	return
+	goto 9
 
 2	call D0m2(res, xpi, perm)
-	return
+	goto 9
 
 3	call D0m1(res, xpi, perm)
-	return
+	goto 9
 
 4	call D0m0(res, xpi)
+
+9	if( key .gt. 1 .and.
+     &      abs(res - alt) .gt. maxdev*abs(alt) ) then
+	  print *, "Discrepancy in D0:"
+	  print *, "  p1   =", P(1)
+	  print *, "  p2   =", P(2)
+	  print *, "  p3   =", P(3)
+	  print *, "  p4   =", P(4)
+	  print *, "  p1p2 =", P(5)
+	  print *, "  p2p3 =", P(6)
+	  print *, "  m1   =", M(1)
+	  print *, "  m2   =", M(2)
+	  print *, "  m3   =", M(3)
+	  print *, "  m4   =", M(4)
+	  print *, "D0 a   =", alt
+	  print *, "D0 b   =", res
+	  if( ier .le. errdigits ) res = alt
+	endif
+
+	if( .not. btest(key, 1) ) res = alt
 	end
 
 ************************************************************************
@@ -236,9 +238,10 @@
 	double precision r1, r3, r4
 	double complex xs, x2, x3, y, c, fac
 	double complex lxs, lx2, lx3, l1x2, l1x3, ly, lm
+	integer ier
 
-	double complex ln, spence, bdK, dfflo1
-	external ln, spence, bdK, dfflo1
+	double complex ln, spence, bdK, zfflo1
+	external ln, spence, bdK, zfflo1
 
 	m3 = Mx(3)
 	p1 = Px(1)
@@ -249,6 +252,8 @@
 	p2p3 = Px(6)
 
 	if( DEBUGLEVEL .gt. 0 ) call DDump("D0soft", xpi, perm)
+
+	ier = 0
 
 	r1 = sqrt(p1)
 	r4 = sqrt(p4)
@@ -276,11 +281,11 @@
 	  else
 	    res = fac*(pi6 -
      &        spence(xs/y, 0D0) -
-     &        (lxs + log(1/y))*dfflo1(xs/y) -
+     &        (lxs + log(1/y))*zfflo1(xs/y, ier) -
      &        spence(xs*y, 0D0) -
-     &        (lxs + ly)*(dfflo1(xs*y) + .5D0*(lxs - ly)) +
+     &        (lxs + ly)*(zfflo1(xs*y, ier) + .5D0*(lxs - ly)) +
      &        spence(xs**2, 0D0) +
-     &        lxs*(2*dfflo1(xs**2) - c))
+     &        lxs*(2*zfflo1(xs**2, ier) - c))
 	  endif
 	  return
 	endif
@@ -305,16 +310,16 @@
 	else
 	  l1x2 = log(1/x2)
 	  res = fac*( .5D0*pi**2 +
-     &      lxs*(2*dfflo1(xs**2) - lm) +
+     &      lxs*(2*zfflo1(xs**2, ier) - lm) +
      &      spence(xs**2, 0D0) + lx2**2 + lx3**2 -
      &      spence(xs/(x2*x3), 0D0) -
-     &      (lxs + l1x2 + l1x3)*dfflo1(xs/(x2*x3)) -
+     &      (lxs + l1x2 + l1x3)*zfflo1(xs/(x2*x3), ier) -
      &      spence(xs*x2/x3, 0D0) -
-     &      (lxs + lx2 + l1x3)*dfflo1(xs*x2/x3) -
+     &      (lxs + lx2 + l1x3)*zfflo1(xs*x2/x3, ier) -
      &      spence(xs/x2*x3, 0D0) -
-     &      (lxs + l1x2 + lx3)*dfflo1(xs/x2*x3) -
+     &      (lxs + l1x2 + lx3)*zfflo1(xs/x2*x3, ier) -
      &      spence(xs*x2*x3, 0D0) -
-     &      (lxs + lx2 + lx3)*dfflo1(xs*x2*x3) )
+     &      (lxs + lx2 + lx3)*zfflo1(xs*x2*x3, ier) )
 	endif
 	end
 
@@ -1149,7 +1154,7 @@
 	t = m4 - Px(6)
 	q4 = m4 - Px(4)
 
-	if( abs(s*t) .lt. eps ) then
+	if( abs(s) .lt. acc .or. abs(t) .lt. acc ) then
 * switch from p1234 to p2134 = 1536242134
 	  tmp = s
 	  s = q3
@@ -1271,7 +1276,8 @@
 	lq4 = lnrat(q4, m3mu)
 
 	if( case .eq. 1 ) then
-	  dilogs = 0
+	  dilogs = Li2omrat2(q4, s, m3, m4) +
+     &             Li2omrat2(q4, s, -1D0, -1D0)
 	else if( case .eq. 2 ) then
 	  dilogs = Li2omrat2(q4, s, x43(1), x43(3)) +
      &             Li2omrat2(q4, s, x43(2), x43(4))
@@ -1317,7 +1323,8 @@
 * M. Rauch: implemented the log branch cuts for k13 < 2
 * (from Denner, Nierste, Scharf; Nucl Phys B367 (1991) 637)
 
-#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
+c#define AddEps(k) k*DCMPLX(1D0, -sign(eps, k))
+#define AddEps(k) DCMPLX(k, -eps*max(abs(k), 1D0))
 #define k2r(k) (.5D0*k*(1 + sqrt(DCMPLX((1 - 2/k)*(1 + 2/k)))))
 
 	subroutine D0m4(res, xpi)

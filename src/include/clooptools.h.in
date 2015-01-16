@@ -2,7 +2,7 @@
 	clooptools.h
 		the C/C++ header file with all definitions for LoopTools
 		this file is part of LoopTools
-		last modified 24 Mar 11 th
+		last modified 20 Jul 11 th
 */
 
 
@@ -22,13 +22,27 @@
   t(p1p2), t(p2p3), t(p3p4), t(p4p5), t(p5p1), \
   t(m1), t(m2), t(m3), t(m4), t(m5)
 
-#define _Cr_(v) const double v
-#define _Cc_(v) const double_complex v
-#define _Fr_(v) CDOUBLE_PRECISION *v
-#define _Fc_(v) CDOUBLE_COMPLEX *v
-#define _Frp_(v) &v
-#define _Fcp_(v) (CDOUBLE_COMPLEX *)&v
+#define XARGS(t) t(x)
+
+#define _Cr_(v) cReal v
+#define _Cc_(v) cComplex v
+#define _Fr_(v) CREAL *v
+#define _Fc_(v) CCOMPLEX *v
 #define _Id_(v) v
+
+#if QUAD
+#define _CFr_(v) v##_ = ToREAL(v)
+#define _CFc_(v) v##_ = {ToREAL(Re(v)), ToREAL(Im(v))}
+#define _Frp_(v) &v##_
+#define _Fcp_(v) &v##_
+#define _Frd_(f) CREAL f(_CFr_)
+#define _Fcd_(f) CCOMPLEX f(_CFc_)
+#else
+#define _Frp_(v) &v
+#define _Fcp_(v) (CCOMPLEX *)&v
+#define _Frd_(f)
+#define _Fcd_(f)
+#endif
 
 enum {
   bb0, bb1, bb00, bb11, bb001, bb111, dbb0, dbb1, dbb00, dbb11,
@@ -97,34 +111,34 @@ typedef long long int memindex;
 extern "C" {
 #endif
 
-extern void FORTRAN(a0sub)(DOUBLE_COMPLEX *result, AARGS(_Fr_));
-extern void FORTRAN(a0subc)(DOUBLE_COMPLEX *result, AARGS(_Fc_));
-extern void FORTRAN(a00sub)(DOUBLE_COMPLEX *result, AARGS(_Fr_));
-extern void FORTRAN(a00subc)(DOUBLE_COMPLEX *result, AARGS(_Fc_));
+extern void FORTRAN(a0sub)(COMPLEX *result, AARGS(_Fr_));
+extern void FORTRAN(a0subc)(COMPLEX *result, AARGS(_Fc_));
+extern void FORTRAN(a00sub)(COMPLEX *result, AARGS(_Fr_));
+extern void FORTRAN(a00subc)(COMPLEX *result, AARGS(_Fc_));
 
 extern memindex FORTRAN(bget)(BARGS(_Fr_));
 extern memindex FORTRAN(bgetc)(BARGS(_Fc_));
 
-extern void FORTRAN(c0sub)(DOUBLE_COMPLEX *result, CARGS(_Fr_));
-extern void FORTRAN(c0subc)(DOUBLE_COMPLEX *result, CARGS(_Fc_));
+extern void FORTRAN(c0sub)(COMPLEX *result, CARGS(_Fr_));
+extern void FORTRAN(c0subc)(COMPLEX *result, CARGS(_Fc_));
 extern memindex FORTRAN(cget)(CARGS(_Fr_));
 extern memindex FORTRAN(cgetc)(CARGS(_Fc_));
 
-extern void FORTRAN(d0sub)(DOUBLE_COMPLEX *result, DARGS(_Fr_));
-extern void FORTRAN(d0subc)(DOUBLE_COMPLEX *result, DARGS(_Fc_));
+extern void FORTRAN(d0sub)(COMPLEX *result, DARGS(_Fr_));
+extern void FORTRAN(d0subc)(COMPLEX *result, DARGS(_Fc_));
 extern memindex FORTRAN(dget)(DARGS(_Fr_));
 extern memindex FORTRAN(dgetc)(DARGS(_Fc_));
 
-extern void FORTRAN(e0sub)(DOUBLE_COMPLEX *result, EARGS(_Fr_));
-extern void FORTRAN(e0subc)(DOUBLE_COMPLEX *result, EARGS(_Fc_));
+extern void FORTRAN(e0sub)(COMPLEX *result, EARGS(_Fr_));
+extern void FORTRAN(e0subc)(COMPLEX *result, EARGS(_Fc_));
 extern memindex FORTRAN(eget)(EARGS(_Fr_));
 extern memindex FORTRAN(egetc)(EARGS(_Fc_));
 
-extern void FORTRAN(li2sub)(DOUBLE_COMPLEX *result, CDOUBLE_PRECISION *x);
-extern void FORTRAN(li2csub)(DOUBLE_COMPLEX *result, CDOUBLE_COMPLEX *x);
+extern void FORTRAN(li2sub)(COMPLEX *result, XARGS(_Fr_));
+extern void FORTRAN(li2csub)(COMPLEX *result, XARGS(_Fc_));
 
-extern void FORTRAN(li2omxsub)(DOUBLE_COMPLEX *result, CDOUBLE_PRECISION *x);
-extern void FORTRAN(li2omxcsub)(DOUBLE_COMPLEX *result, CDOUBLE_COMPLEX *x);
+extern void FORTRAN(li2omxsub)(COMPLEX *result, XARGS(_Fr_));
+extern void FORTRAN(li2omxcsub)(COMPLEX *result, XARGS(_Fc_));
 
 extern void FORTRAN(ltini)(void);
 extern void FORTRAN(ltexi)(void);
@@ -133,10 +147,12 @@ extern void FORTRAN(clearcache)(void);
 extern void FORTRAN(markcache)(void);
 extern void FORTRAN(restorecache)(void);
 
+#define CACHEPTR(n,i) &FORTRAN(ltvars).cache[n][i]
+
 extern struct {		/* MUST match common block ltvars in lt.h! */
-  DOUBLE_COMPLEX cache[8][2];
-  DOUBLE_COMPLEX savedptr[8];
-  DOUBLE_PRECISION maxdev;
+  COMPLEX cache[8][2];
+  COMPLEX savedptr[8];
+  REAL maxdev;
   INTEGER warndigits, errdigits;
   INTEGER serial, versionkey;
   INTEGER debugkey, debugfrom, debugto;
@@ -147,7 +163,7 @@ extern struct {		/* MUST match common block ltcache in lt.h! */
 } FORTRAN(ltcache);
 
 extern struct {		/* MUST match common block ltregul in ff.h! */
-  DOUBLE_PRECISION mudim, delta, lambda, minmass;
+  REAL mudim, delta, lambda, minmass;
 } FORTRAN(ltregul);
 
 #ifdef __cplusplus
@@ -156,30 +172,34 @@ extern struct {		/* MUST match common block ltregul in ff.h! */
 
 /****************************************************************/
 
-static inline double_complex A0(AARGS(_Cr_))
+static inline Complex A0(AARGS(_Cr_))
 {
-  DOUBLE_COMPLEX result;
+  _Frd_(AARGS);
+  COMPLEX result;
   FORTRAN(a0sub)(&result, AARGS(_Frp_));
   return ToComplex(result);
 }
 
-static inline double_complex A0C(AARGS(_Cc_))
+static inline Complex A0C(AARGS(_Cc_))
 {
-  DOUBLE_COMPLEX result;
+  _Fcd_(AARGS);
+  COMPLEX result;
   FORTRAN(a0subc)(&result, AARGS(_Fcp_));
   return ToComplex(result);
 }
 
-static inline double_complex A00(AARGS(_Cr_))
+static inline Complex A00(AARGS(_Cr_))
 {
-  DOUBLE_COMPLEX result;
+  _Frd_(AARGS);
+  COMPLEX result;
   FORTRAN(a00sub)(&result, AARGS(_Frp_));
   return ToComplex(result);
 }
 
-static inline double_complex A00C(AARGS(_Cc_))
+static inline Complex A00C(AARGS(_Cc_))
 {
-  DOUBLE_COMPLEX result;
+  _Fcd_(AARGS);
+  COMPLEX result;
   FORTRAN(a00subc)(&result, AARGS(_Fcp_));
   return ToComplex(result);
 }
@@ -188,233 +208,251 @@ static inline double_complex A00C(AARGS(_Cc_))
 
 static inline memindex Bget(BARGS(_Cr_))
 {
+  _Frd_(BARGS);
   return FORTRAN(bget)(BARGS(_Frp_));
 }
 
 static inline memindex BgetC(BARGS(_Cc_))
 {
+  _Fcd_(BARGS);
   return FORTRAN(bgetc)(BARGS(_Fcp_));
 }
 
-static inline DOUBLE_COMPLEX *Bcache(const memindex integral)
-  { return &FORTRAN(ltvars).cache[0][integral]; }
+static inline COMPLEX *Bcache(const memindex integral)
+  { return CACHEPTR(0,integral); }
 
-static inline DOUBLE_COMPLEX *BcacheC(const memindex integral)
-  { return &FORTRAN(ltvars).cache[1][integral]; }
+static inline COMPLEX *BcacheC(const memindex integral)
+  { return CACHEPTR(1,integral); }
 
-static inline double_complex Bval(const int i, const memindex integral)
+static inline Complex Bval(const int i, const memindex integral)
   { return ToComplex(Bcache(integral)[i]); }
 
-static inline double_complex BvalC(const int i, const memindex integral)
+static inline Complex BvalC(const int i, const memindex integral)
   { return ToComplex(BcacheC(integral)[i]); }
 
-static inline double_complex B0i(const int i, BARGS(_Cr_))
+static inline Complex B0i(const int i, BARGS(_Cr_))
   { return Bval(i, Bget(BARGS(_Id_))); }
 
-static inline double_complex B0iC(const int i, BARGS(_Cc_))
+static inline Complex B0iC(const int i, BARGS(_Cc_))
   { return BvalC(i, BgetC(BARGS(_Id_))); }
 
-static inline double_complex B0(BARGS(_Cr_))
+static inline Complex B0(BARGS(_Cr_))
   { return B0i(bb0, BARGS(_Id_)); }
-static inline double_complex B1(BARGS(_Cr_))
+static inline Complex B1(BARGS(_Cr_))
   { return B0i(bb1, BARGS(_Id_)); }
-static inline double_complex B00(BARGS(_Cr_))
+static inline Complex B00(BARGS(_Cr_))
   { return B0i(bb00, BARGS(_Id_)); }
-static inline double_complex B11(BARGS(_Cr_))
+static inline Complex B11(BARGS(_Cr_))
   { return B0i(bb11, BARGS(_Id_)); }
-static inline double_complex B001(BARGS(_Cr_))
+static inline Complex B001(BARGS(_Cr_))
   { return B0i(bb001, BARGS(_Id_)); }
-static inline double_complex B111(BARGS(_Cr_))
+static inline Complex B111(BARGS(_Cr_))
   { return B0i(bb111, BARGS(_Id_)); }
-static inline double_complex DB0(BARGS(_Cr_))
+static inline Complex DB0(BARGS(_Cr_))
   { return B0i(dbb0, BARGS(_Id_)); }
-static inline double_complex DB1(BARGS(_Cr_))
+static inline Complex DB1(BARGS(_Cr_))
   { return B0i(dbb1, BARGS(_Id_)); }
-static inline double_complex DB00(BARGS(_Cr_))
+static inline Complex DB00(BARGS(_Cr_))
   { return B0i(dbb00, BARGS(_Id_)); }
-static inline double_complex DB11(BARGS(_Cr_))
+static inline Complex DB11(BARGS(_Cr_))
   { return B0i(dbb11, BARGS(_Id_)); }
 
-static inline double_complex B0C(BARGS(_Cc_))
+static inline Complex B0C(BARGS(_Cc_))
   { return B0iC(bb0, BARGS(_Id_)); }
-static inline double_complex B1C(BARGS(_Cc_))
+static inline Complex B1C(BARGS(_Cc_))
   { return B0iC(bb1, BARGS(_Id_)); }
-static inline double_complex B00C(BARGS(_Cc_))
+static inline Complex B00C(BARGS(_Cc_))
   { return B0iC(bb00, BARGS(_Id_)); }
-static inline double_complex B11C(BARGS(_Cc_))
+static inline Complex B11C(BARGS(_Cc_))
   { return B0iC(bb11, BARGS(_Id_)); }
-static inline double_complex B001C(BARGS(_Cc_))
+static inline Complex B001C(BARGS(_Cc_))
   { return B0iC(bb001, BARGS(_Id_)); }
-static inline double_complex B111C(BARGS(_Cc_))
+static inline Complex B111C(BARGS(_Cc_))
   { return B0iC(bb111, BARGS(_Id_)); }
-static inline double_complex DB0C(BARGS(_Cc_))
+static inline Complex DB0C(BARGS(_Cc_))
   { return B0iC(dbb0, BARGS(_Id_)); }
-static inline double_complex DB1C(BARGS(_Cc_))
+static inline Complex DB1C(BARGS(_Cc_))
   { return B0iC(dbb1, BARGS(_Id_)); }
-static inline double_complex DB00C(BARGS(_Cc_))
+static inline Complex DB00C(BARGS(_Cc_))
   { return B0iC(dbb00, BARGS(_Id_)); }
-static inline double_complex DB11C(BARGS(_Cc_))
+static inline Complex DB11C(BARGS(_Cc_))
   { return B0iC(dbb11, BARGS(_Id_)); }
 
 /****************************************************************/
 
-static inline double_complex C0(CARGS(_Cr_))
+static inline Complex C0(CARGS(_Cr_))
 {
-  DOUBLE_COMPLEX result;
+  _Frd_(CARGS);
+  COMPLEX result;
   FORTRAN(c0sub)(&result, CARGS(_Frp_));
   return ToComplex(result);
 }
 
-static inline double_complex C0C(CARGS(_Cc_))
+static inline Complex C0C(CARGS(_Cc_))
 {
-  DOUBLE_COMPLEX result;
+  _Fcd_(CARGS);
+  COMPLEX result;
   FORTRAN(c0subc)(&result, CARGS(_Fcp_));
   return ToComplex(result);
 }
 
 static inline memindex Cget(CARGS(_Cr_))
 {
+  _Frd_(CARGS);
   return FORTRAN(cget)(CARGS(_Frp_));
 }
 
 static inline memindex CgetC(CARGS(_Cc_))
 {
+  _Fcd_(CARGS);
   return FORTRAN(cgetc)(CARGS(_Fcp_));
 }
 
-static inline DOUBLE_COMPLEX *Ccache(const memindex integral)
-  { return &FORTRAN(ltvars).cache[2][integral]; }
+static inline COMPLEX *Ccache(const memindex integral)
+  { return CACHEPTR(2,integral); }
 
-static inline DOUBLE_COMPLEX *CcacheC(const memindex integral)
-  { return &FORTRAN(ltvars).cache[3][integral]; }
+static inline COMPLEX *CcacheC(const memindex integral)
+  { return CACHEPTR(3,integral); }
 
-static inline double_complex Cval(const int i, const memindex integral)
+static inline Complex Cval(const int i, const memindex integral)
   { return ToComplex(Ccache(integral)[i]); }
 
-static inline double_complex CvalC(const int i, const memindex integral)
+static inline Complex CvalC(const int i, const memindex integral)
   { return ToComplex(CcacheC(integral)[i]); }
 
-static inline double_complex C0i(const int i, CARGS(_Cr_))
+static inline Complex C0i(const int i, CARGS(_Cr_))
   { return Cval(i, Cget(CARGS(_Id_))); }
 
-static inline double_complex C0iC(const int i, CARGS(_Cc_))
+static inline Complex C0iC(const int i, CARGS(_Cc_))
   { return CvalC(i, CgetC(CARGS(_Id_))); }
 
 /****************************************************************/
 
-static inline double_complex D0(DARGS(_Cr_))
+static inline Complex D0(DARGS(_Cr_))
 {
-  DOUBLE_COMPLEX result;
+  _Frd_(DARGS);
+  COMPLEX result;
   FORTRAN(d0sub)(&result, DARGS(_Frp_));
   return ToComplex(result);
 }
 
-static inline double_complex D0C(DARGS(_Cc_))
+static inline Complex D0C(DARGS(_Cc_))
 {
-  DOUBLE_COMPLEX result;
+  _Fcd_(DARGS);
+  COMPLEX result;
   FORTRAN(d0subc)(&result, DARGS(_Fcp_));
   return ToComplex(result);
 }
 
 static inline memindex Dget(DARGS(_Cr_))
 {
+  _Frd_(DARGS);
   return FORTRAN(dget)(DARGS(_Frp_));
 }
 
 static inline memindex DgetC(DARGS(_Cc_))
 {
+  _Fcd_(DARGS);
   return FORTRAN(dgetc)(DARGS(_Fcp_));
 }
 
-static inline DOUBLE_COMPLEX *Dcache(const memindex integral)
-  { return &FORTRAN(ltvars).cache[4][integral]; }
+static inline COMPLEX *Dcache(const memindex integral)
+  { return CACHEPTR(4,integral); }
 
-static inline DOUBLE_COMPLEX *DcacheC(const memindex integral)
-  { return &FORTRAN(ltvars).cache[5][integral]; }
+static inline COMPLEX *DcacheC(const memindex integral)
+  { return CACHEPTR(5,integral); }
 
-static inline double_complex Dval(const int i, const memindex integral)
+static inline Complex Dval(const int i, const memindex integral)
   { return ToComplex(Dcache(integral)[i]); }
 
-static inline double_complex DvalC(const int i, const memindex integral)
+static inline Complex DvalC(const int i, const memindex integral)
   { return ToComplex(DcacheC(integral)[i]); }
 
-static inline double_complex D0i(const int i, DARGS(_Cr_))
+static inline Complex D0i(const int i, DARGS(_Cr_))
   { return Dval(i, Dget(DARGS(_Id_))); }
 
-static inline double_complex D0iC(const int i, DARGS(_Cc_))
+static inline Complex D0iC(const int i, DARGS(_Cc_))
   { return DvalC(i, DgetC(DARGS(_Id_))); }
 
 /****************************************************************/
 
-static inline double_complex E0(EARGS(_Cr_))
+static inline Complex E0(EARGS(_Cr_))
 {
-  DOUBLE_COMPLEX result;
+  _Frd_(EARGS);
+  COMPLEX result;
   FORTRAN(e0sub)(&result, EARGS(_Frp_));
   return ToComplex(result);
 }
 
-static inline double_complex E0C(EARGS(_Cc_))
+static inline Complex E0C(EARGS(_Cc_))
 {
-  DOUBLE_COMPLEX result;
+  _Fcd_(EARGS);
+  COMPLEX result;
   FORTRAN(e0subc)(&result, EARGS(_Fcp_));
   return ToComplex(result);
 }
 
 static inline memindex Eget(EARGS(_Cr_))
 {
+  _Frd_(EARGS);
   return FORTRAN(eget)(EARGS(_Frp_));
 }
 
 static inline memindex EgetC(EARGS(_Cc_))
 {
+  _Fcd_(EARGS);
   return FORTRAN(egetc)(EARGS(_Fcp_));
 }
 
-static inline DOUBLE_COMPLEX *Ecache(const memindex integral)
-  { return &FORTRAN(ltvars).cache[6][integral]; }
+static inline COMPLEX *Ecache(const memindex integral)
+  { return CACHEPTR(6,integral); }
 
-static inline DOUBLE_COMPLEX *EcacheC(const memindex integral)
-  { return &FORTRAN(ltvars).cache[7][integral]; }
+static inline COMPLEX *EcacheC(const memindex integral)
+  { return CACHEPTR(7,integral); }
 
-static inline double_complex Eval(const int i, const memindex integral)
+static inline Complex Eval(const int i, const memindex integral)
   { return ToComplex(Ecache(integral)[i]); }
 
-static inline double_complex EvalC(const int i, const memindex integral)
+static inline Complex EvalC(const int i, const memindex integral)
   { return ToComplex(EcacheC(integral)[i]); }
 
-static inline double_complex E0i(const int i, EARGS(_Cr_))
+static inline Complex E0i(const int i, EARGS(_Cr_))
   { return Eval(i, Eget(EARGS(_Id_))); }
 
-static inline double_complex E0iC(const int i, EARGS(_Cc_))
+static inline Complex E0iC(const int i, EARGS(_Cc_))
   { return EvalC(i, EgetC(EARGS(_Id_))); }
 
 /****************************************************************/
 
-static inline double_complex Li2(const double x)
+static inline Complex Li2(XARGS(_Cr_))
 {
-  DOUBLE_COMPLEX result;
-  FORTRAN(li2sub)(&result, _Frp_(x));
+  _Frd_(XARGS);
+  COMPLEX result;
+  FORTRAN(li2sub)(&result, XARGS(_Frp_));
   return ToComplex(result);
 }
 
-static inline double_complex Li2C(const double_complex x)
+static inline Complex Li2C(XARGS(_Cc_))
 {
-  DOUBLE_COMPLEX result;
-  FORTRAN(li2csub)(&result, _Fcp_(x));
+  _Fcd_(XARGS);
+  COMPLEX result;
+  FORTRAN(li2csub)(&result, XARGS(_Fcp_));
   return ToComplex(result);
 }
 
-static inline double_complex Li2omx(const double x)
+static inline Complex Li2omx(XARGS(_Cr_))
 {
-  DOUBLE_COMPLEX result;
-  FORTRAN(li2sub)(&result, _Frp_(x));
+  _Frd_(XARGS);
+  COMPLEX result;
+  FORTRAN(li2sub)(&result, XARGS(_Frp_));
   return ToComplex(result);
 }
 
-static inline double_complex Li2omxC(const double_complex x)
+static inline Complex Li2omxC(XARGS(_Cc_))
 {
-  DOUBLE_COMPLEX result;
-  FORTRAN(li2csub)(&result, _Fcp_(x));
+  _Fcd_(XARGS);
+  COMPLEX result;
+  FORTRAN(li2csub)(&result, XARGS(_Fcp_));
   return ToComplex(result);
 }
 
@@ -427,48 +465,48 @@ static inline double_complex Li2omxC(const double_complex x)
 #define ltexi FORTRAN(ltexi)
 
 
-static inline void setmudim(const double mudim)
+static inline void setmudim(cReal mudim)
 {
-  FORTRAN(ltregul).mudim = mudim;
+  FORTRAN(ltregul).mudim = ToREAL(mudim);
   clearcache();
 }
 
-static inline double getmudim() { return FORTRAN(ltregul).mudim; }
+static inline Real getmudim() { return ToReal(FORTRAN(ltregul).mudim); }
 
 
-static inline void setdelta(const double delta)
+static inline void setdelta(cReal delta)
 {
-  FORTRAN(ltregul).delta = delta;
+  FORTRAN(ltregul).delta = ToREAL(delta);
   clearcache();
 }
 
-static inline double getdelta() { return FORTRAN(ltregul).delta; }
+static inline Real getdelta() { return ToReal(FORTRAN(ltregul).delta); }
 
 
-static inline void setlambda(const double lambda)
+static inline void setlambda(cReal lambda)
 {
-  FORTRAN(ltregul).lambda = lambda;
+  FORTRAN(ltregul).lambda = ToREAL(lambda);
   clearcache();
 }
 
-static inline double getlambda() { return FORTRAN(ltregul).lambda; }
+static inline Real getlambda() { return ToReal(FORTRAN(ltregul).lambda); }
 
 
-static inline void setminmass(const double minmass)
+static inline void setminmass(cReal minmass)
 {
-  FORTRAN(ltregul).minmass = minmass;
+  FORTRAN(ltregul).minmass = ToREAL(minmass);
   clearcache();
 }
 
-static inline double getminmass() { return FORTRAN(ltregul).minmass; }
+static inline Real getminmass() { return ToReal(FORTRAN(ltregul).minmass); }
 
 
-static inline void setmaxdev(const double maxdev)
+static inline void setmaxdev(cReal maxdev)
 {
-  FORTRAN(ltvars).maxdev = maxdev;
+  FORTRAN(ltvars).maxdev = ToREAL(maxdev);
 }
 
-static inline double getmaxdev() { return FORTRAN(ltvars).maxdev; }
+static inline Real getmaxdev() { return ToReal(FORTRAN(ltvars).maxdev); }
 
 
 static inline void setwarndigits(const int warndigits)

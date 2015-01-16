@@ -3,7 +3,7 @@
 		caching of tensor coefficients in
 		dynamically allocated memory
 		this file is part of LoopTools
-		last modified 21 Jan 11 th
+		last modified 15 Jul 11 th
 */
 
 
@@ -12,9 +12,9 @@
 #include <string.h>
 #include "cexternals.h"
 
-#if UNDERSCORE
-#define cachelookup cachelookup_
-#define ltcache ltcache_
+#if NOUNDERSCORE
+#define cachelookup_ cachelookup
+#define ltcache_ ltcache
 #endif
 
 #ifndef KIND
@@ -42,7 +42,7 @@ typedef long long memindex;
 
 extern struct {
   int cmpbits;
-} ltcache;
+} ltcache_;
 
 
 /* (a < 0) ? -1 : 0 */
@@ -97,7 +97,7 @@ static dblint CmpParaLo(const Real *para1, const Real *para2, int n,
 #endif
 
 
-memindex cachelookup(const Real *para, double *base,
+memindex cachelookup_(const Real *para, double *base,
   void (*calc)(const Real *, Real *, const int *),
   const int *pnpara, const int *pnval)
 {
@@ -121,12 +121,12 @@ memindex cachelookup(const Real *para, double *base,
 
   if( last == NULL ) last = next;
 
-  if( ltcache.cmpbits > 0 ) {
-    dblint mask = -(1ULL << IDim(64 - ltcache.cmpbits));
+  if( ltcache_.cmpbits > 0 ) {
+    dblint mask = -(1ULL << IDim(64 - ltcache_.cmpbits));
 #if KIND == 2
     dblint (*cmp)(const Real *, const Real *, int, const dblint) = CmpPara;
-    if( ltcache.cmpbits >= 64 ) {
-      mask = -(1ULL << IDim(128 - ltcache.cmpbits));
+    if( ltcache_.cmpbits >= 64 ) {
+      mask = -(1ULL << IDim(128 - ltcache_.cmpbits));
       cmp = CmpParaLo;
     }
 #else

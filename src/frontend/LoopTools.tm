@@ -157,7 +157,7 @@
 :Evaluate: Begin["`Private`"]
 
 :Begin:
-:Function:	fa0
+:Function:	mA0
 :Pattern:	A0[m_?r]
 :Arguments:	{N[m]}
 :ArgumentTypes:	{Real}
@@ -165,7 +165,7 @@
 :End:
 
 :Begin:
-:Function:	fa0c
+:Function:	mA0c
 :Pattern:	A0[m_?c]
 :Arguments:	{N[Re[m]], N[Im[m]]}
 :ArgumentTypes:	{Real, Real}
@@ -173,7 +173,7 @@
 :End:
 
 :Begin:
-:Function:	fa00
+:Function:	mA00
 :Pattern:	A00[m_?r]
 :Arguments:	{N[m]}
 :ArgumentTypes:	{Real}
@@ -181,7 +181,7 @@
 :End:
 
 :Begin:
-:Function:	fa00c
+:Function:	mA00c
 :Pattern:	A00[m_?c]
 :Arguments:	{N[Re[m]], N[Im[m]]}
 :ArgumentTypes:	{Real, Real}
@@ -189,7 +189,7 @@
 :End:
 
 :Begin:
-:Function:	fb0i
+:Function:	mB0i
 :Pattern:	B0i[id_, p_?r, m1_?r, m2_?r]
 :Arguments:	{Bid[id], N[p], N[m1], N[m2]}
 :ArgumentTypes:	{Integer, Real, Real, Real}
@@ -197,7 +197,7 @@
 :End:
 
 :Begin:
-:Function:	fb0ic
+:Function:	mB0ic
 :Pattern:	B0i[id_, p_?c, m1_?c, m2_?c]
 :Arguments:	{Bid[id], N[Re[p]], N[Im[p]],
 		  N[Re[m1]], N[Im[m1]], N[Re[m2]], N[Im[m2]]}
@@ -206,7 +206,7 @@
 :End:
 
 :Begin:
-:Function:	fbget
+:Function:	mBget
 :Pattern:	Bget[p_?r, m1_?r, m2_?r]
 :Arguments:	{N[p], N[m1], N[m2]}
 :ArgumentTypes:	{Real, Real, Real}
@@ -214,7 +214,7 @@
 :End:
 
 :Begin:
-:Function:	fbgetc
+:Function:	mBgetc
 :Pattern:	Bget[p_?c, m1_?c, m2_?c]
 :Arguments:	{N[Re[p]], N[Im[p]],
 		  N[Re[m1]], N[Im[m1]], N[Re[m2]], N[Im[m2]]}
@@ -223,7 +223,7 @@
 :End:
 
 :Begin:
-:Function:	fc0
+:Function:	mC0
 :Pattern:	C0[p1_?r, p2_?r, p1p2_?r, m1_?r, m2_?r, m3_?r]
 :Arguments:	{N[p1], N[p2], N[p1p2], N[m1], N[m2], N[m3]}
 :ArgumentTypes:	{Real, Real, Real, Real, Real, Real}
@@ -231,7 +231,7 @@
 :End:
 
 :Begin:
-:Function:	fc0c
+:Function:	mC0c
 :Pattern:	C0[p1_?c, p2_?c, p1p2_?c, m1_?c, m2_?c, m3_?c]
 :Arguments:	{N[Re[p1]], N[Im[p1]], N[Re[p2]], N[Im[p2]],
 		  N[Re[p1p2]], N[Im[p1p2]], N[Re[m1]], N[Im[m1]],
@@ -242,7 +242,7 @@
 :End:
 
 :Begin:
-:Function:	fc0i
+:Function:	mC0i
 :Pattern:	C0i[id_, p1_?r, p2_?r, p1p2_?r, m1_?r, m2_?r, m3_?r]
 :Arguments:	{Cid[id],
 		  N[p1], N[p2], N[p1p2], N[m1], N[m2], N[m3]}
@@ -251,7 +251,7 @@
 :End:
 
 :Begin:
-:Function:	fc0ic
+:Function:	mC0ic
 :Pattern:	C0i[id_, p1_?c, p2_?c, p1p2_?c, m1_?c, m2_?c, m3_?c]
 :Arguments:	{Cid[id],
 		  N[Re[p1]], N[Im[p1]], N[Re[p2]], N[Im[p2]],
@@ -264,7 +264,7 @@
 :End:
 
 :Begin:
-:Function:	fcget
+:Function:	mCget
 :Pattern:	Cget[p1_?r, p2_?r, p1p2_?r, m1_?r, m2_?r, m3_?r]
 :Arguments:	{N[p1], N[p2], N[p1p2], N[m1], N[m2], N[m3]}
 :ArgumentTypes:	{Real, Real, Real, Real, Real, Real}
@@ -272,7 +272,7 @@
 :End:
 
 :Begin:
-:Function:	fcgetc
+:Function:	mCgetc
 :Pattern:	Cget[p1_?c, p2_?c, p1p2_?c, m1_?c, m2_?c, m3_?c]
 :Arguments:	{N[Re[p1]], N[Im[p1]], N[Re[p2]], N[Im[p2]],
 		  N[Re[p1p2]], N[Im[p1p2]], N[Re[m1]], N[Im[m1]],
@@ -283,7 +283,7 @@
 :End:
 
 :Begin:
-:Function:	fd0
+:Function:	mD0
 :Pattern:	D0[p1_?r, p2_?r, p3_?r, p4_?r, p1p2_?r, p2p3_?r,
 		  m1_?r, m2_?r, m3_?r, m4_?r]
 :Arguments:	{N[p1], N[p2], N[p3], N[p4], N[p1p2], N[p2p3],
@@ -294,7 +294,7 @@
 :End:
 
 :Begin:
-:Function:	fd0c
+:Function:	mD0c
 :Pattern:	D0[p1_?c, p2_?c, p3_?c, p4_?c, p1p2_?c, p2p3_?c,
 		  m1_?c, m2_?c, m3_?c, m4_?c]
 :Arguments:	{N[Re[p1]], N[Im[p1]], N[Re[p2]], N[Im[p2]],
@@ -309,7 +309,7 @@
 :End:
 
 :Begin:
-:Function:	fd0i
+:Function:	mD0i
 :Pattern:	D0i[id_, p1_?r, p2_?r, p3_?r, p4_?r, p1p2_?r, p2p3_?r,
 		  m1_?r, m2_?r, m3_?r, m4_?r]
 :Arguments:	{Did[id],
@@ -322,7 +322,7 @@
 :End:
 
 :Begin:
-:Function:	fd0ic
+:Function:	mD0ic
 :Pattern:	D0i[id_, p1_?c, p2_?c, p3_?c, p4_?c, p1p2_?c, p2p3_?c,
 		  m1_?c, m2_?c, m3_?c, m4_?c]
 :Arguments:	{Did[id],
@@ -339,7 +339,7 @@
 :End:
 
 :Begin:
-:Function:	fdget
+:Function:	mDget
 :Pattern:	Dget[p1_?r, p2_?r, p3_?r, p4_?r, p1p2_?r, p2p3_?r,
 		  m1_?r, m2_?r, m3_?r, m4_?r]
 :Arguments:	{N[p1], N[p2], N[p3], N[p4], N[p1p2], N[p2p3],
@@ -350,7 +350,7 @@
 :End:
 
 :Begin:
-:Function:	fdgetc
+:Function:	mDgetc
 :Pattern:	Dget[p1_?c, p2_?c, p3_?c, p4_?c, p1p2_?c, p2p3_?c,
 		  m1_?c, m2_?c, m3_?c, m4_?c]
 :Arguments:	{N[Re[p1]], N[Im[p1]], N[Re[p2]], N[Im[p2]],
@@ -365,7 +365,7 @@
 :End:
 
 :Begin:
-:Function:	fe0
+:Function:	mE0
 :Pattern:	E0[p1_?r, p2_?r, p3_?r, p4_?r, p5_?r,
 		  p1p2_?r, p2p3_?r, p3p4_?r, p4p5_?r, p5p1_?r,
 		  m1_?r, m2_?r, m3_?r, m4_?r, m5_?r]
@@ -379,7 +379,7 @@
 :End:
 
 :Begin:
-:Function:	fe0c
+:Function:	mE0c
 :Pattern:	E0[p1_?c, p2_?c, p3_?c, p4_?c, p5_?c,
 		  p1p2_?c, p2p3_?c, p3p4_?c, p4p5_?c, p5p1_?c,
 		  m1_?c, m2_?c, m3_?c, m4_?c, m5_?c]
@@ -401,7 +401,7 @@
 :End:
 
 :Begin:
-:Function:	fe0i
+:Function:	mE0i
 :Pattern:	E0i[id_, p1_?r, p2_?r, p3_?r, p4_?r, p5_?r,
 		  p1p2_?r, p2p3_?r, p3p4_?r, p4p5_?r, p5p1_?r,
 		  m1_?r, m2_?r, m3_?r, m4_?r, m5_?r]
@@ -417,7 +417,7 @@
 :End:
 
 :Begin:
-:Function:	fe0ic
+:Function:	mE0ic
 :Pattern:	E0i[id_, p1_?c, p2_?c, p3_?c, p4_?c, p5_?c,
 		  p1p2_?c, p2p3_?c, p3p4_?c, p4p5_?c, p5p1_?c,
 		  m1_?c, m2_?c, m3_?c, m4_?c, m5_?c]
@@ -440,7 +440,7 @@
 :End:
 
 :Begin:
-:Function:	feget
+:Function:	mEget
 :Pattern:	Eget[p1_?r, p2_?r, p3_?r, p4_?r, p5_?r,
 		  p1p2_?r, p2p3_?r, p3p4_?r, p4p5_?r, p5p1_?r,
 		  m1_?r, m2_?r, m3_?r, m4_?r, m5_?r]
@@ -454,7 +454,7 @@
 :End:
 
 :Begin:
-:Function:	fegetc
+:Function:	mEgetc
 :Pattern:	Eget[p1_?c, p2_?c, p3_?c, p4_?c, p5_?c,
 		  p1p2_?c, p2p3_?c, p3p4_?c,  p4p5_?c, p5p1_?c,
 		  m1_?c, m2_?c, m3_?c, m4_?c, m5_?c]
@@ -476,7 +476,7 @@
 :End:
 
 :Begin:
-:Function:	fli2
+:Function:	mLi2
 :Pattern:	Li2[x_?r]
 :Arguments:	{N[x]}
 :ArgumentTypes:	{Real}
@@ -484,7 +484,7 @@
 :End:
 
 :Begin:
-:Function:	fli2c
+:Function:	mLi2c
 :Pattern:	Li2[x_?c]
 :Arguments:	{N[Re[x]], N[Im[x]]}
 :ArgumentTypes:	{Real, Real}
@@ -492,7 +492,7 @@
 :End:
 
 :Begin:
-:Function:	fli2omx
+:Function:	mLi2omx
 :Pattern:	Li2omx[x_?r]
 :Arguments:	{N[x]}
 :ArgumentTypes:	{Real}
@@ -500,7 +500,7 @@
 :End:
 
 :Begin:
-:Function:	fli2omxc
+:Function:	mLi2omxc
 :Pattern:	Li2omx[x_?c]
 :Arguments:	{N[Re[x]], N[Im[x]]}
 :ArgumentTypes:	{Real, Real}
@@ -508,7 +508,7 @@
 :End:
 
 :Begin:
-:Function:	fsetmudim
+:Function:	msetmudim
 :Pattern:	SetMudim[mudim_?r]
 :Arguments:	{N[mudim]}
 :ArgumentTypes:	{Real}
@@ -516,7 +516,7 @@
 :End:
 
 :Begin:
-:Function:	fgetmudim
+:Function:	mgetmudim
 :Pattern:	GetMudim[]
 :Arguments:	{}
 :ArgumentTypes:	{}
@@ -524,7 +524,7 @@
 :End:
 
 :Begin:
-:Function:	fsetdelta
+:Function:	msetdelta
 :Pattern:	SetDelta[delta_?r]
 :Arguments:	{N[delta]}
 :ArgumentTypes:	{Real}
@@ -532,7 +532,7 @@
 :End:
 
 :Begin:
-:Function:	fgetdelta
+:Function:	mgetdelta
 :Pattern:	GetDelta[]
 :Arguments:	{}
 :ArgumentTypes:	{}
@@ -540,7 +540,7 @@
 :End:
 
 :Begin:
-:Function:	fsetlambda
+:Function:	msetlambda
 :Pattern:	SetLambda[lambda_?r]
 :Arguments:	{N[lambda]}
 :ArgumentTypes:	{Real}
@@ -548,7 +548,7 @@
 :End:
 
 :Begin:
-:Function:	fgetlambda
+:Function:	mgetlambda
 :Pattern:	GetLambda[]
 :Arguments:	{}
 :ArgumentTypes:	{}
@@ -556,7 +556,7 @@
 :End:
 
 :Begin:
-:Function:	fsetminmass
+:Function:	msetminmass
 :Pattern:	SetMinMass[minmass_?r]
 :Arguments:	{N[minmass]}
 :ArgumentTypes:	{Real}
@@ -564,7 +564,7 @@
 :End:
 
 :Begin:
-:Function:	fgetminmass
+:Function:	mgetminmass
 :Pattern:	GetMinMass[]
 :Arguments:	{}
 :ArgumentTypes:	{}
@@ -572,7 +572,7 @@
 :End:
 
 :Begin:
-:Function:	fclearcache
+:Function:	mclearcache
 :Pattern:	ClearCache[]
 :Arguments:	{}
 :ArgumentTypes:	{}
@@ -580,7 +580,7 @@
 :End:
 
 :Begin:
-:Function:	fmarkcache
+:Function:	mmarkcache
 :Pattern:	MarkCache[]
 :Arguments:	{}
 :ArgumentTypes:	{}
@@ -588,7 +588,7 @@
 :End:
 
 :Begin:
-:Function:	frestorecache
+:Function:	mrestorecache
 :Pattern:	RestoreCache[]
 :Arguments:	{}
 :ArgumentTypes:	{}
@@ -596,7 +596,7 @@
 :End:
 
 :Begin:
-:Function:	fsetmaxdev
+:Function:	msetmaxdev
 :Pattern:	SetMaxDev[maxdev_?r]
 :Arguments:	{N[maxdev]}
 :ArgumentTypes:	{Real}
@@ -604,7 +604,7 @@
 :End:
 
 :Begin:
-:Function:	fgetmaxdev
+:Function:	mgetmaxdev
 :Pattern:	GetMaxDev[]
 :Arguments:	{}
 :ArgumentTypes:	{}
@@ -612,7 +612,7 @@
 :End:
 
 :Begin:
-:Function:	fsetwarndigits
+:Function:	msetwarndigits
 :Pattern:	SetWarnDigits[warndigits_Integer]
 :Arguments:	{warndigits}
 :ArgumentTypes:	{Integer}
@@ -620,7 +620,7 @@
 :End:
 
 :Begin:
-:Function:	fgetwarndigits
+:Function:	mgetwarndigits
 :Pattern:	GetWarnDigits[]
 :Arguments:	{}
 :ArgumentTypes:	{}
@@ -628,7 +628,7 @@
 :End:
 
 :Begin:
-:Function:	fseterrdigits
+:Function:	mseterrdigits
 :Pattern:	SetErrDigits[errdigits_Integer]
 :Arguments:	{errdigits}
 :ArgumentTypes:	{Integer}
@@ -636,7 +636,7 @@
 :End:
 
 :Begin:
-:Function:	fgeterrdigits
+:Function:	mgeterrdigits
 :Pattern:	GetErrDigits[]
 :Arguments:	{}
 :ArgumentTypes:	{}
@@ -644,7 +644,7 @@
 :End:
 
 :Begin:
-:Function:	fsetversionkey
+:Function:	msetversionkey
 :Pattern:	SetVersionKey[versionkey_Integer]
 :Arguments:	{versionkey}
 :ArgumentTypes:	{Integer}
@@ -652,7 +652,7 @@
 :End:
 
 :Begin:
-:Function:	fgetversionkey
+:Function:	mgetversionkey
 :Pattern:	GetVersionKey[]
 :Arguments:	{}
 :ArgumentTypes:	{}
@@ -660,7 +660,7 @@
 :End:
 
 :Begin:
-:Function:	fsetdebugkey
+:Function:	msetdebugkey
 :Pattern:	SetDebugKey[debugkey_Integer]
 :Arguments:	{debugkey}
 :ArgumentTypes:	{Integer}
@@ -668,7 +668,7 @@
 :End:
 
 :Begin:
-:Function:	fgetdebugkey
+:Function:	mgetdebugkey
 :Pattern:	GetDebugKey[]
 :Arguments:	{}
 :ArgumentTypes:	{}
@@ -676,7 +676,7 @@
 :End:
 
 :Begin:
-:Function:	fsetdebugrange
+:Function:	msetdebugrange
 :Pattern:	SetDebugRange[debugfrom_Integer, debugto_Integer]
 :Arguments:	{debugfrom, debugto}
 :ArgumentTypes:	{Integer, Integer}
@@ -684,7 +684,7 @@
 :End:
 
 :Begin:
-:Function:	fsetcmpbits
+:Function:	msetcmpbits
 :Pattern:	SetCmpBits[cmpbits_Integer]
 :Arguments:	{cmpbits}
 :ArgumentTypes:	{Integer}
@@ -692,7 +692,7 @@
 :End:
 
 :Begin:
-:Function:	fgetcmpbits
+:Function:	mgetcmpbits
 :Pattern:	GetCmpBits[]
 :Arguments:	{}
 :ArgumentTypes:	{}
@@ -733,7 +733,7 @@
 	LoopTools.tm
 		provides the LoopTools functions in Mathematica
 		this file is part of LoopTools
-		last modified 1 Jun 11 th
+		last modified 20 Jul 11 th
 */
 
 
@@ -742,6 +742,7 @@
 #include <math.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <pthread.h>
 #include <sched.h>
 
@@ -752,14 +753,30 @@
 
 #include "clooptools.h"
 
-typedef double real;
-typedef double_complex cplx;
+#ifdef __MINGW32__
+#include <io.h>
+#include <fcntl.h>
+#define pipe(fds) _pipe(fds, 4096, _O_BINARY)
+#endif
 
+typedef unsigned char byte;
 typedef MLCONST char cchar;
 typedef const int cint;
 typedef const long clong;
-typedef const real creal;
-typedef const cplx ccplx;
+
+#if QUAD
+#define MLPutREAL MLPutReal128
+static inline void MLPutREALList(MLINK mlp, CREAL *s, long n)
+{
+  Real d[n];
+  int i;
+  for( i = 0; i < n; ++i ) d[i] = ToReal(s[i]);
+  MLPutReal128List(mlp, d, n);
+}
+#else
+#define MLPutREAL MLPutReal64
+#define MLPutREALList MLPutReal64List
+#endif
 
 extern void FORTRAN(fortranflush)();
 
@@ -773,31 +790,43 @@ static int forcestderr = 0;
 static int stdoutorig;
 static int stdoutpipe[2];
 static pthread_t stdouttid;
+static int stdoutthr;
 
-static void *bufferstdout(void *dummy)
+static void *MLstdout(void *fd)
 {
-  static char *buf = NULL;
-  static int size = 0;
+  static byte *buf = NULL;
+  static long size = 0;
   enum { unit = 10240 };
-  int pos = 0, n = 0;
+  long len = 0, n = 0;
 
   do {
-    pos += n;
-    if( size - pos < 128 ) buf = realloc(buf, size += unit);
-    n = read(stdoutpipe[0], buf + pos, size - pos);
+    len += n;
+    if( size - len < 128 ) buf = realloc(buf, size += unit);
+    n = read(*(int *)fd, buf + len, size - len);
   } while( n > 0 );
 
-  return (pos == 0) ? NULL : (buf[pos-1] = 0, buf);
+  if( len ) {
+    MLPutFunction(stdlink, "EvaluatePacket", 1);
+    MLPutFunction(stdlink, "WriteString", 2);
+    MLPutString(stdlink, "stdout");
+    MLPutByteString(stdlink, buf, len);
+    MLEndPacket(stdlink);
+
+    MLNextPacket(stdlink);
+    MLNewPacket(stdlink);
+  }
+
+  return NULL;
 }
 
 /******************************************************************/
 
 static inline void BeginRedirect()
 {
-  if( forcestderr == 1 ||
-      pipe(stdoutpipe) == -1 ||
-      pthread_create(&stdouttid, NULL, bufferstdout, NULL) != 0 )
-    stdoutpipe[1] = 2;
+  stdoutthr = forcestderr == 0 &&
+    pipe(stdoutpipe) != -1 &&
+    pthread_create(&stdouttid, NULL, MLstdout, stdoutpipe) == 0;
+  if( !stdoutthr ) stdoutpipe[1] = 2;
 
   dup2(stdoutpipe[1], 1);
   close(stdoutpipe[1]);
@@ -807,32 +836,17 @@ static inline void BeginRedirect()
 
 static void EndRedirect()
 {
-  void *buf;
-  int pkt;
+  void *ret;
 
   Flush();
   dup2(stdoutorig, 1);
-
-  if( stdoutpipe[1] == 2 ) return;
-
-  pthread_join(stdouttid, &buf);
-  if( buf == NULL ) return;
-
-  MLPutFunction(stdlink, "EvaluatePacket", 1);
-  MLPutFunction(stdlink, "Print", 1);
-  MLPutString(stdlink, (MLCONST char *)buf);
-  MLEndPacket(stdlink);
-
-  do {
-    pkt = MLNextPacket(stdlink);
-    MLNewPacket(stdlink);
-  } while( pkt != RETURNPKT );
+  if( stdoutthr ) pthread_join(stdouttid, &ret);
 }
 
 /******************************************************************/
 
 #define ReturnComplex(expr) \
-  cplx result; \
+  Complex result; \
   BeginRedirect(); \
   result = expr; \
   EndRedirect(); \
@@ -840,7 +854,7 @@ static void EndRedirect()
   MLEndPacket(stdlink)
 
 #define ReturnList(ids, expr, n) \
-  cplx *list; \
+  COMPLEX *list; \
   BeginRedirect(); \
   list = expr; \
   EndRedirect(); \
@@ -851,224 +865,224 @@ static void EndRedirect()
   MLPutSymbol(stdlink, "Null"); \
   MLEndPacket(stdlink)
 
-#define _Mr_(v) creal v
-#define _Mri_(v) creal re_##v, creal im_##v
+#define _Mr_(v) cReal v
+#define _Mri_(v) cReal re_##v, cReal im_##v
 #define _Mc_(v) ToComplex2(re_##v, im_##v)
 
 /******************************************************************/
 
-static inline void MLPutComplex(MLINK mlp, ccplx c)
+static inline void MLPutComplex(MLINK mlp, cComplex c)
 {
-  if( Im(c) == 0 ) MLPutReal(mlp, Re(c));
+  if( Im(c) == 0 ) MLPutREAL(mlp, Re(c));
   else {
     MLPutFunction(mlp, "Complex", 2);
-    MLPutReal(mlp, Re(c));
-    MLPutReal(mlp, Im(c));
+    MLPutREAL(mlp, Re(c));
+    MLPutREAL(mlp, Im(c));
   }
 }
 
 /******************************************************************/
 
-static inline void MLPutList(MLINK mlp, cchar *ids, cplx *list, cint n)
+static inline void MLPutList(MLINK mlp, cchar *ids, COMPLEX *list, cint n)
 {
   MLPutFunction(mlp, "LoopTools`Private`idlist", 2);
   MLPutSymbol(mlp, ids);
-  MLPutRealList(mlp, (real *)list, 2*n);
+  MLPutREALList(mlp, (REAL *)list, 2*n);
 }
 
 /******************************************************************/
 
-static void fa0(AARGS(_Mr_))
+static void mA0(AARGS(_Mr_))
 {
   ReturnComplex(A0(AARGS(_Id_)));
 }
 
-static void fa0c(AARGS(_Mri_))
+static void mA0c(AARGS(_Mri_))
 {
   ReturnComplex(A0C(AARGS(_Mc_)));
 }
 
 /******************************************************************/
 
-static void fa00(AARGS(_Mr_))
+static void mA00(AARGS(_Mr_))
 {
   ReturnComplex(A00(AARGS(_Id_)));
 }
 
-static void fa00c(AARGS(_Mri_))
+static void mA00c(AARGS(_Mri_))
 {
   ReturnComplex(A00C(AARGS(_Mc_)));
 }
 
 /******************************************************************/
 
-static void fb0i(cint i, BARGS(_Mr_))
+static void mB0i(cint i, BARGS(_Mr_))
 {
   ReturnComplex(B0i(i, BARGS(_Id_)));
 }
 
-static void fb0ic(cint i, BARGS(_Mri_))
+static void mB0ic(cint i, BARGS(_Mri_))
 {
   ReturnComplex(B0iC(i, BARGS(_Mc_)));
 }
 
 /******************************************************************/
 
-static void fbget(BARGS(_Mr_))
+static void mBget(BARGS(_Mr_))
 {
   ReturnList("Bids", Bcache(Bget(BARGS(_Id_))), Nbb);
 }
 
-static void fbgetc(BARGS(_Mri_))
+static void mBgetc(BARGS(_Mri_))
 {
   ReturnList("Bids", BcacheC(BgetC(BARGS(_Mc_))), Nbb);
 }
 
 /******************************************************************/
 
-static void fc0(CARGS(_Mr_))
+static void mC0(CARGS(_Mr_))
 {
   ReturnComplex(C0(CARGS(_Id_)));
 }
 
-static void fc0c(CARGS(_Mri_))
+static void mC0c(CARGS(_Mri_))
 {
   ReturnComplex(C0C(CARGS(_Mc_)));
 }
 
 /******************************************************************/
 
-static void fc0i(cint i, CARGS(_Mr_))
+static void mC0i(cint i, CARGS(_Mr_))
 {
   ReturnComplex(C0i(i, CARGS(_Id_)));
 }
 
-static void fc0ic(cint i, CARGS(_Mri_))
+static void mC0ic(cint i, CARGS(_Mri_))
 {
   ReturnComplex(C0iC(i, CARGS(_Mc_)));
 }
 
 /******************************************************************/
 
-static void fcget(CARGS(_Mr_))
+static void mCget(CARGS(_Mr_))
 {
   ReturnList("Cids", Ccache(Cget(CARGS(_Id_))), Ncc);
 }
 
-static void fcgetc(CARGS(_Mri_))
+static void mCgetc(CARGS(_Mri_))
 {
   ReturnList("Cids", CcacheC(CgetC(CARGS(_Mc_))), Ncc);
 }
 
 /******************************************************************/
 
-static void fd0(DARGS(creal))
+static void mD0(DARGS(_Mr_))
 {
   ReturnComplex(D0(DARGS()));
 }
 
-static void fd0c(DARGS(_Mri_))
+static void mD0c(DARGS(_Mri_))
 {
   ReturnComplex(D0C(DARGS(_Mc_)));
 }
 
 /******************************************************************/
 
-static void fd0i(cint i, DARGS(_Mr_))
+static void mD0i(cint i, DARGS(_Mr_))
 {
   ReturnComplex(D0i(i, DARGS(_Id_)));
 }
 
-static void fd0ic(cint i, DARGS(_Mri_))
+static void mD0ic(cint i, DARGS(_Mri_))
 {
   ReturnComplex(D0iC(i, DARGS(_Mc_)));
 }
 
 /******************************************************************/
 
-static void fdget(DARGS(_Mr_))
+static void mDget(DARGS(_Mr_))
 {
   ReturnList("Dids", Dcache(Dget(DARGS(_Id_))), Ndd);
 }
 
-static void fdgetc(DARGS(_Mri_))
+static void mDgetc(DARGS(_Mri_))
 {
   ReturnList("Dids", DcacheC(DgetC(DARGS(_Mc_))), Ndd);
 }
 
 /******************************************************************/
 
-static void fe0(EARGS(_Mr_))
+static void mE0(EARGS(_Mr_))
 {
   ReturnComplex(E0(EARGS(_Id_)));
 }
 
-static void fe0c(EARGS(_Mri_))
+static void mE0c(EARGS(_Mri_))
 {
   ReturnComplex(E0C(EARGS(_Mc_)));
 }
 
 /******************************************************************/
 
-static void fe0i(cint i, EARGS(_Mr_))
+static void mE0i(cint i, EARGS(_Mr_))
 {
   ReturnComplex(E0i(i, EARGS(_Id_)));
 }
 
-static void fe0ic(cint i, EARGS(_Mri_))
+static void mE0ic(cint i, EARGS(_Mri_))
 {
   ReturnComplex(E0iC(i, EARGS(_Mc_)));
 }
 
 /******************************************************************/
 
-static void feget(EARGS(_Mr_))
+static void mEget(EARGS(_Mr_))
 {
   ReturnList("Eids", Ecache(Eget(EARGS(_Id_))), Nee);
 }
 
-static void fegetc(EARGS(_Mri_))
+static void mEgetc(EARGS(_Mri_))
 {
   ReturnList("Eids", EcacheC(EgetC(EARGS(_Mc_))), Nee);
 }
 
 /******************************************************************/
 
-static void fli2(_Mr_(x))
+static void mLi2(XARGS(_Mr_))
 {
-  ReturnComplex(Li2(x));
+  ReturnComplex(Li2(XARGS(_Id_)));
 }
 
-static void fli2c(_Mri_(x))
+static void mLi2c(XARGS(_Mri_))
 {
-  ReturnComplex(Li2C(_Mc_(x)));
+  ReturnComplex(Li2C(XARGS(_Mc_)));
 }
 
-static void fli2omx(_Mr_(x))
+static void mLi2omx(XARGS(_Mr_))
 {
-  ReturnComplex(Li2omx(x));
+  ReturnComplex(Li2omx(XARGS(_Id_)));
 }
 
-static void fli2omxc(_Mri_(x))
+static void mLi2omxc(XARGS(_Mri_))
 {
-  ReturnComplex(Li2omxC(_Mc_(x)));
+  ReturnComplex(Li2omxC(XARGS(_Mc_)));
 }
 
 /******************************************************************/
 
-static void fclearcache(void)
+static void mclearcache(void)
 {
   clearcache();
   ReturnVoid();
 }
 
-static void fmarkcache(void)
+static void mmarkcache(void)
 {
   markcache();
   ReturnVoid();
 }
 
-static void frestorecache(void)
+static void mrestorecache(void)
 {
   restorecache();
   ReturnVoid();
@@ -1076,124 +1090,124 @@ static void frestorecache(void)
 
 /******************************************************************/
 
-static void fsetmudim(creal mudim)
+static void msetmudim(cReal mudim)
 {
   setmudim(mudim);
   ReturnVoid();
 }
 
-static real fgetmudim(void)
+static Real mgetmudim(void)
 {
   return getmudim();
 }
 
 /******************************************************************/
 
-static void fsetdelta(creal delta)
+static void msetdelta(cReal delta)
 {
   setdelta(delta);
   ReturnVoid();
 }
 
-static real fgetdelta(void)
+static Real mgetdelta(void)
 {
   return getdelta();
 }
 
 /******************************************************************/
 
-static void fsetlambda(creal lambda)
+static void msetlambda(cReal lambda)
 {
   setlambda(lambda);
   ReturnVoid();
 }
 
-static real fgetlambda(void)
+static Real mgetlambda(void)
 {
   return getlambda();
 }
 
 /******************************************************************/
 
-static void fsetminmass(creal minmass)
+static void msetminmass(cReal minmass)
 {
   setminmass(minmass);
   ReturnVoid();
 }
 
-static real fgetminmass(void)
+static Real mgetminmass(void)
 {
   return getminmass();
 }
 
 /******************************************************************/
 
-static void fsetmaxdev(creal maxdev)
+static void msetmaxdev(cReal maxdev)
 {
   setmaxdev(maxdev);
   ReturnVoid();
 }
 
-static real fgetmaxdev(void)
+static Real mgetmaxdev(void)
 {
   return getmaxdev();
 }
 
 /******************************************************************/
 
-static void fsetwarndigits(cint warndigits)
+static void msetwarndigits(cint warndigits)
 {
   setwarndigits(warndigits);
   ReturnVoid();
 }
 
-static int fgetwarndigits(void)
+static int mgetwarndigits(void)
 {
   return getwarndigits();
 }
 
 /******************************************************************/
 
-static void fseterrdigits(cint errdigits)
+static void mseterrdigits(cint errdigits)
 {
   seterrdigits(errdigits);
   ReturnVoid();
 }
 
-static int fgeterrdigits(void)
+static int mgeterrdigits(void)
 {
   return geterrdigits();
 }
 
 /******************************************************************/
 
-static void fsetversionkey(cint versionkey)
+static void msetversionkey(cint versionkey)
 {
   setversionkey(versionkey);
   ReturnVoid();
 }
 
-static int fgetversionkey(void)
+static int mgetversionkey(void)
 {
   return getversionkey();
 }
 
 /******************************************************************/
 
-static void fsetdebugkey(cint debugkey)
+static void msetdebugkey(cint debugkey)
 {
   setdebugkey(debugkey);
   ReturnVoid();
 }
 
-static int fgetdebugkey(void)
+static int mgetdebugkey(void)
 {
   return getdebugkey();
 }
 
 /******************************************************************/
 
-static void fsetdebugrange(cint debugfrom, cint debugto)
+static void msetdebugrange(cint debugfrom, cint debugto)
 {
   setdebugrange(debugfrom, debugto);
   ReturnVoid();
@@ -1201,13 +1215,13 @@ static void fsetdebugrange(cint debugfrom, cint debugto)
 
 /******************************************************************/
 
-static void fsetcmpbits(cint cmpbits)
+static void msetcmpbits(cint cmpbits)
 {
   setcmpbits(cmpbits);
   ReturnVoid();
 }
 
-static int fgetcmpbits(void)
+static int mgetcmpbits(void)
 {
   return getcmpbits();
 }
@@ -1216,7 +1230,11 @@ static int fgetcmpbits(void)
 
 int main(int argc, char **argv)
 {
-  int ret;
+  int fd, ret;
+
+	/* make sure a pipe will not overlap with 0, 1, 2 */
+  do fd = open("/dev/null", O_WRONLY); while( fd <= 2 );
+  close(fd);
 
   if( getenv("LTFORCESTDERR") ) forcestderr = 1;
   stdoutorig = dup(1);

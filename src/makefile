@@ -51,7 +51,6 @@ qcomplex.o qcomplex.mod: qcomplex.f90
 	$(F90) -O -c -o qcomplex.o qcomplex.f90
 
 A0.o: A0.F $(LTINC)
-	echo $(OBJS-quad)
 	$(XFC) -c -o A0.o A0.F
 A0C.o: A0.F $(LTINC)
 	$(CFC) -c -o A0C.o A0.F
@@ -245,8 +244,8 @@ looptools.h90: looptools.h f77290
 	f77290 looptools.h looptools.h90
 
 $(LIB): $(OBJS)
-	ar cru $(LIB) $?
-	-ranlib $(LIB)
+	$(AR) cru $(LIB) $?
+	-$(RANLIB) $(LIB)
 
 
 $(FE): lt.F $(LTINC) $(LIB)
@@ -254,19 +253,31 @@ $(FE): lt.F $(LTINC) $(LIB)
 	-rm -f lt.o
 
 clooptools.h: clooptools.h.in ftypes.h
-	sed "s:UNDERSCORE:$(UNDERSCORE):" ftypes.h clooptools.h.in > clooptools.h
+	sed "s:NOUNDERSCORE:$(NOUNDERSCORE):" ftypes.h clooptools.h.in > clooptools.h
 
 fcc: fcc.in
 	sed -e 's|^fldflags=.*|fldflags="$(LDFLAGS)"|' fcc.in > fcc
 	chmod 755 fcc
+	ln -s fcc f++
 
-LoopTools$(EXE): LoopTools.tm clooptools.h.in fortranflush.o $(LIB) fcc
-	REALCC="$(CC)" CC="./fcc" CXX="./fcc" PATH="$$PATH:tools" \
-	  "$(MCC)" LoopTools.tm -o LoopTools$(EXE) $(MCFLAGS) $(CFLAGS) \
-	    fortranflush.o $(LIB)
+LoopTools$(EXE): LoopTools.tm clooptools.h fortranflush.o $(LIB) fcc
+	NM="$(NM)" DLLTOOL="$(DLLTOOL)" \
+	CC="./fcc" REALCC="$(CC) $(CFLAGS)" \
+	CXX="./f++" REALCXX="$(CXX) $(CXXFLAGS)" \
+	PATH="$$PATH:." \
+	  "$(MCC)" LoopTools.tm -o LoopTools$(EXE) $(MCFLAGS) \
+	    fortranflush.o $(LIB) -lpthread
 	rm -f LoopTools.tm.c
 
-LoopTools-quad$(EXE):
+LoopTools-quad$(EXE): LoopTools.tm clooptools.h fortranflush.o $(LIB) fcc
+	sed '/:Begin:/,/:End:/ s/Real/Real128/g' LoopTools.tm > LoopTools-quad.tm
+	NM="$(NM)" DLLTOOL="$(DLLTOOL)" \
+	CC="./fcc" REALCC="$(CC) $(CFLAGS)" \
+	CXX="./f++" REALCXX="$(CXX) $(CXXFLAGS)" \
+	PATH="$$PATH:." \
+	  "$(MCC)" LoopTools-quad.tm -o LoopTools-quad$(EXE) $(MCFLAGS) \
+	    fortranflush.o $(LIB) -lpthread
+	rm -f LoopTools.tm.c
 
 fortranflush.o: fortranflush.F
 	$(XFC) -c -o fortranflush.o fortranflush.F

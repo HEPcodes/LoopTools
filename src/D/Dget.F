@@ -2,7 +2,7 @@
 * retrieve the four-point tensor coefficients
 * this file is part of LoopTools
 * improvements by M. Rauch
-* last modified 16 Jun 11 th
+* last modified 15 Jul 11 th
 
 #include "defs.h"
 
@@ -100,7 +100,7 @@
      &      abs(DIMAG(para(1,4))) +
      &      abs(DIMAG(para(1,5))) +
      &      abs(DIMAG(para(1,6))) .gt. 0 )
-     &    print *, "Warning: complex momenta not implemented"
+     &    print *, "Complex momenta not implemented"
 	if( abs(DIMAG(para(1,7))) +
      &      abs(DIMAG(para(1,8))) +
      &      abs(DIMAG(para(1,9))) +
