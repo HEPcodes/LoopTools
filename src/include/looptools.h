@@ -1,11 +1,11 @@
 * looptools.h
 * the header file for Fortran with all definitions for LoopTools
 * this file is part of LoopTools
-* last modified 27 Aug 09 th
+* last modified 6 Jul 10 th
 
 
-#ifndef __LOOPTOOLS_H__
-#define __LOOPTOOLS_H__
+#ifndef LOOPTOOLS_H
+#define LOOPTOOLS_H
 
 #define bb0 1
 #define bb1 2

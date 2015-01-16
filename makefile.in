@@ -6,19 +6,20 @@ BINDIR = $(PREFIX)/bin
 
 LIB = libooptools$(SUFFIX).a
 FE = lt$(SUFFIX)$(EXE)
-MMA = LoopTools$(SUFFIX)$(EXE)
+MFE = LoopTools$(SUFFIX)$(EXE)
 INCLUDE = $(BLD)/looptools.h $(BLD)/clooptools.h
 
 ARGS = $(PARALLEL) \
   LIB="$(LIB)" \
   FE="$(FE)" \
-  MMA="$(MMA)" \
+  MFE="$(MFE)" \
   DEF="$(DEF)" \
   UNDERSCORE="$(UNDERSCORE)" \
   XFC="$(FC$(SUFFIX)) $(FFLAGS) $(FFLAGS-quad) -I." \
   F90="$(F90)" \
   CC="$(CC)" \
   CFLAGS="$(CFLAGS) $(CFLAGS-quad)" \
+  ML="$(ML)" \
   MCFLAGS="$(MCFLAGS)" \
   LDFLAGS="$(LDFLAGS)" \
   OBJS-quad="$(OBJS-quad)"
@@ -27,14 +28,14 @@ ARGS = $(PARALLEL) \
 default all lib frontend mma: force
 	cd $(BLD) && $(MAKE) $(ARGS) $@
 
-install: default
+install: lib frontend
 	-mkdir $(PREFIX)
 	-mkdir $(LIBDIR) $(BINDIR) $(INCLUDEDIR)
 	cp -p $(BLD)/$(LIB) $(LIBDIR)
 	cp -p $(INCLUDE$(SUFFIX)) $(INCLUDEDIR)
 	strip $(BLD)/$(FE)
 	cp -p $(BLD)/fcc $(BLD)/$(FE) $(BINDIR)
-	test ! -f $(BLD)/$(MMA) || { strip $(BLD)/$(MMA) ; cp -p $(BLD)/$(MMA) $(BINDIR); }
+	test ! -f $(BLD)/$(MFE) || { strip $(BLD)/$(MFE) ; cp -p $(BLD)/$(MFE) $(BINDIR); }
 
 force: $(BLD)/timestamp
 

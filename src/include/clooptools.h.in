@@ -2,12 +2,12 @@
 	clooptools.h
 		the C/C++ header file with all definitions for LoopTools
 		this file is part of LoopTools
-		last modified 7 Oct 09 th
+		last modified 6 Jul 10 th
 */
 
 
-#ifndef __clooptools_h__
-#define __clooptools_h__
+#ifndef CLOOPTOOLS_H
+#define CLOOPTOOLS_H
 
 #define AARGS(t) t(m)
 
@@ -131,7 +131,7 @@ extern void FORTRAN(restorecache)(void);
 extern struct {		/* MUST match common block ltvars in lt.h! */
   DOUBLE_COMPLEX cache[8][2];
   DOUBLE_COMPLEX savedptr[8];
-  DOUBLE_PRECISION minmass, maxdev;
+  DOUBLE_PRECISION maxdev;
   INTEGER warndigits, errdigits;
   INTEGER serial, versionkey;
   INTEGER debugkey, debugfrom, debugto;
@@ -142,7 +142,7 @@ extern struct {		/* MUST match common block ltcache in lt.h! */
 } FORTRAN(ltcache);
 
 extern struct {		/* MUST match common block ffregul in ff.h! */
-  DOUBLE_PRECISION mudim, delta, lambda;
+  DOUBLE_PRECISION mudim, delta, lambda, minmass;
 } FORTRAN(ffregul);
 
 #ifdef __cplusplus
@@ -433,6 +433,15 @@ static inline void setlambda(const double lambda)
 }
 
 static inline double getlambda() { return FORTRAN(ffregul).lambda; }
+
+
+static inline void setminmass(const double minmass)
+{
+  FORTRAN(ffregul).minmass = minmass;
+  clearcache();
+}
+
+static inline double getminmass() { return FORTRAN(ffregul).minmass; }
 
 
 static inline void setmaxdev(const double maxdev)

@@ -264,8 +264,6 @@
 		    ilogi(ii) = 0
 		else
 		    cc = c+1
-	PRINT *, "ffdcc0:c=",c
-	PRINT *, "ffdcc0:cc=",cc
 		    if ( absc(cc) .lt. xloss ) then
 			s(1) = -2*sdel2i(i,k)/dyz(2,2,i,k)/
      +				DBLE(xpi(i+3,k))
@@ -274,9 +272,6 @@
 			s(1) = 0
 			clogi(ii) = zfflog(-c,0,czero,ier)
 		    endif
-	PRINT *, "ffdcc0:s(1)=", s(1)
-	PRINT *, "ffdcc0:clogi(ii)=", clogi(ii)
-	PRINT *, "ffdcc0:dyz(2,2,i,k)=", dyz(2,2,i,k)
 		    if ( DIMAG(c) .lt. -precc*absc(c) .or. DIMAG(s(1))
      +				.lt. -precc*absc(s(1)) ) then
 			ilogi(ii) = -1

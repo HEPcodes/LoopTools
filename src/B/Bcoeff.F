@@ -17,7 +17,9 @@
 	double complex Bcmp(Nbb)
 	integer ier(Nbb), ierall, i
 
-	if( lambda .lt. 0 ) then
+	if( lambda .lt. 0 .or.
+     &    abs(para(1,1)) + abs(para(1,2)) + abs(para(1,3)) .lt.
+     &      1D-13 ) then
 	  do i = 1, Nbb
 	    B(i) = 0
 	  enddo

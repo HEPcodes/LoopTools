@@ -1,7 +1,7 @@
 * ini.F
 * routines for initializing and setting some parameters
 * this file is part of LoopTools
-* last modified 23 Sep 09 th
+* last modified 15 Feb 10 th
 
 #include "defs.h"
 
@@ -141,6 +141,28 @@
 #include "lt.h"
 
 	getlambda = lambda
+	end
+
+************************************************************************
+
+	subroutine setminmass(minmass_)
+	implicit none
+	double precision minmass_
+
+#include "lt.h"
+
+	minmass = minmass_
+	call clearcache
+	end
+
+************************************************************************
+
+	double precision function getminmass()
+	implicit none
+
+#include "lt.h"
+
+	getminmass = minmass
 	end
 
 ************************************************************************

@@ -131,6 +131,7 @@ c
 *	    all masses equal, three momenta zero:
 *	    added by TH 24 Dec 09
 *
+#if 0
 	    if( xpi(iold(5,irota)) .eq. 0 .and.
      &          xpi(iold(6,irota)) .eq. 0 .and.
      &          xpi(iold(7,irota)) .eq. 0 .and.
@@ -141,6 +142,7 @@ c
 	      itype = 3
 	      return
 	    endif
+#endif
 *
 	    ier0 = 0
 	    call ffxlam(del2,xpi,dpipj,10,

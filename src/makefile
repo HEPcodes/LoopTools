@@ -1,10 +1,12 @@
-default all: frontend mma
+default: frontend mma$(ML)
+
+all: frontend mma1
 
 frontend: lib $(FE)
 
-mma: lib $(MMA)
+mma1: lib $(MFE)
 
-lib: $(LIB) clooptools.h fcc
+mma0 lib: $(LIB) clooptools.h fcc
 
 
 .SUFFIXES:

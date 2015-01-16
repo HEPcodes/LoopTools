@@ -1,5 +1,5 @@
-#ifndef __ftypes_h__
-#define __ftypes_h__
+#ifndef FTYPES_H
+#define FTYPES_H
 
 #if UNDERSCORE
 #define FORTRAN(s) s##_
@@ -22,16 +22,16 @@ typedef const CHARACTER CCHARACTER;
 typedef std::complex<double> double_complex;
 #define ToComplex(c) double_complex(c.re, c.im)
 #define ToComplex2(r,i) double_complex(r, i)
-#define Re(x) x.real()
-#define Im(x) x.imag()
+#define Re(x) std::real(x)
+#define Im(x) std::imag(x)
 
 #else
 
 typedef DOUBLE_COMPLEX double_complex;
 #define ToComplex(c) c
 #define ToComplex2(r,i) (double_complex){r, i}
-#define Re(x) x.re
-#define Im(x) x.im
+#define Re(x) (x).re
+#define Im(x) (x).im
 
 #endif
 

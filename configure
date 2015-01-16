@@ -1,7 +1,7 @@
 #! /bin/sh
 # configure script for LoopTools
 # note: has nothing to do with GNU autoconf
-# last modified 17 Dec 09 by Thomas Hahn
+# last modified 14 Jul 10 by Thomas Hahn
 
 
 LC_ALL=C
@@ -147,7 +147,7 @@ case "`$CONF_FC --version -c 2>&1`" in
   CONF_FFLAGS="-O0 -g -ffixed-line-length-132 -freal-loops $CONF_STATIC $FFLAGS" ;;
 *GNU*)
   case "$CONF_FC" in
-  *gfortran*) CONF_WARN="-Wall -Wtabs" ;;
+  *gfortran*) CONF_WARN="-Wall -Wtabs ${CONF_DEBUG:+-ffpe-trap=invalid,overflow,zero}" ;;
   *) CONF_WARN="-Wall" ;;
   esac
   CONF_FFLAGS="-O0 -g -ffixed-line-length-none ${CONF_DEBUG:+$CONF_WARN} $CONF_STATIC $FFLAGS" ;;
@@ -208,9 +208,9 @@ cat > $test.f << _EOF_
 	end
 _EOF_
 
-$CONF_FC $CONF_FFLAGS $test.f -o $test > /dev/null 2>&1
+$CONF_FC $CONF_FFLAGS $test.f -o $test$CONF_EXE > /dev/null 2>&1
 
-if [ -x $test ] ; then
+if [ -x $test$CONF_EXE ] ; then
   echo "yes" 1>&2
   CONF_QUAD=1
 else
@@ -238,33 +238,6 @@ if $CONF_FC $CONF_FFLAGS -c $test.f > /dev/null 2>&1 ; then
 else
   echo "yes" 1>&2
   CONF_U77EXT=1
-fi
-
-
-## are we on a big-endian machine?
-
-echo $echo_n "are we big-endian... $echo_c" 1>&2
-
-rm -fr $test*
-
-cat > $test.c << _EOF_
-#include <stdio.h>
-int main() {
-  union { int i; char c; } u;
-  u.i = 1;
-  u.c = 0;
-  printf("%d\n", u.i != 0);
-}
-_EOF_
-
-$CONF_CC $CONF_CFLAGS -o $test $test.c > /dev/null 2>&1
-
-if [ "`./$test`" = 1 ] ; then
-  echo "yes" 1>&2
-  CONF_BIGENDIAN=1
-else
-  echo "no" 1>&2
-  CONF_BIGENDIAN=0
 fi
 
 
@@ -299,6 +272,73 @@ case "`uname -m`" in
 esac
 
 
+## are we on a big-endian machine?
+
+echo $echo_n "are we big-endian... $echo_c" 1>&2
+
+rm -fr $test*
+
+cat > $test.c << _EOF_
+#include <stdio.h>
+int main() {
+  union { int i; char c; } u;
+  u.i = 1;
+  u.c = 0;
+  printf("%d\n", u.i != 0);
+}
+_EOF_
+
+$CONF_CC $CONF_CFLAGS -o $test$CONF_EXE $test.c > /dev/null 2>&1
+
+if [ "`./$test$CONF_EXE`" = 1 ] ; then
+  echo "yes" 1>&2
+  CONF_BIGENDIAN=1
+else
+  echo "no" 1>&2
+  CONF_BIGENDIAN=0
+fi
+
+
+## can we do MathLink compilations
+
+echo $echo_n "do we have MathLink... $echo_c" 1>&2
+
+rm -fr $test*
+
+cat > $test.tm << _EOF_
+:Begin:
+:Function: test
+:Pattern: Test[i_Integer]
+:Arguments: {i}
+:ArgumentTypes: {Integer}
+:ReturnType: Integer
+:End:
+
+#include "mathlink.h"
+
+static int test(const int i) {
+  return i + 1;
+}
+
+int main(int argc, char **argv) {
+  return MLMain(argc, argv);
+}
+_EOF_
+
+FCC="`dirname $0`/src/tools/fcc.in"
+CC="$FCC" CXX="$FCC" REALCC="$CONF_CC" PATH="$PATH:tools" \
+  mcc ${CONF_STATIC+-st} $CONF_CFLAGS \
+    -o $test$CONF_EXE $test.tm  > /dev/null 2>&1
+
+if [ -x $test$CONF_EXE ] ; then
+  echo "yes" 1>&2
+  CONF_ML=1
+else
+  echo "no" 1>&2
+  CONF_ML=0
+fi
+
+
 case "$CONF_OS" in
 Linux*)	cpus=`grep -c processor /proc/cpuinfo` ;;
 Darwin)	cpus=`system_profiler SPHardwareDataType | \
@@ -324,6 +364,8 @@ FFLAGS = $CONF_FFLAGS ${CONF_DEF}QUAD=$CONF_QUAD ${CONF_DEF}U77EXT=$CONF_U77EXT
 
 CC = $CONF_CC
 CFLAGS = $CONF_CFLAGS -DUNDERSCORE=\$(UNDERSCORE) -DBIGENDIAN=$CONF_BIGENDIAN
+
+ML = $CONF_ML
 MCFLAGS = ${CONF_STATIC+-st} \$(CFLAGS)
 
 LDFLAGS = $CONF_LDFLAGS

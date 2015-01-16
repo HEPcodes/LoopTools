@@ -1,7 +1,7 @@
 * lt.h
 * internal common blocks for the LoopTools routines
 * this file is part of LoopTools
-* last modified 23 Sep 09 th
+* last modified 15 Feb 10 th
 
 
 #include "ff.h"
@@ -17,14 +17,14 @@
 
 	integer*8 cacheptr(4,KIND,ncaches)
 	integer*8 savedptr(2,ncaches)
-	double precision minmass, maxdev
+	double precision maxdev
 	integer warndigits, errdigits
 	integer serial, versionkey
 	integer debugkey, debugfrom, debugto
 
 	common /ltvars/
      &    cacheptr, savedptr,
-     &    minmass, maxdev,
+     &    maxdev,
      &    warndigits, errdigits,
      &    serial, versionkey,
      &    debugkey, debugfrom, debugto

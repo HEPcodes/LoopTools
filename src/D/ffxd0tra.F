@@ -35,6 +35,11 @@ c===============================c
 	DOUBLE COMPLEX ffint3
 	external ffint3
 
+c	PRINT *, "ML2=", ML2
+c	PRINT *, "ME2=", ME2
+c	PRINT *, "S=", S
+c	PRINT *, "T=", T
+
 	call fftraroot(xm, xp, xr, -ML2*(ME2 - S - T)/(S*T))
 	call fftraroot(ymS, ypS, yr, ML2/S)
 	call fftraroot(ymT, ypT, yr, ML2/T)
@@ -76,11 +81,17 @@ c===============================c
 	r = sqrt(DCMPLX(1 - 4*c))
 	xp = .5D0*(1 + r)
 	xm = .5D0*(1 - r)
+c	PRINT *, "c=", c
+c	PRINT *, "r=", r
+c	PRINT *, "xp=", xp
+c	PRINT *, "xm=", xm
 	if( abs(xp) .gt. abs(xm) ) then
 	  xm = c/xp
 	else
 	  xp = c/xm
 	endif
+c	PRINT *, "xp'=", xp
+c	PRINT *, "xm'=", xm
 	end
 
 ************************************************************************

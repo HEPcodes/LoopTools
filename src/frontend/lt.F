@@ -1,7 +1,7 @@
 * lt.F
 * the LoopTools command-line interface to Bget, Cget, Dget, Eget
 * this file is part of LoopTools
-* last modified 16 May 07 th
+* last modified 15 Feb 10 th
 
 #include "defs.h"
 
@@ -50,8 +50,6 @@
 	print *, "  1 = compute version b"
 	print *, "  2 = compute a and b, compare, return a"
 	print *, "  3 = compute a and b, compare, return b"
-	print *, "The environment variables MUDIM, DELTA, and LAMBDA"
-	print *, "are used when set."
 	call exit(1)
 
 1	do i = 1, npara(npoint)
@@ -69,19 +67,7 @@
 	  versionkey = ishft(i, key(npoint))
 	endif
 
-	call getenv("MUDIM", argv)
-	read(argv, *, end=2, err=2) mudim
-	print *, "using mudim =", mudim
-
-2	call getenv("DELTA", argv)
-	read(argv, *, end=3, err=3) delta
-	print *, "using delta =", delta
-
-3	call getenv("LAMBDA", argv)
-	read(argv, *, end=4, err=4) lambda
-	print *, "using lambda =", lambda
-
-4	if( npoint .eq. 1 ) then
+	if( npoint .eq. 1 ) then
 	  print *, "m       =", para(1)
 	  print *, "A0      =", A0(para(1))
 	  print *, "A00     =", A00(para(1))

@@ -1,7 +1,7 @@
 * ffd0c.F
 * the scalar four-point function with complex masses
 * this file is part of LoopTools
-* last modified 2 Dec 09 th
+* last modified 8 Jan 10 th
 
 * Written by Le Duc Ninh, MPI, Munich (2008).     
 * Spence, log and eta functions are taken from FF.
@@ -64,9 +64,13 @@
 	else if( LightLike(4) ) then
 	  o = O'4123654123'
 	else if( LightLike(5) ) then
-	  o = O'5361422413'
+c WRONG?  8 Jan 10 th
+c	  o = O'5361422413'
+	  o = O'5361421342'
 	else if( LightLike(6) ) then
-	  o = O'6452132431'
+c WRONG?  8 Jan 10 th
+c	  o = O'6452132431'
+	  o = O'6452132413'
 
 * kallen(pi, pj, pk) >= 0
 

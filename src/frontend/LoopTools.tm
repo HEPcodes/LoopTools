@@ -56,6 +56,10 @@
 
 :Evaluate: GetLambda::usage = "GetLambda[] returns the current value for the infrared regulator mass squared."
 
+:Evaluate: SetMinMass::usage = "SetMinMass[m^2] sets the collinear cutoff mass."
+
+:Evaluate: GetMinMass::usage = "GetMinMass[] returns the current value for the collinear cutoff mass squared."
+
 :Evaluate: ClearCache::usage = "ClearCache[] clears the internal LoopTools caches."
 
 :Evaluate: MarkCache::usage = "MarkCache[] marks the current positions of the internal LoopTools caches."
@@ -534,6 +538,22 @@
 :End:
 
 :Begin:
+:Function:	fsetminmass
+:Pattern:	SetMinMass[minmass_?r]
+:Arguments:	{N[minmass]}
+:ArgumentTypes:	{Real}
+:ReturnType:	Manual
+:End:
+
+:Begin:
+:Function:	fgetminmass
+:Pattern:	GetMinMass[]
+:Arguments:	{}
+:ArgumentTypes:	{}
+:ReturnType:	Real
+:End:
+
+:Begin:
 :Function:	fclearcache
 :Pattern:	ClearCache[]
 :Arguments:	{}
@@ -695,7 +715,7 @@
 	LoopTools.tm
 		provides the LoopTools functions in Mathematica
 		this file is part of LoopTools
-		last modified 6 Oct 09 th
+		last modified 15 Feb 10 th
 */
 
 
@@ -1004,6 +1024,19 @@ static void fsetlambda(creal lambda)
 static real fgetlambda(void)
 {
   return getlambda();
+}
+
+/******************************************************************/
+
+static void fsetminmass(creal minmass)
+{
+  setminmass(minmass);
+  ReturnVoid();
+}
+
+static real fgetminmass(void)
+{
+  return getminmass();
 }
 
 /******************************************************************/
