@@ -1,17 +1,8 @@
-ARGS = \
-  SUFFIX='-quad' \
-  FC='ifort' \
-  FFLAGS_QUAD='-r16 -DQUAD -DKIND=2 -DDBLE=QEXT -DDIMAG=QIMAG -DDCONJG=QCONJG -DDCMPLX=QCMPLX' \
-  CC='cc -DKIND=2'
+SUFFIX = -quad
+FC-quad = $(FC)
+FFLAGS-quad = -r16 -DQUAD=1 -DKIND=2 -DDBLE=QEXT -DDIMAG=QIMAG -DDCONJG=QCONJG -DDCMPLX=QCMPLX
+CFLAGS-quad = -DKIND=2
+INCLUDE-quad = $(BLD)/looptools.h
 
-default all: force
-	$(MAKE) $(ARGS) default
-
-install: force
-	$(MAKE) $(ARGS) install
-
-clean: force
-	$(MAKE) $(ARGS) clean
-
-force:
+include makefile
 
