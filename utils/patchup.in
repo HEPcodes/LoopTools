@@ -1,0 +1,134 @@
+#!/bin/sh
+# script to patch some files in FF
+# last modified 15 Jul 99 th
+
+echo "Patching ff.h"
+if [ ! -f ff/ff.orig ] ; then
+  mv ff/ff.h ff/ff.orig
+fi
+sed s/C0\'s/C0s/g ff/ff.orig > ff/ff.h
+
+echo "Patching ffinit.f"
+if [ ! -f ff/ffinit.orig ] ; then
+  mv ff/ffinit.f ff/ffinit.orig
+fi
+awk 'BEGIN { fn = 0; rm = 0; } {
+  if($0 ~ /###\[ fferr/) { fn = 1; fnname = "fferr"; }
+  if($0 ~ /###\[ ffwarn/) { fn = 1; fnname = "ffwarn"; }
+  if($0 ~ /###\] fferr/ || $0 ~ /###] ffwarn/) fn = 0;
+  if($0 ~ /###\[ ffopen/) rm = 1;
+  if($0 ~ /###\[ ffbnd/) rm = 0;
+  if(fn) {
+    if(index($0, "data init /0/")) rm = 1;
+    if($0 ~ /#\] declarations/)
+      print "\tinclude \047" fnname ".h\047";
+  }
+  if(rm && $0 ~ /#\] data/) rm = 0;
+  if(!rm && $0 !~ /warn\(nmax\)/ && $0 !~ /error\(nmax\)/) {
+    gsub("1 - init", "1");
+    print $0;
+  }
+}' ff/ffinit.orig > ff/ffinit.f
+
+echo "Generating fferr.h"
+( echo " 101 ffxdb1: error: DB1(0, 0, 0) not defined";
+  echo " 102 ffxdb11: error: DB11(0, m1, m2) not defined" ) >> ff/fferr.dat
+sort -k 1n,1 -u ff/fferr.dat | \
+awk 'BEGIN { getline; c = 0; data = ""; }
+{
+  n = $1;
+  gsub("^[ 0-9]*", "");
+  if(length($0) > 0 && !match($0, "^aa")) {
+    gsub("\042", "\047");
+    if(length($0) > 45)
+      $0 = substr($0, 1, 44) "\042//\n     +   \042" substr($0, 45);
+    print "\tcharacter*80 e" n;
+    print "\tparameter (e" n "=\042" $0 "\042)";
+    while(c < n) {
+      data = data ","
+      if(++c % 10 == 0) data = data "\n     +   ";
+      if(c < n) data = data "\042 \042";
+    }
+    data = data "e" n;
+  }
+}
+END { print "\tcharacter*80 error(" c ")";
+  print "\tdata error / " substr(data,2) " /" }' > ff/fferr.h
+
+echo "Generating ffwarn.h"
+sort -k 1n,1 -u ff/ffwarn.dat | \
+awk 'BEGIN { getline; c = 0; data = ""; }
+{
+  n = $1;
+  gsub("^[ 0-9]*", "");
+  if(length($0) > 0 && !match($0,"^aa")) {
+    gsub("\042", "\047");
+    if(length($0) > 45)
+      $0 = substr($0, 1, 44) "\042//\n     +   \042" substr($0, 45);
+    print "\tcharacter*80 w" n;
+    print "\tparameter (w" n "=\042" $0 "\042)";
+    while(c < n) {
+      data = data ","
+      if(++c % 10 == 0) data = data "\n     +   ";
+      if(c < n) data = data "\042 \042";
+    }
+    data=data "w" n;
+  }
+}
+END { print "\tcharacter*80 warn(" c ")";
+  print "\tdata warn / " substr(data,2) " /" }' > ff/ffwarn.h
+
+echo "Generating ffperm5.h"
+awk 'BEGIN { getline; getline; c = 0; } {
+  if($0 ~ /last line/) exit;
+  if(c % 20 == 0) {
+    if(c) printf(" /\n");
+    printf "\tdata ((iperm(j1,j2),j1=1,5),j2=" c*4+1 ",";
+    if((c + 20)*4 > 1296) print "nperm) /";
+    else print (c + 20)*4 ") /";
+  }
+  else if(c) printf ",\n";
+  gsub(",[^,]*$", "");
+  gsub(" ", "");
+  printf "     +   " $0;
+  ++c;
+}
+END { print " /" }' ff/ffperm5.dat > ff/ffperm5.h
+
+ffperm5()
+{
+  echo "Patching $1.f"
+  if [ ! -f ff/$1.orig ] ; then
+    mv ff/$1.f ff/$1.orig
+  fi
+  awk 'BEGIN { rm = 0; } {
+    if(index($0, "data init /0/")) {
+      rm = 1;
+      print "\tinclude \047ffperm5.h\047"
+    }
+    if($0 ~ /#\] data/) rm = 0;
+    if(!rm) print $0;
+  }' ff/$1.orig > ff/$1.f
+}
+
+ffperm5 ffcel5
+ffperm5 ffdel5
+
+echo "Patching ffcli2.f"
+if [ ! -f ff/ffcli2.orig ] ; then
+  mv ff/ffcli2.f ff/ffcli2.orig
+fi
+sed 's/t h en/ then/g' ff/ffcli2.orig > ff/ffcli2.f
+
+echo "Patching aaxbx.f"
+if [ ! -f ff/aaxbx.orig ] ; then
+  mv ff/aaxbx.f ff/aaxbx.orig
+fi
+awk '{
+  if($0 ~ /DOUBLE COMPLEX acb0p,absc/) {
+    sub("acb0p,absc", "acb0p");
+    print "\tDOUBLE PRECISION absc";
+  }
+  print $0
+}' ff/aaxbx.orig > ff/aaxbx.f
+

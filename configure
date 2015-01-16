@@ -1,0 +1,185 @@
+#!/bin/sh
+# configure script for LoopTools
+# last modified 15 Jul 99 by Thomas Hahn
+# note: has _nothing_ to do with GNU autoconf
+
+trap "rm -f test$$*" 0 1 2 15
+
+if (echo "test\c"; echo 1,2,3) | grep c > /dev/null ; then
+  if (echo -n test; echo 1,2,3) | grep n >/dev/null ; then
+    echo_n=
+    echo_c='
+'
+  else
+    echo_n=-n
+    echo_c=
+  fi
+else
+  echo_n=
+  echo_c='\c'
+fi
+
+
+findprog()
+{
+  echo $echo_n "looking for $1... $echo_c" 1>&2
+  for prog in $* ; do
+    full=`csh -cf "which $prog"`
+    if [ -x "$full" ] ; then
+      echo $full 1>&2
+      echo $full
+      return 0
+    fi
+  done
+  echo "no $* in your path" 1>&2
+  return 1
+}
+
+
+## look for make, make sure it's GNU make
+
+CONF_MAKE=`findprog gmake Make make` || exit 1
+$CONF_MAKE -v 2>&1 | grep GNU > /dev/null
+if [ $? -ne 0 ] ; then
+  echo "" 1>&2
+  echo "You need GNU make, not ordinary Unix make to compile LoopTools." 1>&2
+  exit 1
+fi
+
+
+## look for a decent awk
+
+CONF_AWK=`findprog mawk gawk nawk awk` || exit 1
+sed "s:awk:$CONF_AWK:g" utils/patchup.in > utils/patchup
+chmod +x utils/patchup
+
+
+## look for a Fortran compiler
+
+CONF_F77=`findprog f77 fort77 xlf g77 f90 pgf77`
+if [ $? -eq 1 ] ; then
+  echo $echo_n "  then how about f2c... $echo_c" 1>&2
+  CONF_F77=`csh -cf "which f2c"`
+  if [ ! -x "$CONF_F77" ] ; then 
+    echo "no Fortran-77 compiler in your path." 1>&2
+    exit 1
+  fi
+  echo $CONF_F77 1>&2
+  CONF_F77=utils/f77c
+fi
+sed "s:f77:$CONF_F77:g" utils/F77.in > utils/F77
+chmod +x utils/F77
+
+
+## look for the GNU C compiler
+
+CONF_GCC=`findprog gcc` || exit 1
+
+
+## look for the GNU C++ compiler
+
+CONF_GPP=`findprog g++` || exit 1
+
+
+## check whether f77 supports REAL*16
+
+echo $echo_n "checking whether $CONF_F77 supports REAL*16... $echo_c" 1>&2
+cat > test$$.f << _EOF_
+	program test
+	real*16 r
+	r = qext(1d0)
+	end
+_EOF_
+$CONF_F77 -c test$$.f 2>&1 | egrep -i \
+  "unimplemented|unsupported|invalid|warning|incompatible" > /dev/null
+if [ $? -eq 1 ] ; then
+  echo "yes" 1>&2
+  cp src/defs.h.in src/defs.h
+else
+  echo "no" 1>&2
+  sed '
+s/#define XREAL REAL\*16/#define XREAL REAL*8/g
+s/#define XPREC QEXT/#define XPREC DBLE/g' src/defs.h.in > src/defs.h
+fi
+
+
+## check whether underscores get appended to symbols
+
+echo $echo_n "checking whether $CONF_F77 appends underscores... $echo_c" 1>&2
+cat > test$$.f << _EOF_
+	double precision function uscor1(d)
+	double precision d
+	uscor1 = d**2
+	end
+	double precision function uscor2(d)
+	double precision d
+	uscor2 = d**2
+	end
+_EOF_
+cat > test$$a.c << _EOF_
+extern double uscor1(double), uscor2_(double);
+main() { volatile double a = uscor1(10.), b = uscor2_(11.); }
+_EOF_
+$CONF_F77 -c test$$.f > /dev/null 2>&1
+$CONF_GCC test$$a.c test$$.o 2>&1 | grep -i uscor2 > /dev/null
+if [ $? -eq 0 ] ; then
+  sed '/configure/ c\
+#define NO_UNDERSCORE' src/ffc.h.in > src/ffc.h
+  echo "yes" 1>&2
+else
+  cp src/ffc.h.in src/ffc.h
+  echo "no" 1>&2
+fi
+
+
+## find the Fortran libraries
+
+echo $echo_n "extracting the Fortran libraries... $echo_c" 1>&2
+cat > test$$.f << _EOF_
+	program dontpanic
+	print *, "hi"
+	end
+_EOF_
+$CONF_F77 -v test$$.f -o test$$ > test$$.ld 2>&1
+CONF_LIBS=`$CONF_AWK 'BEGIN { libs = "" }
+/ld|LD/ {
+  gsub("[:,]", " ");
+  n = split($0, lp, " ");
+  for(i = 1; i <= n; ++i)
+    if(lp[i] ~ /^-l|^-L|\.a$/) libs = libs " " lp[i];
+    else if(lp[i] ~ /^\// && lp[i] !~ /\.o$|ld$/)
+      libs = libs " -L" lp[i];
+}
+END { print libs }' test$$.ld`
+echo $CONF_LIBS 1>&2
+sed "s:^\$compiler.*:&$CONF_LIBS:g" utils/ccf.in > utils/ccf
+chmod +x utils/ccf
+
+
+echo "creating GNUmakefile" 1>&2
+
+# Compiler options are (partly) a matter of taste, e.g. I tend to use
+# things like -O6 just to make sure that I get the highest level of
+# optimization (even though there is as yet only -O2 in gcc).
+
+cat - GNUmakefile.in > GNUmakefile << _EOF_
+# --- variables defined by configure ---
+CC = $CONF_GCC -O6
+CXX = $CONF_GPP -O6
+FC = $CONF_F77 -O
+# --- end defs by configure ---
+
+_EOF_
+
+echo "$HOSTTYPE" | grep sun > /dev/null
+if [ $? -eq 0 ] ; then
+  mv GNUmakefile GNUmakefile.bad
+  sed 's/-lff$/& -lnsl -lsocket/g' GNUmakefile.bad > GNUmakefile
+fi
+
+echo "" 1>&2
+echo "now you must run `basename $CONF_MAKE`" 1>&2
+echo "" 1>&2
+
+exit 0
+

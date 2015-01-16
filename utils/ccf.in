@@ -1,0 +1,27 @@
+#!/bin/sh
+# script to compile C programs that are linked 
+# against Fortran libraries
+# last modified 19 Feb 99 th
+
+linkopt=""
+otheropt=""
+compiler="gcc"
+
+for opt in $*
+do
+  case $opt in
+  -[Ll]*)
+    linkopt="$linkopt $opt"
+    ;;
+  *.cc)
+    otheropt="$otheropt $opt"
+    compiler="g++"
+    ;;
+  *)
+    otheropt="$otheropt $opt"
+    ;;
+  esac
+done
+
+set -x
+$compiler $otheropt $linkopt
