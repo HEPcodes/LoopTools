@@ -1,7 +1,7 @@
 * ini.F
 * routines for initializing and setting some parameters
 * this file is part of LoopTools
-* last modified 28 Feb 14 th
+* last modified 29 Jul 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -141,6 +141,28 @@
 #include "lt.h"
 
 	getdelta = delta
+	end
+
+************************************************************************
+
+	subroutine setuvdiv(uvdiv_)
+	implicit none
+	RealType uvdiv_
+
+#include "lt.h"
+
+	if( abs(uvdiv - uvdiv_) .gt. acc ) call clearcache
+	uvdiv = uvdiv_
+	end
+
+************************************************************************
+
+	RealType function getuvdiv()
+	implicit none
+
+#include "lt.h"
+
+	getuvdiv = uvdiv
 	end
 
 ************************************************************************

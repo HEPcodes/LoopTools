@@ -149,6 +149,12 @@
 	print *, "env LTLAMBDA =", lambda
 	call setlambda(lambda)
 102	continue
+
+	call getenv("LTUVDIV", env)
+	uvdiv = 1
+	read(env, *, end=103, err=103) uvdiv
+	print *, "env LTUVDIV =", uvdiv
+103	continue
 *
 *  #] LoopTools stuff
 *  #[ precision etc:

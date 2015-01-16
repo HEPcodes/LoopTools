@@ -1,7 +1,7 @@
 #! /bin/sh
 # configure script for LoopTools
 # note: has nothing to do with GNU autoconf
-# last modified 14 Jul 14 th
+# last modified 29 Aug 14 th
 
 
 exec 2> ${LOGFILE:-/dev/null} 3>&1
@@ -65,7 +65,8 @@ getldflags() {
     while test $# -gt 1 ; do
       shift
       case $1 in
-      *.o | -lc | -lgcc*)
+#      *.o | -lc | -lgcc*)
+      *.o | -lc*)
         ;;
       -l* | -L* | *.a)
         ldflags="$ldflags $1" ;;
@@ -97,12 +98,10 @@ CONF_STATIC_EXT=
 CONF_DEBUG=
 CONF_BITS=
   # Mma 5.1's mcc needs -lpthread for static linking
-  # Mma 10's mcc needs -luuid for linking on Linux
 CONF_MCLIBS=-lpthread
 CONF_EXE=
 case "$CONF_OS" in
 CYG*)	CONF_EXE=.exe ;;
-Linux*)	CONF_MCLIBS="$CONF_MCLIBS -luuid" ;;
 esac
 
 for arg in "$@" ; do
@@ -384,11 +383,14 @@ eval ${LOGFILE:+cat $test.tm 1>&2}
 CONF_MCC=${MCC:-mcc}
 CONF_MCFLAGS="-st ${CONF_BITS:+-b$CONF_BITS}"
 
-NM="$CONF_NM" DLLTOOL="$CONF_DLLTOOL" \
-CC="$CONF_SRC/tools/fcc.in" REALCC="$CONF_CC $CONF_CFLAGS" \
-CXX="$CONF_SRC/tools/f++.in" REALCXX="$CONF_CXX $CONF_CXXFLAGS" \
-PATH="$PATH:$CONF_SRC/tools" \
-  "$CONF_MCC" $CONF_MCFLAGS -o $test$CONF_EXE $test.tm $CONF_MCLIBS 1>&2
+for CONF_STDCPP in "" -stdlib=libstdc++ ; do
+  NM="$CONF_NM" DLLTOOL="$CONF_DLLTOOL" \
+  CC="$CONF_SRC/tools/fcc.in" REALCC="$CONF_CC $CONF_CFLAGS" \
+  CXX="$CONF_SRC/tools/f++.in" REALCXX="$CONF_CXX $CONF_CXXFLAGS $CONF_STDCPP" \
+  PATH="$PATH:$CONF_SRC/tools" \
+    "$CONF_MCC" $CONF_MCFLAGS -o $test$CONF_EXE $test.tm $CONF_MCLIBS 1>&2
+  test -x $test$CONF_EXE && break
+done
 
 if test -x $test$CONF_EXE ; then
   echo "yes" 1>&3
@@ -427,7 +429,7 @@ CC = $CONF_CC
 CFLAGS = $CONF_CFLAGS -DNOUNDERSCORE=\$(NOUNDERSCORE) -DBIGENDIAN=$CONF_BIGENDIAN
 
 CXX = $CONF_CXX
-CXXFLAGS = $CONF_CXXFLAGS
+CXXFLAGS = $CONF_CXXFLAGS $CONF_STDCPP
 
 ML = $CONF_ML
 MCC = $CONF_MCC

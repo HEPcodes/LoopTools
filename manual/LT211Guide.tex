@@ -1,20 +1,8 @@
 \documentclass[twoside,12pt]{report}
-\usepackage{a4wide,array,epsfig,amsmath,axodraw,makeidx,calc,alltt}
+\usepackage{a4wide,array,epsfig,amsmath,amssymb,axodraw,makeidx,calc,alltt,mathpple}
 
 \makeindex
 \def\indextt#1{\index{#1@{\tt#1}}}
-
-\makeatletter
-\renewcommand{\rmdefault}{ppl}
-\DeclareSymbolFont{operators}{OT1}{pplcm}{m}{n}
-\DeclareSymbolFont{letters}{OML}{pplcm}{m}{it}
-%\DeclareSymbolFont{symbols}{OMS}{pzccm}{m}{n}
-\DeclareSymbolFont{largesymbols}{OMX}{psycm}{m}{n}
-\DeclareSymbolFont{bold}{OT1}{ppl}{bx}{n}
-\DeclareSymbolFont{italic}{OT1}{ppl}{m}{it}
-\DeclareMathAlphabet{\mathrm}{OT1}{ppl}{m}{n}
-\DeclareMathAlphabet{\mathbf}{OT1}{ppl}{bx}{n}
-\DeclareMathAlphabet{\mathit}{OT1}{ppl}{m}{it}
 
 \renewcommand\bibname{References}
 \renewcommand{\baselinestretch}{1.2}
@@ -30,6 +18,8 @@
 \pagestyle{headings}
 \raggedbottom
 \sloppy
+
+\makeatletter
 
 % from report.cls:
 \def\@makechapterhead#1{%
@@ -150,11 +140,11 @@
 
 \hfill\hbox{\underline{%
 \vrule width 0pt height 0pt depth 2ex%
-\Huge \LT~2.10~~~User's Guide}}
+\Huge \LT~2.11~~~User's Guide}}
 
 \vspace*{1ex}
 
-\hfill\hbox{February 26, 2014~~~~~Thomas Hahn}
+\hfill\hbox{July 31, 2014~~~~~Thomas Hahn}
 
 \clearpage
 
@@ -291,7 +281,7 @@ prompt:
 
 In contrast to the original \FF\ library, the \LT\ libraries and
 executables depend on no additional files (error message catalogues etc.),
-so they may be installed in some ``public'' place instead of
+so they may be installed in some `public' place instead of
 \Code{LoopTools/\Var{hosttype}}.  To this end, configure with \eg
 \begin{verbatim}
   ./configure --prefix=/usr/local
@@ -511,20 +501,23 @@ It is however important to realize that \LT\ functions like $C_1$ and
 $C_{112}$ are the coefficients respectively of $k_{1\mu}$ and $k_{1\mu}
 k_{1\nu} k_{2\rho}$, not of $p_{1\mu}$ and $p_{1\mu} p_{1\nu} p_{2\rho}$.
 
-\pagebreak
+%\pagebreak
 
 
 \section{Functions provided by \LT}
 
 The distinction in the following for real and complex arguments
 is for Fortran and C/C++ only.  Mathematica automatically chooses 
-the right version.
+the correct version.
 
 \indextt{nocache}%
-The `\Code{nocache}' versions do not make use of LoopTools' internal
-caching system.  They might be useful in parallel environments since the
-cached versions are not thread-safe.  They are not available in
-Mathematica.
+The uncached LoopTools functions are not thread-safe, which may be 
+rather dangerous in a concurrent environment as it can \emph{silently} 
+lead to wrong results.  Thread-safety has been achieved by serializing 
+cache writes through mutexes.  The scalar functions were moved into the 
+cache system to make them thread-safe.  The uncached versions (not 
+thread-safe) are still available in Fortran and C/C++ with a 
+`\Code{nocache}' epithet.
 
 
 \subsection{One-point function}
@@ -905,15 +898,8 @@ The ``\Code{$N$put$[$nocache$]$}'' subroutines (\Code{Aput},
 functions but allow the user control over the storage location, \ie the 
 first argument is a complex array of dimension \Code{Nbb}, \Code{Ncc}, 
 \dots\ into which the coefficients are stored.  This can be important 
-\eg for parallel execution.  The ``\Code{$N$put}'' subroutines are 
-nevertheless not thread-safe, due to the caching mechanism.
+\eg for parallel execution.
 
-\indextt{nocache}%
-The ``\Code{$N$putnocache}'' and ``\Code{$N$0nocache}'' subroutines do 
-not use the cache and can be used for parallel execution, provided the 
-Fortran compiler produces reentrant code (that is, the compiler must 
-not allocate local variables of a subroutine statically; this may be a 
-problem for older F77 compilers).
 
 \subsection{Cache Mechanism}
 \index{cache}%
@@ -1003,7 +989,7 @@ Configure as usual, then run make as
    make -f makefile.quad-<tag>
    make -f makefile.quad-<tag> install
 \end{verbatim}
-where the makefile is one of the following:
+where makefile is one of the following:
 \begin{center}
 \begin{tabular}{lll}
 gfortran & 4.6+, all platforms & \Code{makefile.quad-gfortran} \\
@@ -1049,7 +1035,7 @@ symbols are not available in the shell, therefore it is most common
 to set all bits of the version key by putting the value $-1$.
 
 The comparison by default takes a relative deviation of
-$10^{-12}$ as a threshold for issuing warnings, but this can
+$10^{-12}$ as a threshold for issuing warnings but this can
 be changed with
 \begin{alltt}
    call setmaxdev(\(\varepsilon\))         \(\varepsilon\) = getmaxdev()          (Fortran)
@@ -1156,32 +1142,37 @@ The Error Digits are set via
 
 \subsection{Ultraviolet, Infrared, and Collinear Divergences}
 
-\paragraph{Ultraviolet divergences} are regularized dimensionally in \LT.  
-The cancellation of the divergences can be checked with the two variables
-$\Delta$ and $\mu$.  The first one replaces the actual divergence:
-$\Delta = 2/(4 - D) - \gamma_{\rm E} + \log 4\pi$.  The second one is the
-dimensionful parameter introduced to keep the integral's mass dimension
-the same in all dimensions $D$ (see Sect.\ \ref{sect:loopint}).
+\paragraph{Ultraviolet divergences} are regularized dimensionally in 
+\LT.  They originate from the scalar integrals $A_0$ and $B_0$ and from 
+there are passed on to certain tensor coefficients.  UV-divergent loop 
+integrals contain the combination $1/\varepsilon - \gamma_{\rm E} + \log 
+4\pi$, of which \LT\ puts the actual divergence into the 
+$\varepsilon^{-1}$ component of the result (but see \Code{setuvdiv} 
+below) and substitutes the finite part by $\Delta$.  The dimensionful 
+parameter $\mu$ is introduced to keep the integral's mass dimension the 
+same in all dimensions $D$ (see Sect.\ \ref{sect:loopint}).
 \index{UV-regularization parameters}%
 
-The initial value for $\Delta$ is 0, the $\overline{\text{MS}}$ value.
-Putting $\Delta = -2$ reproduces the one-loop functions of constrained
-differential renormalization as published in \cite{dACTP98}.  $\Delta$ is
-actually a redundant parameter since $\mu$ can be adjusted to have the
-same effect: $\mu^2_{\text{new}} = {\rm e}^\Delta\mu^2_{\text{old}}$.
+The default value for $\Delta$ is 0, the $\overline{\text{MS}}$ value. 
+Putting $\Delta = -2$ reproduces the one-loop functions of constrained 
+differential renormalization as published in \cite{dACTP98}.  $\Delta$ 
+is a redundant parameter since $\mu$ can be adjusted to have the same 
+effect: $\mu^2_{\text{new}} = {\rm e}^\Delta\mu^2_{\text{old}}$.
 \index{MS@$\overline{\text{MS}}$}%
 
-A UV-finite result must not depend on either $\Delta$ or $\mu$.  It is
-hence straightforward to check UV finiteness numerically: calculate the
-expression with two different values for $\Delta$ (or $\mu$, or both), and
-check whether the result stays the same within numerical precision.  Note
-that $\mu$ enters logarithmically; this means that to decisively check
-whether an expression is really independent of $\mu$, it must be varied on
-a large scale, \eg from 1 to $10^{10}$.
+A UV-finite result must not depend on either $\Delta$ or $\mu$, hence 
+it is straightforward to check the cancellation of the divergences 
+numerically: calculate the expression with two different values for 
+$\Delta$ (or $\mu$, or both), and check whether the result stays the 
+same within numerical precision.  Note that $\mu$ enters 
+logarithmically; this means that to decisively check whether an 
+expression is really independent of $\mu$, it must be varied on a large 
+scale, \eg from 1 to $10^{10}$.
 
-\paragraph{Infrared divergences} appear in processes with charged external 
-particles.  They originate from the exchange of virtual photons.  More 
-precisely they come from diagrams containing structures of the form
+\paragraph{Infrared divergences} appear in processes with charged 
+external particles.  They originate from the exchange of virtual 
+massless particles between on-shell legs.  More precisely they come from 
+diagrams containing structures of the form
 \begin{center}
 \begin{picture}(130,125)(0,0)
 \Line(5,10)(30,30)
@@ -1289,8 +1280,8 @@ themselves as poles in $1/\varepsilon$ and $1/\varepsilon^2$.
 \item
 For dimensional regularization (QCD), the collinear divergences are
 controlled in the same way as the IR divergences above: setting
-$\lambda = -2, -1, 0$ returns the coefficients of $1/\varepsilon^2$, 
-$1/\varepsilon$, and the finite piece, respectively.
+$\lambda^2 = -2, -1, 0$ returns the coefficients of $\varepsilon^{-2}$, 
+$\varepsilon^{-1}$, and the finite piece, respectively.
 
 \item
 To facilitate mass regularization, \LT\ acts on the variable \mmin\ in
@@ -1350,6 +1341,19 @@ always enter squared.
 \indextt{getminmass}%
 \indextt{LTMINMASS}%
 
+If $\lambda^2\leqslant 0$ was chosen, the $\varepsilon^{-1}$ component 
+of the results contains both UV and IR divergences, sometimes denoted 
+$1/\varepsilon_{\text{UV}}$ and $1/\varepsilon_{\text{IR}}$.  The UV 
+part can be switched off ($i = 0$) and on ($i = 1$) with
+
+\begin{alltt}
+   call setuvdiv(\(i\))                    (Fortran)
+   setuvdiv(\(i\));                        (C/C++)
+   SetUVDiv[\(i\)]                         (Mathematica)
+   export LTUVDIV=\(i\)                    (bash)
+   setenv LTUVDIV \(i\)                    (tcsh)
+\end{alltt}
+
 
 \section{Using \LT\ with Fortran}
 \label{sect:fortran}
@@ -1362,7 +1366,7 @@ Some technical details concerning compilation:
 \item Specify the location of \LT\ once in an environment variable (this
 saves a lot of typing later on).  For example, in the \Code{tcsh}, use
 \begin{verbatim}
-   setenv LT $HOME/LoopTools/$HOSTTYPE
+   setenv LT $HOME/LoopTools/(hosttype)
 \end{verbatim}
 When compiling a program that uses \LT, use
 \begin{verbatim}
@@ -1378,6 +1382,14 @@ around the environment variables, \ie \Code{\$(LT)} instead of
 \item Fortran files that use \LT\ must have the extension \Code{.F}, not
 \Code{.f}.  This tells the Fortran compiler that the files need to be run
 through the C preprocessor first.
+
+\indextt{RealType}%
+\indextt{ComplexType}%
+\item The user may wish to use \Code{RealType} instead of \Code{double 
+precision} and \Code{ComplexType} instead of \Code{double complex}.  
+These types are declared in \Code{looptools.h}, they are 
+preprocessor-friendly (one word) and make it easier to switch \eg to 
+quadruple precision.
 \end{itemize}
 
 \indextt{looptools.h}%
@@ -1394,6 +1406,7 @@ obtain a summary of errors.
 A very elementary program would for instance be
 \begin{verbatim}
         program simple_program
+        implicit none
 #include "looptools.h"
         call ltini
         print *, B0(1000D0, 50D0, 80D0)
@@ -1413,9 +1426,10 @@ To give a more realistic example, here is the calculation of the
 bosonic part of the Higgs self-energy in the electroweak Standard Model.
 \begin{verbatim}
         program HiggsSE
+        implicit none
 #include "looptools.h"
-        double precision s
-        double complex SigmaH
+        RealType s
+        ComplexType SigmaH
         external SigmaH
 
         call ltini
@@ -1425,11 +1439,11 @@ bosonic part of the Higgs self-energy in the electroweak Standard Model.
         call ltexi
         end
 
-        double complex function SigmaH(k2)
-        double precision k2
+        ComplexType function SigmaH(k2)
+        RealType k2
 #include "looptools.h"
-        double precision MH2, MZ2, MW2, Alfa, pi, SW2
-        parameter (MH2 = 100D0**2,
+        RealType MH2, MZ2, MW2, Alfa, pi, SW2
+        parameter (MH2 = 126D0**2,
      &    MZ2 = 91.188D0**2, MW2 = 80.39D0**2,
      &    Alfa = 1/137.0359895D0,
      &    pi = 3.14159265358979D0,
@@ -1455,7 +1469,7 @@ Some technical details:
 location of \LT\ once in an environment variable.  For example, in the
 \Code{tcsh}, use
 \begin{verbatim}
-   setenv LT $HOME/LoopTools/$HOSTTYPE
+   setenv LT $HOME/LoopTools/(hosttype)
 \end{verbatim}
 Then compile the programs that use \LT\ with the following command:
 \begin{verbatim}
@@ -1466,10 +1480,13 @@ Fortran libraries, in this case \Code{libooptools.a}.  Note that in a
 makefile, you have to use parentheses around the environment variables,
 \ie \Code{\$(LT)} instead of \Code{\$LT}.
 
-\item To produce code valid for both C and C++ one can use the 
-\Code{Complex} data type defined by \Code{clooptools.h} which maps to
-\Code{std::complex<double>} in C++ and to \Code{double complex} in C.
-Note that the latter type is available only in C99.
+\indextt{RealType}%
+\indextt{ComplexType}%
+
+\item The \Code{RealType} and \Code{ComplexType} types declared by 
+\Code{clooptools.h} help produce code valid for both C and C++.  The 
+latter maps to \Code{std::complex<double>} in C++, \Code{double complex} 
+in C99, and \Code{struct \lbrac\ double re, im; \rbrac} in C89.
 \end{itemize}
 
 To use the \LT\ functions in a C/C++ program, the file 
@@ -1491,23 +1508,23 @@ int main() {
 }
 \end{verbatim}}
 
-In the following the same example as for the Fortran case is given: the
-bosonic part of the Higgs self-energy in the electroweak Standard Model.
+In the following the same example as for the Fortran case is given: the 
+bosonic part of the Higgs self-energy in the electroweak Standard Model. 
 This code is given in C syntax though it compiles also with C++ thanks 
-to the \Code{Complex} data type (a true C++ aficionado would eschew the 
-use of stdio, however).
+to the \Code{ComplexType} data type (a true C++ aficionado would eschew 
+the use of stdio, however).
 \begin{verbatim}
 #include <stdio.h>
 #include "clooptools.h"
 
-#define MH2 (100.*100.)
+#define MH2 (126.*126.)
 #define MZ2 (91.188*91.188)
 #define MW2 (80.4*80.4)
 #define Alfa (1./137.0359895)
 #define pi 3.14159265358979
 #define SW2 (1. - MW2/MZ2)
 
-static Complex SigmaH(double k2) {
+static ComplexType SigmaH(double k2) {
   return Alfa/(32*pi*SW2*MW2)*
     ( 3*MH2*A0(MH2) + 9*MH2*MH2*B0(k2, MH2, MH2)
       + 2*(MH2*MH2 - 4*MW2*(k2 - 3*MW2))*B0(k2, MW2, MW2)
@@ -1517,10 +1534,10 @@ static Complex SigmaH(double k2) {
 }
 
 int main() {
-  Real s;
+  RealType s;
   ltini();
   for( s = 100; s <= 1000; s += 50 ) {
-    Complex sig = SigmaH(s);
+    ComplexType sig = SigmaH(s);
     printf("%g\t%g%+gi\n", s, Re(sig), Im(sig));
   }
   ltexi();
@@ -1532,10 +1549,10 @@ int main() {
 
 \index{Mathematica@\mma}%
 \index{setting the path}%
-Modify your path to include \Code{\home/LoopTools/\$HOSTTYPE/bin}, \eg in
+Modify your path to include \Code{\home/LoopTools/(hosttype)/bin}, \eg in
 \Code{tcsh} use
 \begin{verbatim}
-   set path=($path $HOME/LoopTools/$HOSTTYPE/bin)
+   set path=($path $HOME/LoopTools/(hosttype)/bin)
 \end{verbatim}
 It is probably a good idea to include this statement \eg in \Code{.cshrc}.
 

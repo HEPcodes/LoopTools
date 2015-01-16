@@ -42,8 +42,12 @@
 	GetMudim::usage = "GetMudim[] returns the current value for the renormalization scale squared."
 
 :Evaluate:
-	SetDelta::usage = "SetDelta[d] sets the numerical value of Delta which replaces the divergence 2/(4 - D) - EulerGamma + Log[4 Pi] in LoopTools.";
-	GetDelta::usage = "GetDelta[] returns the current numerical value of Delta which replaces the divergence 2/(4 - D) - EulerGamma + Log[4 Pi] in LoopTools."
+	SetDelta::usage = "SetDelta[d] sets the numerical value of Delta which replaces the finite part of the divergence 2/(4 - D) - EulerGamma + Log[4 Pi] in LoopTools.";
+	GetDelta::usage = "GetDelta[] returns the current numerical value of Delta which replaces the finite part of the divergence 2/(4 - D) - EulerGamma + Log[4 Pi] in LoopTools."
+
+:Evaluate:
+	SetUVDiv::usage = "SetUVDiv[uvdiv] turns the UV part of the eps^-1 component off (uvdiv = 0) and on (uvdiv = 1).";
+	GetUVDiv::usage = "GetUVDiv[] returns whether the UV part of the eps^-1 component is currently off (0) or on (1)."
 
 :Evaluate:
 	SetLambda::usage = "SetLambda[l^2] sets the infrared regulator mass squared.";
@@ -464,6 +468,22 @@
 :End:
 
 :Begin:
+:Function:	msetuvdiv
+:Pattern:	SetUVDiv[uvdiv_?r]
+:Arguments:	{N[uvdiv]}
+:ArgumentTypes:	{Real}
+:ReturnType:	Manual
+:End:
+
+:Begin:
+:Function:	mgetuvdiv
+:Pattern:	GetUVDiv[]
+:Arguments:	{}
+:ArgumentTypes:	{}
+:ReturnType:	Real
+:End:
+
+:Begin:
 :Function:	msetlambda
 :Pattern:	SetLambda[lambda_?r]
 :Arguments:	{N[lambda]}
@@ -677,7 +697,7 @@
 	LoopTools.tm
 		provides the LoopTools functions in Mathematica
 		this file is part of LoopTools
-		last modified 10 Jul 14 th
+		last modified 29 Jul 14 th
 */
 
 
@@ -1003,6 +1023,19 @@ static void msetdelta(cRealType delta)
 static RealType mgetdelta(void)
 {
   return getdelta();
+}
+
+/******************************************************************/
+
+static void msetuvdiv(cRealType uvdiv)
+{
+  setuvdiv(uvdiv);
+  ReturnVoid();
+}
+
+static RealType mgetuvdiv(void)
+{
+  return getuvdiv();
 }
 
 /******************************************************************/

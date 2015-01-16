@@ -2,7 +2,7 @@
 	clooptools.h
 		the C/C++ header file with all definitions for LoopTools
 		this file is part of LoopTools
-		last modified 21 Feb 14 th
+		last modified 29 Jul 14 th
 */
 
 
@@ -357,7 +357,7 @@ extern struct {		/* MUST match common block ltcache in lt.h! */
 } FORTRAN(ltcache);
 
 extern struct {		/* MUST match common block ltregul in ff.h! */
-  REAL mudim, im_mudim, delta, lambda, minmass;
+  REAL mudim, im_mudim, delta, uvdiv, lambda, minmass;
 } FORTRAN(ltregul);
 
 #ifdef __cplusplus
@@ -815,6 +815,11 @@ static inline RealType getmudim() { _lt_get_(mudim); }
 static inline void setdelta(cRealType delta) { _lt_setx_(delta); }
 
 static inline RealType getdelta() { _lt_get_(delta); }
+
+
+static inline void setuvdiv(cRealType uvdiv) { _lt_setx_(uvdiv); }
+
+static inline RealType getuvdiv() { _lt_get_(uvdiv); }
 
 
 static inline void setlambda(RealType lambda) { 

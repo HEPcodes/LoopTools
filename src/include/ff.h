@@ -147,7 +147,7 @@
      &		pi12 = .822467033424113218236207583323D0,
      &		xlg2 = .6931471805599453094172321214581D0,
      &          sqrt2 = 1.4142135623730950488016887242096981D0,
-     &          acc = 1D-13,
+     &          acc = 1D-12,
      &          eps = 1D-22,
      &          cIeps = (0D0,1D-50) )
 *
@@ -172,8 +172,8 @@
 *	regularization parameters
 *
 	ComplexType mudimc
-	RealType delta,lambda,minmass
-	common /ltregul/ mudimc,delta,lambda,minmass
+	RealType delta, uvdiv, lambda, minmass
+	common /ltregul/ mudimc, delta, uvdiv, lambda, minmass
 
 	RealType mudim
 	equivalence (mudimc, mudim)

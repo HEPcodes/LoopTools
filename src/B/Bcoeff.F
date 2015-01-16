@@ -1,7 +1,7 @@
 * Bcoeff.F
 * invoke the two-point tensor coefficients
 * this file is part of LoopTools
-* last modified 26 Jan 14 th
+* last modified 31 Jul 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -18,13 +18,9 @@
 #include "lt.h"
 
 	ComplexType cmp(Nbb)
-	RealType p, m1, m2
+	RealType p, m1, m2, div
 	integer ier(Nbb), ierall, i
 	logical dump
-
-	m1 = M(1)
-	m2 = M(2)
-	p = P(1)
 
 	serial = serial + 1
 	dump = ibits(debugkey, DebugB, 1) .ne. 0 .and.
@@ -35,21 +31,46 @@
 	  B(i) = 0
 	enddo
 
-	if( abs(p) + abs(m1) + abs(m2) .lt. eps ) goto 9
+	m1 = M(1)
+	m2 = M(2)
+	p = P(1)
+
+	div = uvdiv
+	if( abs(p) + abs(m1) + abs(m2) .lt. eps ) div = div - 1
+	if( div .ne. 0 ) then
+	  B(1+bb0) = div
+	  B(1+bb1) = -.5D0*div
+	  B(1+bb00) = -(p - 3*(m1 + m2))/12D0*div
+	  B(1+dbb00) = -1/12D0*div
+	  B(1+bb11) = 1/3D0*div
+	  B(1+bb001) = (p - 2*m1 - 4*m2)/24D0*div
+	  B(1+dbb001) = 1/24D0*div
+	  B(1+bb111) = -.25D0*div
+	endif
 
 	if( lambda .le. 0 ) then
-	  B(1+bb0) = 1
-	  B(1+bb1) = -.5D0
-	  B(1+bb00) = -(p - 3*(m1 + m2))/12D0
-	  B(1+bb11) = 1/3D0
-	  B(1+bb001) = (p - 2*m1 - 4*m2)/24D0
-	  B(1+bb111) = -.25D0
-	  if( m1*m2 .eq. 0 .and. abs(p - m1 - m2) .lt. acc )
-     &      B(1+dbb0) = -.5D0/p
-	  if( m2 .eq. 0 .and. abs(p - m1) .lt. acc )
-     &      B(1+dbb1) = .5D0/p
-	  B(1+dbb00) = -1/12D0
-	  B(1+dbb001) = 1/24D0
+	  if( m1*m2 .eq. 0 .and. abs(p - m1 - m2) .lt. acc ) then
+	    B(1+dbb0) = nan
+	    if( p .ne. 0 ) B(1+dbb0) = -.5D0/p
+	  endif
+	  if( m2 .eq. 0 .and. abs(p - m1) .lt. acc ) then
+	    B(1+dbb1) = nan
+	    if( p .ne. 0 ) B(1+dbb1) = .5D0/p
+	  endif
+	endif
+
+	if( abs(p) + abs(m1) + abs(m2) .lt. eps ) then
+	  if( delta .ne. 0 ) then
+	    B(bb0) = delta
+	    B(bb1) = -.5D0*delta
+	    B(bb11) = 1/3D0*delta
+	    B(bb111) = -.25*delta
+	    B(dbb00) = -1/12D0*delta
+	    B(dbb001) = 1/24D0*delta
+	    B(dbb0) = nan
+	    B(dbb1) = nan
+	  endif
+	  goto 9
 	endif
 
 	goto (1, 2, 3) ibits(versionkey, KeyBget, 2)

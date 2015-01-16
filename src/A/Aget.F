@@ -1,7 +1,7 @@
 * Aget.F
 * retrieve the one-point tensor coefficients
 * this file is part of LoopTools
-* last modified 28 Feb 14 th
+* last modified 25 Jul 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -164,8 +164,8 @@
 	A(2+aa00) = 0
 
 	if( lambda .le. 0 ) then
-	  A(1+aa0) = m
-	  A(1+aa00) = .25D0*m**2
+	  A(1+aa0) = m*uvdiv
+	  A(1+aa00) = .25D0*m**2*uvdiv
 	endif
 
 	if( dump ) call XDumpCoeff(1, A)
