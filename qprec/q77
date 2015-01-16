@@ -1,7 +1,7 @@
 #!/bin/sh
 # compile script for quadruple precision
 # this file is part of LoopTools
-# last modified 30 Oct 01 th
+# last modified 26 May 04 th
 
 f77290=`dirname $0`/f77290
 [ ! -x $f77290 -a -f $f77290.c ] && gcc -O -o $f77290 $f77290.c
@@ -17,6 +17,7 @@ cpp="gcc -E -P -C -DLANGUAGE_FORTRAN_90"
 
 linkopt=""
 otheropt=""
+fppopt=""
 cppopt=""
 ffiles=""
 cfiles=""
@@ -24,26 +25,21 @@ cfiles=""
 for arg in $* ; do
   case $arg in
   *.[fF])
-	ffiles="$ffiles $arg"
-	;;
+	ffiles="$ffiles $arg" ;;
   *.c)
-	cfiles="$cfiles $arg"
-	;;
-  -[DI]*)
-	cppopt="$cppopt $arg"
-	;;
+	cfiles="$cfiles $arg" ;;
+  -I*)
+	fppopt="$fppopt $arg" ;;
+  -D*)
+	cppopt="$cppopt $arg" ;;
   -looptools)
-	linkopt="$linkopt -looptoolsQ"
-	;;
+	linkopt="$linkopt -looptoolsQ" ;;
   -looptools_check)
-	linkopt="$linkopt -looptoolsQ_check"
-	;;
+	linkopt="$linkopt -looptoolsQ_check" ;;
   -[lL]*)
-	linkopt="$linkopt $arg"
-	;;
+	linkopt="$linkopt $arg" ;;
   *)
-	otheropt="$otheropt $arg"
-	;;
+	otheropt="$otheropt $arg" ;;
   esac
 done
 
@@ -53,14 +49,16 @@ if [ -n "$ffiles" ] ; then
   for file in $ffiles ; do
     tmp=$tmpdir/`basename $file | sed s/.$/f90/g`
     tmpfiles="$tmpfiles $tmp"
+    tmpfppopt="-I`dirname $file` $fppopt"
     sed "
-/^[cC*]/ d
+/^[cC*]/d
 /^[^#].*include / {
-  s/^[^#].*i/#i/g
+  s/^[^i]*/#/
   s/'/\"/g
-}" $file | $cpp $cppopt - | $f77290 - > $tmp
+}" $file | $cpp $tmpfppopt $cppopt - | $f77290 - > $tmp
   done
-  (set -x; $f90 $cppopt $otheropt $tmpfiles $linkopt) && rm -f $tmpfiles
+  (set -x; $f90 $tmpfppopt $otheropt $tmpfiles $linkopt) || exit $?
+  rm -f $tmpfiles
 fi
 
 if [ -n "$cfiles" ] ; then
@@ -70,6 +68,7 @@ if [ -n "$cfiles" ] ; then
     tmpfiles="$tmpfiles $tmp"
     sed 's/sizeof(double)/2*&/g' $file > $tmp
   done
-  (set -x; gcc $cppopt $otheropt $tmpfiles $linkopt) && rm -f $tmpfiles
+  (set -x; gcc $fppopt $cppopt $otheropt $tmpfiles $linkopt) || exit $?
+  rm -f $tmpfiles
 fi
 

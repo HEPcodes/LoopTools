@@ -1,28 +1,46 @@
-Q77=../qprec/q77 -I../qprec
+Q77 = qprec/q77 -Iqprec
 
-all: f77290 qcomplex.o ../libooptools.a ../libooptools_check.a
-	-mkdir ../$(HOSTTYPE)
-	-mkdir ../$(HOSTTYPE)/lib ../$(HOSTTYPE)/include
-	ar r ../libooptools.a qcomplex.o
-	mv ../libooptools.a ../$(HOSTTYPE)/lib/libooptoolsQ.a
-	ar r ../libooptools_check.a qcomplex.o
-	mv ../libooptools_check.a ../$(HOSTTYPE)/lib/libooptoolsQ_check.a
-	f77290 ../include/looptools.h ../$(HOSTTYPE)/include/looptools.h90
-	-cp qcomplex.mod ../$(HOSTTYPE)/include/
+LT = libooptoolsQ.a
+LTCHECK = libooptoolsQ_check.a
 
-../libooptools.a: f77290 qcomplex.o
-	cd .. ; $(MAKE) FC="$(Q77)" FFC="$(Q77)" CC="$(Q77)" libooptools.a
+ALL = $(LT) $(LTCHECK) looptools.h90 qcomplex.mod f77290
 
-../libooptools_check.a: f77290 qcomplex.o
-	cd .. ; $(MAKE) FC="$(Q77)" FFC="$(Q77)" CC="$(Q77)" libooptools_check.a
+all: $(ALL)
+
+install: all
+	cd .. ; $(MAKE) LT="qprec/$(LT)" \
+	                LTCHECK="qprec/$(LTCHECK)" \
+	                LTMMA="" \
+	                INCLUDE="qprec/looptools.h90 qprec/qcomplex.mod" \
+	                BIN="qprec/q77 qprec/f77290" \
+	                install
+
+$(LT): qcomplex.o
+	cd .. ; $(MAKE) FC="$(Q77)" \
+	                FFC="$(Q77)" \
+	                CC="$(Q77)" \
+	                OTHEROBJS="qprec/qcomplex.o" \
+	                LT="qprec/$(LT)" \
+	                qprec/$(LT)
+
+$(LTCHECK): qcomplex.o
+	cd .. ; $(MAKE) FC="$(Q77)" \
+	                FFC="$(Q77)" \
+	                CC="$(Q77)" \
+	                OTHEROBJS="qprec/qcomplex.o" \
+	                LTCHECK="qprec/$(LTCHECK)" \
+	                qprec/$(LTCHECK)
+
+looptools.h90: ../include/looptools.h f77290
+	./f77290 ../include/looptools.h looptools.h90
 
 f77290: f77290.c
-	gcc -O -o f77290 f77290.c
+	$(CC) $(CFLAGS) -o f77290 f77290.c
 
-qcomplex.o: qcomplex.f90
+qcomplex.o qcomplex.mod: qcomplex.f90
 	f90 -O -c qcomplex.f90
 
 clean:
 	cd .. ; $(MAKE) clean
-	rm -f f77290 qcomplex.mod qcomplex.o
+	rm -f $(ALL) qcomplex.o
 

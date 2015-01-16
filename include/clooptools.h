@@ -1,8 +1,9 @@
-// clooptools.h
-// the C++ header file with all definitions for LoopTools
-// this file is part of LoopTools
-// last modified 18 May 00 th
-
+/*
+	clooptools.h
+		the C++ header file with all definitions for LoopTools
+		this file is part of LoopTools
+		last modified 22 Jul 04 th
+*/
 
 #ifndef __CLOOPTOOLS_H__
 #define __CLOOPTOOLS_H__
@@ -79,7 +80,7 @@
 #define bcaexi ffexi
 
 
-inline double_complex A0(double m)
+static inline double_complex A0(const double m)
 {
   dcomplex result;
 
@@ -88,7 +89,8 @@ inline double_complex A0(double m)
 }
 
 
-inline double_complex B0(double p, double m1, double m2)
+static inline double_complex B0(const double p,
+  const double m1, const double m2)
 {
   dcomplex result;
 
@@ -97,7 +99,8 @@ inline double_complex B0(double p, double m1, double m2)
 }
 
 
-inline double_complex DB0(double p, double m1, double m2)
+static inline double_complex DB0(const double p,
+  const double m1, const double m2)
 {
   dcomplex result;
 
@@ -106,7 +109,8 @@ inline double_complex DB0(double p, double m1, double m2)
 }
 
 
-inline double_complex B1(double p, double m1, double m2)
+static inline double_complex B1(const double p,
+  const double m1, const double m2)
 {
   dcomplex result;
 
@@ -115,7 +119,8 @@ inline double_complex B1(double p, double m1, double m2)
 }
 
 
-inline double_complex DB1(double p, double m1, double m2)
+static inline double_complex DB1(const double p,
+  const double m1, const double m2)
 {
   dcomplex result;
 
@@ -124,7 +129,8 @@ inline double_complex DB1(double p, double m1, double m2)
 }
 
 
-inline double_complex B00(double p, double m1, double m2)
+static inline double_complex B00(const double p,
+  const double m1, const double m2)
 {
   dcomplex result;
 
@@ -133,7 +139,8 @@ inline double_complex B00(double p, double m1, double m2)
 }
 
 
-inline double_complex DB00(double p, double m1, double m2)
+static inline double_complex DB00(const double p,
+  const double m1, const double m2)
 {
   dcomplex result;
 
@@ -142,7 +149,8 @@ inline double_complex DB00(double p, double m1, double m2)
 }
 
 
-inline double_complex B11(double p, double m1, double m2)
+static inline double_complex B11(const double p,
+  const double m1, const double m2)
 {
   dcomplex result;
 
@@ -151,7 +159,8 @@ inline double_complex B11(double p, double m1, double m2)
 }
 
 
-inline double_complex DB11(double p, double m1, double m2)
+static inline double_complex DB11(const double p,
+  const double m1, const double m2)
 {
   dcomplex result;
 
@@ -160,8 +169,9 @@ inline double_complex DB11(double p, double m1, double m2)
 }
 
 
-inline double_complex C0(double p1, double p2, double p1p2,
-  double m1, double m2, double m3)
+static inline double_complex C0(const double p1,
+  const double p2, const double p1p2,
+  const double m1, const double m2, const double m3)
 {
   dcomplex result;
 
@@ -170,8 +180,9 @@ inline double_complex C0(double p1, double p2, double p1p2,
 }
 
 
-inline double_complex C0i(int id, double p1, double p2, double p1p2,
-  double m1, double m2, double m3)
+static inline double_complex C0i(const int id, const double p1,
+  const double p2, const double p1p2,
+  const double m1, const double m2, const double m3)
 {
   dcomplex result;
 
@@ -180,16 +191,18 @@ inline double_complex C0i(int id, double p1, double p2, double p1p2,
 }
 
 
-inline int Cget(double p1, double p2, double p1p2,
-  double m1, double m2, double m3)
+static inline int Cget(const double p1,
+  const double p2, const double p1p2,
+  const double m1, const double m2, const double m3)
 {
   return Cget(&p1, &p2, &p1p2, &m1, &m2, &m3);
 }
 
 
-inline double_complex D0(double p1, double p2, double p3, double p4,
-  double p1p2, double p2p3,
-  double m1, double m2, double m3, double m4)
+static inline double_complex D0(const double p1,
+  const double p2, const double p3, const double p4,
+  const double p1p2, const double p2p3,
+  const double m1, const double m2, const double m3, const double m4)
 {
   dcomplex result;
 
@@ -198,10 +211,10 @@ inline double_complex D0(double p1, double p2, double p3, double p4,
 }
 
 
-inline double_complex D0i(int id,
-  double p1, double p2, double p3, double p4,
-  double p1p2, double p2p3,
-  double m1, double m2, double m3, double m4)
+static inline double_complex D0i(const int id,
+  const double p1, const double p2, const double p3, const double p4,
+  const double p1p2, const double p2p3,
+  const double m1, const double m2, const double m3, const double m4)
 {
   dcomplex result;
 
@@ -210,30 +223,31 @@ inline double_complex D0i(int id,
 }
 
 
-inline int Dget(double p1, double p2, double p3, double p4,
-  double p1p2, double p2p3,
-  double m1, double m2, double m3, double m4)
+static inline int Dget(const double p1,
+  const double p2, const double p3, const double p4,
+  const double p1p2, const double p2p3,
+  const double m1, const double m2, const double m3, const double m4)
 {
   return Dget(&p1, &p2, &p3, &p4, &p1p2, &p2p3, &m1, &m2, &m3, &m4);
 }
 
 
-inline void setmudim(double newmudim)
+static inline void setmudim(const double newmudim)
 {
   setmudim(&newmudim);
 }
 
-inline void setdelta(double newdelta)
+static inline void setdelta(const double newdelta)
 {
   setdelta(&newdelta);
 }
 
-inline void setlambda(double newlambda)
+static inline void setlambda(const double newlambda)
 {
   setlambda(&newlambda);
 }
 
-inline void setcachelast(const dcomplex *buffer, int offset)
+static inline void setcachelast(const dcomplex *buffer, const int offset)
 {
   setcachelast(buffer, &offset);
 }

@@ -1,11 +1,11 @@
 * looptools.h
 * the header file for Fortran with all definitions for LoopTools
 * this file is part of LoopTools
-* last modified 16 Dec 99 th
+* last modified 1 Jul 04 th
 
 
-#ifndef _LT_GLOBAL_DEFS_
-#define _LT_GLOBAL_DEFS_
+#ifndef __LOOPTOOLS_H__
+#define __LOOPTOOLS_H__
 
 #define cc0 1
 #define cc1 2
@@ -71,29 +71,34 @@
 * for compatibility:
 
 #define Cval(id, pos) Ccache(pos + id)
+#define CCval(id, pos) CCcache(pos + id)
 #define Dval(id, pos) Dcache(pos + id)
+#define CDval(id, pos) CDcache(pos + id)
 
 #define bcaini ffini
 #define bcaexi ffexi
 
 #endif
 
-
 	double complex Ccache(1)
 	common /Cbase/ Ccache
+
+	double complex CCcache(1)
+	common /CCbase/ CCcache
 
 	double complex Dcache(1)
 	common /Dbase/ Dcache
 
-	double complex A0, B0, DB0, C0, D0
-	double complex B1, DB1, B00, DB00, B11, DB11
-	double complex C0i, D0i
-	integer Cget, Dget, getcachelast
+	double complex CDcache(1)
+	common /CDbase/ CDcache
+
+	double complex A0, CA0, B0, CB0, B1, CB1, B00, CB00, B11, CB11
+	double complex DB0, CDB0, DB1, CDB1, DB00, CDB00, DB11, CDB11
+	double complex C0, CC0, C0i, CC0i, D0, CD0, D0i, CD0i
+	integer Cget, CCget, Dget, CDget, getcachelast
 	double precision getmudim, getdelta, getlambda
 
-	external A0, B0, DB0, C0, D0
-	external B1, DB1, B00, DB00, B11, DB11
-	external C0i, D0i
-	external Cget, Dget, getcachelast
-	external getmudim, getdelta, getlambda
-
+	external A0, CA0, B0, CB0, B1, CB1, B00, CB00, B11, CB11
+	external DB0, CDB0, DB1, CDB1, DB00, CDB00, DB11, CDB11
+	external C0, CC0, C0i, CC0i, D0, CD0, D0i, CD0i
+	external Cget, CCget, Dget, CDget, getcachelast

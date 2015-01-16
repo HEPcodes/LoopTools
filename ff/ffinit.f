@@ -41,7 +41,7 @@
      +		+1,+1,+1,+1, -1,-1,+1,+1, -1,-1/
 *  #] declarations:
 *  #[ check:
-*	check whether tehre is anything to do
+*	check whether there is anything to do
 	if ( init .ne. 0 ) return
 	init = 1
 	print *,'===================================================='
@@ -68,7 +68,7 @@
 	sold = 0
 	do 1 i=1,1000
 	    precx = precx/2
-	    call addone(s, precx)
+	    call ffset(s, 1 + precx)
 	    s = exp(log(s))
 	    if ( s .eq. sold ) goto 2
 	    sold = s
@@ -84,7 +84,8 @@
 	sold = 0
 	do 3 i=1,1000
 	    precc = precc/2
-	    cs = exp(log(DCMPLX(1+precc)))
+	    call ffset(s, 1 + precc)
+	    cs = exp(log(DCMPLX(s)))
 	    if ( DBLE(cs) .eq. sold ) goto 4
 	    sold = DBLE(cs)
     3	continue
@@ -106,16 +107,17 @@
 	s = 1
 	xalogm = 1
 	do 5 i=1,10000
-	    s = s/2
-	    if ( 2*abs(s) .ne. xalogm ) goto 6
-	    xalogm = abs(s)
+	    call ffset(s, s/2)
+	    if ( 2*s .ne. xalogm ) goto 6
+	    xalogm = s
     5	continue
     6	continue
 	if ( xalogm.eq.0 ) xalogm = 1d-307
+
 	s = 1
 	xclogm = abs(DCMPLX(s))
 	do 7 i=1,10000
-	    s = s/2
+	    call ffset(s, s/2)
 	    if ( 2*abs(DCMPLX(s)) .ne. xclogm ) goto 8
 	    xclogm = abs(DCMPLX(s))
     7	continue
@@ -354,7 +356,7 @@
 	onshel = .TRUE.
 *
 *	the precision wanted in the complex D0 (and hence E0) when
-*	nschem=7, these are calculated via Taylor exoansion in the real
+*	nschem=7, these are calculated via Taylor expansion in the real
 *	one and hence expensive.
 *
 	reqprc = 1.D-8
@@ -378,11 +380,11 @@
 * it's result in memory and we don't end up with the precision of
 * the FPU registers in precx.
 
-	subroutine addone(res, x)
+	subroutine ffset(res, x)
 	implicit none
 	DOUBLE PRECISION res, x
 
-	res = x + 1
+	res = x
 	end
 
 

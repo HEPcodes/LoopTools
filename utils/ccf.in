@@ -1,16 +1,15 @@
 #!/bin/sh
 # script to compile C programs that are linked 
 # against Fortran libraries
-# last modified 25 Nov 99 th
+# last modified 11 Feb 03 th
 
 linkopt=""
 cpplib=""
 otheropt=""
 
-for opt in $*
-do
+for opt in $* ; do
   case $opt in
-  -[Ll]*)
+  -[Ll]* | *.a)
     linkopt="$linkopt $opt"
     ;;
   *.cc)

@@ -69,12 +69,12 @@
 *	fd4sij:	dl4si = del4s in E0, D0 without si
 *	fdl4i:	delta4 in F0 without si.
 *	fodel2:	same offshell (in case of complex or z-functions)
-*	fodel3:	-"-
-*	cfdl4s:	-"-
-*	fodel4:	-"-
-*	fodl3i:	-"-
-*	fod3ij:	-"-
-*	fodl4i:	-"-
+*	fodel3:	-''-
+*	cfdl4s:	-''-
+*	fodel4:	-''-
+*	fodl3i:	-''-
+*	fod3ij:	-''-
+*	fodl4i:	-''-
 *	fidel3:	ier of del3 (is not included in D0)
 *	fidel4:	ier of del4 (is not included in E0)
 *	fidl3i:	ier of dl3i (is not included in E0)
@@ -100,7 +100,7 @@
 *	ca1:	(internal only) complex A1
 *	csdl2p: (internal only) complex transformed sqrt(del2)
 *
-	DOUBLE COMPLEX czero,cone,c2ipi,cipi2,
+	DOUBLE COMPLEX czero,chalf,cone,c2ipi,cipi2,
      +		cfpij2(3,3),cfpij3(6,6),cfpij4(10,10),cfpij5(15,15),
      +		cfpij6(21,21),cmipj(3,3),c2sisj(4,4),cfdl4s,ca1
 *
@@ -133,6 +133,7 @@
 *
 	parameter(
      +		czero = (0.D0,0.D0),
+     +		chalf = (.5D0,0.D0),
      +		cone = (1.D0,0.D0),
      +		c2ipi = (0.D+0,6.28318530717958647692528676655896D+0),
      +		cipi2 = (0.D+0,9.869604401089358618834490999876D+0),
