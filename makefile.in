@@ -1,0 +1,45 @@
+TARGETS = libooptools.a libooptools_check.a
+
+all: $(TARGETS) $(MCCTARGETS)
+	-mkdir $(HOSTTYPE)
+	-mkdir $(HOSTTYPE)/lib $(HOSTTYPE)/bin $(HOSTTYPE)/include
+	mv $(TARGETS) $(HOSTTYPE)/lib
+	-mv $(MCCTARGETS) $(HOSTTYPE)/bin
+	cp utils/ccf utils/F77 utils/f77c $(HOSTTYPE)/bin
+	cp include/*.h $(HOSTTYPE)/include
+
+
+make_ff:
+	cd ff ; $(MAKE) FC="$(FC)" FFLAGS="$(FFLAGS)"
+
+make_fortran:
+	cd fortran ; \
+	  $(MAKE) FC="$(FFC)" FFLAGS="$(FFLAGS)" \
+	          CC="$(CC)" CFLAGS="$(CFLAGS)" CHECK=0
+
+make_check:
+	cd fortran ; \
+	  $(MAKE) FC="$(FFC)" FFLAGS="$(FFLAGS)" \
+	          CC="$(CC)" CFLAGS="$(CFLAGS)" CHECK=1
+	cd check ; $(MAKE) FC="$(FFC)" FFLAGS="$(FFLAGS)"
+
+
+libooptools.a: make_ff make_fortran
+	ar cru $@ ff/*.o fortran/*.o
+
+libooptools_check.a: make_ff make_check
+	ar cru $@ ff/*.o fortran/*.o check/*.o
+
+
+LoopTools: mma/LoopTools.tm
+	-CC=utils/ccf ; export CC ; \
+	sed "s: cc : utils/ccf :g" `which mcc` | \
+	sh -s $< -O6 -o $@ $(MCCFLAGS) -L. -L$(HOSTTYPE) -looptools
+	-strip LoopTools
+
+
+clean:
+	cd ff ; $(MAKE) clean
+	cd fortran ; $(MAKE) clean
+	cd check ; $(MAKE) clean
+	rm -f $(TARGETS) $(MCCTARGETS)

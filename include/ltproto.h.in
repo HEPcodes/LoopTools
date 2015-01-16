@@ -1,0 +1,101 @@
+/*
+ltproto.h.in
+provides all low-level prototypes for linking a C++ program
+that uses clooptools.h with the (Fortran) LoopTools library
+this file is part of LoopTools
+last modified 18 May 00 th
+*/
+
+
+#define A0 a0sub_
+#define B0 b0sub_
+#define DB0 db0sub_
+#define B1 b1sub_
+#define DB1 db1sub_
+#define B00 b00sub_
+#define DB00 db00sub_
+#define B11 b11sub_
+#define DB11 db11sub_
+#define C0 c0sub_
+#define C0i c0isub_
+#define Cget cget_
+#define D0 d0sub_
+#define D0i d0isub_
+#define Dget dget_
+#define ffini ffini_
+#define ffexi ffexi_
+#define setmudim setmudim_
+#define getmudim getmudim_
+#define setdelta setdelta_
+#define getdelta getdelta_
+#define setlambda setlambda_
+#define getlambda getlambda_
+#define cachelookup cachelookup_
+#define setcachelast setcachelast_
+#define getcachelast getcachelast_
+#define Ccache cbase_
+#define cbase_(pos) double_complex(cbase_[pos - 1].r, cbase_[pos - 1].i)
+#define Dcache dbase_
+#define dbase_(pos) double_complex(dbase_[pos - 1].r, dbase_[pos - 1].i)
+
+typedef struct { double r, i; } dcomplex;
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void A0(dcomplex *, const double *);
+
+void B0(dcomplex *, const double *, const double *, const double *);
+void DB0(dcomplex *, const double *, const double *, const double *);
+void B1(dcomplex *, const double *, const double *, const double *);
+void DB1(dcomplex *, const double *, const double *, const double *);
+void B00(dcomplex *, const double *, const double *, const double *);
+void DB00(dcomplex *, const double *, const double *, const double *);
+void B11(dcomplex *, const double *, const double *, const double *);
+void DB11(dcomplex *, const double *, const double *, const double *);
+
+void C0(dcomplex *,
+  const double *, const double *, const double *,
+  const double *, const double *, const double *);
+void C0i(dcomplex *, const int *,
+  const double *, const double *, const double *,
+  const double *, const double *, const double *);
+int Cget(
+  const double *, const double *, const double *,
+  const double *, const double *, const double *);
+
+void D0(dcomplex *,
+  const double *, const double *, const double *, const double *,
+  const double *, const double *,
+  const double *, const double *, const double *, const double *);
+void D0i(dcomplex *, const int *,
+  const double *, const double *, const double *, const double *,
+  const double *, const double *,
+  const double *, const double *, const double *, const double *);
+int Dget(
+  const double *, const double *, const double *, const double *,
+  const double *, const double *,
+  const double *, const double *, const double *, const double *);
+
+void ffini();
+
+void ffexi();
+
+void setmudim(const double *);
+double getmudim();
+void setdelta(const double *);
+double getdelta();
+void setlambda(const double *);
+double getlambda();
+
+void setcachelast(const dcomplex *, int *);
+int getcachelast(const dcomplex *);
+
+extern dcomplex Ccache[], Dcache[];
+
+#ifdef __cplusplus
+}
+#endif
+

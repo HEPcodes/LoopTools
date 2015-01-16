@@ -1,7 +1,8 @@
 #!/bin/sh
 # configure script for LoopTools
-# last modified 15 Jul 99 by Thomas Hahn
+# last modified 27 Jul 01 by Thomas Hahn
 # note: has _nothing_ to do with GNU autoconf
+
 
 trap "rm -f test$$*" 0 1 2 15
 
@@ -23,11 +24,12 @@ fi
 findprog()
 {
   echo $echo_n "looking for $1... $echo_c" 1>&2
+  shift
   for prog in $* ; do
     full=`csh -cf "which $prog"`
     if [ -x "$full" ] ; then
       echo $full 1>&2
-      echo $full
+      basename $full
       return 0
     fi
   done
@@ -36,27 +38,30 @@ findprog()
 }
 
 
-## look for make, make sure it's GNU make
+CONF_FFLAGS="-O"
 
-CONF_MAKE=`findprog gmake Make make` || exit 1
-$CONF_MAKE -v 2>&1 | grep GNU > /dev/null
-if [ $? -ne 0 ] ; then
-  echo "" 1>&2
-  echo "You need GNU make, not ordinary Unix make to compile LoopTools." 1>&2
-  exit 1
+CONF_CFLAGS="-O"
+
+CONF_MCCFLAGS="-O"
+echo "$HOSTTYPE" | grep sun > /dev/null && \
+  CONF_MCCFLAGS="$CONF_MCCFLAGS -lnsl -lsocket"
+
+CONF_MCCTARGETS="LoopTools"
+
+
+## look for some programs...
+
+CONF_MAKE=`findprog make gmake Make make` || exit 1
+
+CONF_AWK=`findprog awk mawk gawk nawk awk` || exit 1
+
+CONF_GCC=`findprog gcc gcc` || exit 1
+
+if [ "$1" = "-g77" ] ; then
+  CONF_F77=`findprog f77 g77`
+else
+  CONF_F77=`findprog f77 f77 fort77 xlf g77 f90 pgf77`
 fi
-
-
-## look for a decent awk
-
-CONF_AWK=`findprog mawk gawk nawk awk` || exit 1
-sed "s:awk:$CONF_AWK:g" utils/patchup.in > utils/patchup
-chmod +x utils/patchup
-
-
-## look for a Fortran compiler
-
-CONF_F77=`findprog f77 fort77 xlf g77 f90 pgf77`
 if [ $? -eq 1 ] ; then
   echo $echo_n "  then how about f2c... $echo_c" 1>&2
   CONF_F77=`csh -cf "which f2c"`
@@ -70,20 +75,42 @@ fi
 sed "s:f77:$CONF_F77:g" utils/F77.in > utils/F77
 chmod +x utils/F77
 
+[ "$CONF_F77" = "g77" ] && CONF_FFLAGS=""
 
-## look for the GNU C compiler
+CONF_MCC=`findprog mcc mcc`
+if [ $? -eq 1 ] ; then
+  echo "Disabling compilation of the MathLink executable."
+  echo "Note: if you have Mathematica installed properly, this should not"
+  echo "      occur; if you want to work with LoopTools in Mathematica,"
+  echo "      check the installation of mcc (setting of paths etc.) and"
+  echo "      then run $0 again."
+  CONF_MCCTARGETS=""
+fi
 
-CONF_GCC=`findprog gcc` || exit 1
+
+## does f77 recognize preprocessor statements?
+
+echo $echo_n "does $CONF_F77 understand preprocessor directives... $echo_c" 1>&2
+cat > test$$.F << _EOF_
+#define SAY_HI "Hi"
+	program dontpanic
+	print *, SAY_HI
+	end
+_EOF_
+$CONF_F77 -c test$$.F 2>&1 | egrep -i \
+  "unimplemented|unsupported|invalid|warning|incompatible" > /dev/null
+if [ $? -eq 1 ] ; then
+  echo "yes" 1>&2
+  CONF_FF77="$CONF_F77"
+else
+  echo "no" 1>&2
+  CONF_FF77="utils/F77"
+fi
 
 
-## look for the GNU C++ compiler
+## does f77 support REAL*16?
 
-CONF_GPP=`findprog g++` || exit 1
-
-
-## check whether f77 supports REAL*16
-
-echo $echo_n "checking whether $CONF_F77 supports REAL*16... $echo_c" 1>&2
+echo $echo_n "does $CONF_F77 support REAL*16... $echo_c" 1>&2
 cat > test$$.f << _EOF_
 	program test
 	real*16 r
@@ -94,41 +121,31 @@ $CONF_F77 -c test$$.f 2>&1 | egrep -i \
   "unimplemented|unsupported|invalid|warning|incompatible" > /dev/null
 if [ $? -eq 1 ] ; then
   echo "yes" 1>&2
-  cp src/defs.h.in src/defs.h
 else
   echo "no" 1>&2
-  sed '
-s/#define XREAL REAL\*16/#define XREAL REAL*8/g
-s/#define XPREC QEXT/#define XPREC DBLE/g' src/defs.h.in > src/defs.h
+  CONF_FFLAGS="$CONF_FFLAGS -DQEXT=DBLE"
 fi
 
 
-## check whether underscores get appended to symbols
+## does Fortran append underscores to symbols?
 
-echo $echo_n "checking whether $CONF_F77 appends underscores... $echo_c" 1>&2
+echo $echo_n "does $CONF_F77 append underscores... $echo_c" 1>&2
 cat > test$$.f << _EOF_
-	double precision function uscor1(d)
-	double precision d
-	uscor1 = d**2
-	end
-	double precision function uscor2(d)
-	double precision d
-	uscor2 = d**2
+	subroutine uscore
+	print *, "hi"
 	end
 _EOF_
-cat > test$$a.c << _EOF_
-extern double uscor1(double), uscor2_(double);
-main() { volatile double a = uscor1(10.), b = uscor2_(11.); }
-_EOF_
+echo "extern void uscore(); main() { uscore(); }" > test$$a.c
 $CONF_F77 -c test$$.f > /dev/null 2>&1
-$CONF_GCC test$$a.c test$$.o 2>&1 | grep -i uscor2 > /dev/null
+$CONF_GCC test$$a.c test$$.o 2>&1 | grep -i uscore > /dev/null
 if [ $? -eq 0 ] ; then
-  sed '/configure/ c\
-#define NO_UNDERSCORE' src/ffc.h.in > src/ffc.h
   echo "yes" 1>&2
+  cp include/ltproto.h.in include/ltproto.h
+  CONF_CFLAGS="$CONF_CFLAGS -DHAVE_UNDERSCORE"
 else
-  cp src/ffc.h.in src/ffc.h
   echo "no" 1>&2
+  sed -e 's/_$//g' -e 's/base_/base/g' \
+    include/ltproto.h.in > include/ltproto.h
 fi
 
 
@@ -152,33 +169,28 @@ CONF_LIBS=`$CONF_AWK 'BEGIN { libs = "" }
 }
 END { print libs }' test$$.ld`
 echo $CONF_LIBS 1>&2
-sed "s:^\$compiler.*:&$CONF_LIBS:g" utils/ccf.in > utils/ccf
+sed "s:^gcc.*:&$CONF_LIBS:g" utils/ccf.in > utils/ccf
 chmod +x utils/ccf
 
 
-echo "creating GNUmakefile" 1>&2
+echo "creating makefile" 1>&2
 
-# Compiler options are (partly) a matter of taste, e.g. I tend to use
-# things like -O6 just to make sure that I get the highest level of
-# optimization (even though there is as yet only -O2 in gcc).
-
-cat - GNUmakefile.in > GNUmakefile << _EOF_
+cat - makefile.in > makefile << _EOF_
 # --- variables defined by configure ---
-CC = $CONF_GCC -O6
-CXX = $CONF_GPP -O6
-FC = $CONF_F77 -O
+CC = $CONF_GCC
+CFLAGS = $CONF_CFLAGS
+FC = $CONF_F77
+FFC = $CONF_FF77
+FFLAGS = $CONF_FFLAGS
+MCC = $CONF_MCC
+MCCFLAGS = $CONF_MCCFLAGS
+MCCTARGETS = $CONF_MCCTARGETS
 # --- end defs by configure ---
 
 _EOF_
 
-echo "$HOSTTYPE" | grep sun > /dev/null
-if [ $? -eq 0 ] ; then
-  mv GNUmakefile GNUmakefile.bad
-  sed 's/-lff$/& -lnsl -lsocket/g' GNUmakefile.bad > GNUmakefile
-fi
-
 echo "" 1>&2
-echo "now you must run `basename $CONF_MAKE`" 1>&2
+echo "now you must run $CONF_MAKE" 1>&2
 echo "" 1>&2
 
 exit 0
