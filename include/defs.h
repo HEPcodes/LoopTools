@@ -1,7 +1,7 @@
 * defs.h
 * internal definitions for the LoopTools routines
 * this file is part of LoopTools
-* last modified 13 Apr 06 th
+* last modified 15 Feb 08 th
 
 
 #ifdef COMPLEXPARA
@@ -41,9 +41,10 @@
 #define XEcoeffa EcoeffaC
 #define XEcoeffb EcoeffbC
 #define XEcheck EcheckC
-#define XltEgram ltEgramC
-#define XLUDecomp LUDecompC
-#define XLUBackSubst LUBackSubstC
+#define XInvGramE ltInvGramEC
+#define XSolve ltSolveC
+#define XEigen ltEigenC
+#define XDecomp ltDecompC
 #define XDet ltDetC
 #define XInverse ltInverseC
 #define XDumpPara DumpParaC
@@ -61,7 +62,9 @@
 #define DVAR double complex
 #define QVAR double complex
 #define QREAL double precision
-#define QEXT(x) x
+#define QPREC(x) x
+#define QCC(x) DCONJG(x)
+#define QRE(x) DBLE(x)
 
 #else
 
@@ -100,9 +103,11 @@
 #define XEcoeffa Ecoeffa
 #define XEcoeffb Ecoeffb
 #define XEcheck Echeck
-#define XltEgram ltEgram
-#define XLUDecomp LUDecomp
-#define XLUBackSubst LUBackSubst
+#define XInvGramE ltInvGramE
+#define XSolve ltSolve
+#define RSolve ltRSolve
+#define XEigen ltEigen
+#define XDecomp ltDecomp
 #define XDet ltDet
 #define XInverse ltInverse
 #define XDumpPara DumpPara
@@ -120,11 +125,14 @@
 #define DVAR double precision
 #ifdef QUAD
 #define QVAR real*16
+#define QPREC(x) QEXT(x)
 #else
 #define QVAR double precision
-#define QEXT(x) x
+#define QPREC(x) x
 #endif
 #define QREAL QVAR
+#define QCC(x) x
+#define QRE(x) x
 
 #endif
 
@@ -358,6 +366,8 @@
 #define Nval(n,id,p) cache(p+id,RC+2*n-4)
 
 #define Sgn(i) (1 - 2*iand(i,1))
+
+#define MAXDIM 8
 
 #ifndef KIND
 #define KIND 1

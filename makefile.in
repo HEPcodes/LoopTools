@@ -6,8 +6,8 @@ INCLUDEDIR = $(PREFIX)/include
 BINDIR = $(PREFIX)/bin
 
 LIB = $(BLD)/libooptools$(SUFFIX).a
-FE = $(BLD)/lt$(SUFFIX)
-MMA = $(BLD)/LoopTools
+FE = $(BLD)/lt$(SUFFIX)$(EXE)
+MMA = $(BLD)/LoopTools$(EXE)
 FCC = $(BLD)/fcc
 CINCLUDE = $(BLD)/clooptools.h
 
@@ -64,7 +64,7 @@ OBJS = $(QOBJS) \
   $(BLD)/ffxe0.o \
   $(BLD)/ffdel5.o \
   $(BLD)/ini.o $(BLD)/auxCD.o \
-  $(BLD)/GaussPivot.o $(BLD)/GaussPivotC.o \
+  $(BLD)/solve.o $(BLD)/solveC.o \
   $(BLD)/Dump.o $(BLD)/DumpC.o \
   $(BLD)/Li2.o $(BLD)/Li2C.o \
   $(BLD)/cache.o $(BLD)/ffinit.o \
@@ -81,7 +81,7 @@ FFINC = $(SRC)/include/ff.h $(TS)
 
 LTINC = $(SRC)/include/defs.h $(SRC)/include/lt.h $(FFINC)
 
-XFC = $(FC) -I$(SRC)/include $(FFLAGS)
+XFC = $(FC) $(FFLAGS) $(FFLAGS_QUAD) -I$(SRC)/include 
 CFC = $(XFC) $(DEF)COMPLEXPARA
 
 $(BLD)/A0.o: $(SRC)/A/A0.F $(LTINC)
@@ -217,10 +217,10 @@ $(BLD)/ini.o: $(SRC)/util/ini.F $(LTINC)
 	$(XFC) -c -o $(BLD)/ini.o $(SRC)/util/ini.F
 $(BLD)/auxCD.o: $(SRC)/util/auxCD.F $(LTINC)
 	$(XFC) -c -o $(BLD)/auxCD.o $(SRC)/util/auxCD.F
-$(BLD)/GaussPivot.o: $(SRC)/util/GaussPivot.F $(LTINC)
-	$(XFC) -c -o $(BLD)/GaussPivot.o $(SRC)/util/GaussPivot.F
-$(BLD)/GaussPivotC.o: $(SRC)/util/GaussPivot.F $(LTINC)
-	$(CFC) -c -o $(BLD)/GaussPivotC.o $(SRC)/util/GaussPivot.F
+$(BLD)/solve.o: $(SRC)/util/solve.F $(SRC)/util/solve-LU.F $(SRC)/util/solve-Eigen.F $(LTINC)
+	$(XFC) -c -o $(BLD)/solve.o $(SRC)/util/solve.F
+$(BLD)/solveC.o: $(SRC)/util/solve.F $(SRC)/util/solve-LU.F $(SRC)/util/solve-Eigen.F $(LTINC)
+	$(CFC) -c -o $(BLD)/solveC.o $(SRC)/util/solve.F
 $(BLD)/Dump.o: $(SRC)/util/Dump.F $(LTINC)
 	$(XFC) -c -o $(BLD)/Dump.o $(SRC)/util/Dump.F
 $(BLD)/DumpC.o: $(SRC)/util/Dump.F $(LTINC)
@@ -284,7 +284,7 @@ $(FCC): $(SRC)/tools/fcc.in
 
 $(MMA): $(SRC)/frontend/LoopTools.tm $(SRC)/include/clooptools.h.in $(LIB) $(FCC)
 	cp $(SRC)/frontend/LoopTools.tm $(BLD)
-	CC=$(FCC) REALCC=$(CC) PATH=$(PATH):tools \
+	CC=$(FCC) CXX=$(FCC) REALCC=$(CC) PATH="$(PATH):tools" \
 	  mcc $(BLD)/LoopTools.tm -o $(MMA) $(CFLAGS) $(LIB)
 
 $(TS):

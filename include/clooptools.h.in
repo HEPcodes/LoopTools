@@ -2,7 +2,7 @@
 	clooptools.h
 		the C/C++ header file with all definitions for LoopTools
 		this file is part of LoopTools
-		last modified 21 Dec 06 th
+		last modified 26 Nov 07 th
 */
 
 
@@ -78,7 +78,7 @@ enum {
   KeyE0 = 1<<8,
   KeyEget = 1<<10,
   KeyEgetC = 1<<12,
-  KeyALL = KeyA0 + KeyBget + KeyC0 + KeyD0 + KeyE0 + KeyEget + KeyEgetC
+  KeyAll = KeyA0 + KeyBget + KeyC0 + KeyD0 + KeyE0 + KeyEget + KeyEgetC
 };
 
 enum {
@@ -302,7 +302,7 @@ static inline double_complex D0(DARGS(_Cr_))
 static inline double_complex D0C(DARGS(_Cc_))
 {
   DOUBLE_COMPLEX result;
-  FORTRAN(d0subc)(&result, DARGS(_Frp_));
+  FORTRAN(d0subc)(&result, DARGS(_Fcp_));
   return ToComplex(result);
 }
 
@@ -346,7 +346,7 @@ static inline double_complex E0(EARGS(_Cr_))
 static inline double_complex E0C(EARGS(_Cc_))
 {
   DOUBLE_COMPLEX result;
-  FORTRAN(e0subc)(&result, EARGS(_Frp_));
+  FORTRAN(e0subc)(&result, EARGS(_Fcp_));
   return ToComplex(result);
 }
 

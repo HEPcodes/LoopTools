@@ -1,7 +1,7 @@
 * C0.F
 * the scalar three-point function
 * this file is part of LoopTools
-* last modified 24 Jan 06 th
+* last modified 8 Mar 07 th
 
 #include "defs.h"
 
@@ -353,8 +353,12 @@
 	endif
 
 	if( abs(p2) .lt. acc ) then
-	  C0ir = -.25D0*log(p1p2*p1/lambda**2)*
-     &      log(p1/p1p2)/(p1 - p1p2)
+	  if( abs(p1 - p1p2) .lt. acc ) then
+	    C0ir = -.5D0*log(p1/lambda)/p1
+	  else
+	    C0ir = -.25D0*log(p1p2*p1/lambda**2)*
+     &        log(p1/p1p2)/(p1 - p1p2)
+	  endif
 	  return
 	endif
 

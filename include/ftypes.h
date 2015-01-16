@@ -13,6 +13,8 @@ typedef double DOUBLE_PRECISION;
 typedef const DOUBLE_PRECISION CDOUBLE_PRECISION;
 typedef struct { DOUBLE_PRECISION re, im; } DOUBLE_COMPLEX;
 typedef const DOUBLE_COMPLEX CDOUBLE_COMPLEX;
+typedef char CHARACTER;
+typedef const CHARACTER CCHARACTER;
 
 #ifdef __cplusplus
 

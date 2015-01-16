@@ -1,7 +1,7 @@
 * lt.F
 * the LoopTools command-line interface to Bget, Cget, Dget, Eget
 * this file is part of LoopTools
-* last modified 16 Nov 06 th
+* last modified 16 May 07 th
 
 #include "defs.h"
 
@@ -11,8 +11,10 @@
 
 #include "lt.h"
 
+#if U77EXT
 	integer iargc
 	external iargc
+#endif
 
 	integer argc
 	character argv*100
