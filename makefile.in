@@ -1,27 +1,30 @@
-BLD = build$(SUFFIX)
+BLD = build$(QUADSUFFIX)
 
-LIBDIR = $(PREFIX)/lib
+LIBDIR = $(PREFIX)/lib$(LIBDIRSUFFIX)
 INCLUDEDIR = $(PREFIX)/include
 BINDIR = $(PREFIX)/bin
 
-LIB = libooptools$(SUFFIX).a
-FE = lt$(SUFFIX)$(EXE)
-MFE = LoopTools$(SUFFIX)$(EXE)
+LIB = libooptools$(QUADSUFFIX).a
+FE = lt$(QUADSUFFIX)$(EXE)
+MFE = LoopTools$(QUADSUFFIX)$(EXE)
 INCLUDE = $(BLD)/looptools.h $(BLD)/clooptools.h
 
 ARGS = $(PARALLEL) \
   LIB="$(LIB)" \
   FE="$(FE)" \
   MFE="$(MFE)" \
+  EXE="$(EXE)" \
   DEF="$(DEF)" \
   UNDERSCORE="$(UNDERSCORE)" \
-  XFC="$(FC$(SUFFIX)) $(FFLAGS) $(FFLAGS-quad) -I." \
+  XFC="$(FC$(QUADSUFFIX)) $(FFLAGS) $(FFLAGS-quad) -I." \
   F90="$(F90)" \
   CC="$(CC)" \
   CFLAGS="$(CFLAGS) $(CFLAGS-quad)" \
   ML="$(ML)" \
+  MCC="$(MCC)" \
   MCFLAGS="$(MCFLAGS)" \
   LDFLAGS="$(LDFLAGS)" \
+  LIBPATH="$(LIBPATH)" \
   OBJS-quad="$(OBJS-quad)"
 
 
@@ -32,7 +35,7 @@ install: lib frontend
 	-mkdir $(PREFIX)
 	-mkdir $(LIBDIR) $(BINDIR) $(INCLUDEDIR)
 	cp -p $(BLD)/$(LIB) $(LIBDIR)
-	cp -p $(INCLUDE$(SUFFIX)) $(INCLUDEDIR)
+	cp -p $(INCLUDE$(QUADSUFFIX)) $(INCLUDEDIR)
 	strip $(BLD)/$(FE)
 	cp -p $(BLD)/fcc $(BLD)/$(FE) $(BINDIR)
 	test ! -f $(BLD)/$(MFE) || { strip $(BLD)/$(MFE) ; cp -p $(BLD)/$(MFE) $(BINDIR); }

@@ -1,3 +1,6 @@
+#include "externals.h"
+
+
 *--#[ log:
 *	$Id: ffxd0h.f,v 1.6 1996/01/22 13:33:49 gj Exp $
 *	$Log: ffxd0h.f,v $
@@ -58,7 +61,7 @@ c
 *
 *	common blocks
 *
-	include 'ff.h'
+#include "ff.h"
 *
 *	data
 *
@@ -238,7 +241,7 @@ c
 *
 *	common blocks
 *
-	include 'ff.h'
+#include "ff.h"
 *
 *	calculations
 *
@@ -285,7 +288,7 @@ c
 	DOUBLE PRECISION xpi(13),dpipj(10,13),piDpj(10,10)
 	integer is1,is2,is3,ip1,ip2,ip3,i,j,ier0,ier1
 	DOUBLE PRECISION xmax,som,xmxp
-	include 'ff.h'
+#include "ff.h"
 *  #] declarations:
 *  #[ check input:
 	if ( ns .ne. 10 ) print *,'ffdot4: error: ns <> 10 '
@@ -623,7 +626,7 @@ c
 *
 *	common blocks:
 *
-	include 'ff.h'
+#include "ff.h"
 *
 *  #] declarations:
 *  #[ get dotproducts:

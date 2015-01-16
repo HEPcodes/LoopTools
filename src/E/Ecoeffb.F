@@ -2,7 +2,7 @@
 * the five-point tensor coefficients via Passarino-Veltman decomposition
 * this file is part of LoopTools
 * written by M. Rauch
-* last modified 29 Jan 08 th
+* last modified 3 Mar 11 th
 
 #include "defs.h"
 
@@ -15,7 +15,7 @@
 
 #include "lt.h"
 
-	integer XDget
+	memindex XDget
 	double complex XE0
 	external XDget, XE0
 
@@ -29,7 +29,7 @@
 	double complex d1ii, d2ii, diii
 	double complex d00sum, d22sum, d33sum
 	double complex in(4)
-	integer Di1, Di2, Di3, Di4, Di5
+	memindex Di1, Di2, Di3, Di4, Di5
 	logical dump
 
 	QVAR G(4,4), Ginv(4,4)
@@ -62,21 +62,22 @@
 	m5 = para(1,15)
 
 #ifdef COMPLEXPARA
-	if( DIMAG(p1) .eq. 0 .and.
-     &      DIMAG(p2) .eq. 0 .and.
-     &      DIMAG(p3) .eq. 0 .and.
-     &      DIMAG(p4) .eq. 0 .and.
-     &      DIMAG(p5) .eq. 0 .and.
-     &      DIMAG(p1p2) .eq. 0 .and.
-     &      DIMAG(p2p3) .eq. 0 .and.
-     &      DIMAG(p3p4) .eq. 0 .and.
-     &      DIMAG(p4p5) .eq. 0 .and.
-     &      DIMAG(p5p1) .eq. 0 .and.
-     &      DIMAG(m1) .eq. 0 .and.
-     &      DIMAG(m2) .eq. 0 .and.
-     &      DIMAG(m3) .eq. 0 .and.
-     &      DIMAG(m4) .eq. 0 .and.
-     &      DIMAG(m5) .eq. 0 ) then
+	if( abs(DIMAG(para(1,1))) +
+     &      abs(DIMAG(para(1,2))) +
+     &      abs(DIMAG(para(1,3))) +
+     &      abs(DIMAG(para(1,4))) +
+     &      abs(DIMAG(para(1,5))) +
+     &      abs(DIMAG(para(1,6))) +
+     &      abs(DIMAG(para(1,7))) +
+     &      abs(DIMAG(para(1,8))) +
+     &      abs(DIMAG(para(1,9))) +
+     &      abs(DIMAG(para(1,10))) .gt. 0 )
+     &    print *, "Warning: complex momenta not implemented"
+	if( abs(DIMAG(para(1,11))) +
+     &      abs(DIMAG(para(1,12))) +
+     &      abs(DIMAG(para(1,13))) +
+     &      abs(DIMAG(para(1,14))) +   
+     &      abs(DIMAG(para(1,15))) .eq. 0 ) then
 	  call Ecoeffb(para, E, 2)
 	  return
 	endif

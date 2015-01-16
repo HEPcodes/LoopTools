@@ -1,3 +1,6 @@
+#include "externals.h"
+
+
 *--#[ log:
 *	$Id: ffxc0i.f,v 1.3 1996/06/03 12:11:43 gj Exp $
 *	$Log: ffxc0i.f,v $
@@ -47,7 +50,7 @@ c
 *
 *	common blocks etc
 *
-	include 'ff.h'
+#include "ff.h"
 *
 *	data
 *
@@ -227,7 +230,7 @@ c
 *
 *	common blocks etc
 *
-	include 'ff.h'
+#include "ff.h"
 *
 *	statement function
 *
@@ -715,7 +718,7 @@ c
 *
 *	common blocks
 *
-	include 'ff.h'
+#include "ff.h"
 *
 *  #] declarations:
 *  #[ work:

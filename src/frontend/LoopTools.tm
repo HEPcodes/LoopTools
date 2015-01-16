@@ -44,6 +44,8 @@
 
 :Evaluate: Li2::usage = "Li2[x] returns the dilogarithm of x."
 
+:Evaluate: Li2omx::usage = "Li2omx[x] returns the dilogarithm of 1 - x."
+
 :Evaluate: SetMudim::usage = "SetMudim[m^2] sets the renormalization scale squared."
 
 :Evaluate: GetMudim::usage = "GetMudim[] returns the current value for the renormalization scale squared."
@@ -490,6 +492,22 @@
 :End:
 
 :Begin:
+:Function:	fli2omx
+:Pattern:	Li2omx[x_?r]
+:Arguments:	{N[x]}
+:ArgumentTypes:	{Real}
+:ReturnType:	Manual
+:End:
+
+:Begin:
+:Function:	fli2omxc
+:Pattern:	Li2omx[x_?c]
+:Arguments:	{N[Re[x]], N[Im[x]]}
+:ArgumentTypes:	{Real, Real}
+:ReturnType:	Manual
+:End:
+
+:Begin:
 :Function:	fsetmudim
 :Pattern:	SetMudim[mudim_?r]
 :Arguments:	{N[mudim]}
@@ -715,14 +733,17 @@
 	LoopTools.tm
 		provides the LoopTools functions in Mathematica
 		this file is part of LoopTools
-		last modified 15 Feb 10 th
+		last modified 1 Jun 11 th
 */
 
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <string.h>
 #include <unistd.h>
+#include <pthread.h>
+#include <sched.h>
 
 #include "mathlink.h"
 #ifndef MLCONST
@@ -740,18 +761,75 @@ typedef const long clong;
 typedef const real creal;
 typedef const cplx ccplx;
 
-
 extern void FORTRAN(fortranflush)();
 
-#define BeginRedirect() \
-  cint prevstdout = dup(1); \
-  dup2(2, 1)
-
-#define EndRedirect() \
+#define Flush() \
   FORTRAN(fortranflush)(); \
-  fflush(stdout); \
-  dup2(prevstdout, 1); \
-  close(prevstdout)
+  fflush(stdout)
+
+/******************************************************************/
+
+static int forcestderr = 0;
+static int stdoutorig;
+static int stdoutpipe[2];
+static pthread_t stdouttid;
+
+static void *bufferstdout(void *dummy)
+{
+  static char *buf = NULL;
+  static int size = 0;
+  enum { unit = 10240 };
+  int pos = 0, n = 0;
+
+  do {
+    pos += n;
+    if( size - pos < 128 ) buf = realloc(buf, size += unit);
+    n = read(stdoutpipe[0], buf + pos, size - pos);
+  } while( n > 0 );
+
+  return (pos == 0) ? NULL : (buf[pos-1] = 0, buf);
+}
+
+/******************************************************************/
+
+static inline void BeginRedirect()
+{
+  if( forcestderr == 1 ||
+      pipe(stdoutpipe) == -1 ||
+      pthread_create(&stdouttid, NULL, bufferstdout, NULL) != 0 )
+    stdoutpipe[1] = 2;
+
+  dup2(stdoutpipe[1], 1);
+  close(stdoutpipe[1]);
+}
+
+/******************************************************************/
+
+static void EndRedirect()
+{
+  void *buf;
+  int pkt;
+
+  Flush();
+  dup2(stdoutorig, 1);
+
+  if( stdoutpipe[1] == 2 ) return;
+
+  pthread_join(stdouttid, &buf);
+  if( buf == NULL ) return;
+
+  MLPutFunction(stdlink, "EvaluatePacket", 1);
+  MLPutFunction(stdlink, "Print", 1);
+  MLPutString(stdlink, (MLCONST char *)buf);
+  MLEndPacket(stdlink);
+
+  do {
+    pkt = MLNextPacket(stdlink);
+    MLNewPacket(stdlink);
+  } while( pkt != RETURNPKT );
+}
+
+/******************************************************************/
 
 #define ReturnComplex(expr) \
   cplx result; \
@@ -776,7 +854,6 @@ extern void FORTRAN(fortranflush)();
 #define _Mr_(v) creal v
 #define _Mri_(v) creal re_##v, creal im_##v
 #define _Mc_(v) ToComplex2(re_##v, im_##v)
-
 
 /******************************************************************/
 
@@ -967,6 +1044,16 @@ static void fli2c(_Mri_(x))
   ReturnComplex(Li2C(_Mc_(x)));
 }
 
+static void fli2omx(_Mr_(x))
+{
+  ReturnComplex(Li2omx(x));
+}
+
+static void fli2omxc(_Mri_(x))
+{
+  ReturnComplex(Li2omxC(_Mc_(x)));
+}
+
 /******************************************************************/
 
 static void fclearcache(void)
@@ -1131,15 +1218,20 @@ int main(int argc, char **argv)
 {
   int ret;
 
-  { BeginRedirect();
-    ffini();
-    EndRedirect(); }
+  if( getenv("LTFORCESTDERR") ) forcestderr = 1;
+  stdoutorig = dup(1);
+
+  dup2(2, 1);
+  ltini();
+  Flush();
+
+  dup2(stdoutorig, 1);
 
   ret = MLMain(argc, argv);
 
-  { BeginRedirect();
-    ffexi();
-    EndRedirect(); }
+  dup2(2, 1);
+  ltexi();
+  Flush();
 
   return ret;
 }

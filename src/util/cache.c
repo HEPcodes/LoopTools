@@ -3,14 +3,14 @@
 		caching of tensor coefficients in
 		dynamically allocated memory
 		this file is part of LoopTools
-		last modified 13 Oct 09 th
+		last modified 21 Jan 11 th
 */
 
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
+#include "cexternals.h"
 
 #if UNDERSCORE
 #define cachelookup cachelookup_
@@ -36,11 +36,12 @@ typedef struct { dblint part[KIND]; } Real;
 
 typedef struct { Real re, im; } Complex;
 
-typedef long Integer;
+
+typedef long long memindex;
 
 
-struct {
-  Integer cmpbits;
+extern struct {
+  int cmpbits;
 } ltcache;
 
 
@@ -53,11 +54,11 @@ struct {
 
 static inline int SignBit(const dblint i)
 {
-  return (udblint)i >> (8*sizeof(i) - 1);
+  return (udblint)i >> (8*sizeof i - 1);
 }
 
 
-static inline Integer PtrDiff(const void *a, const void *b)
+static inline memindex PtrDiff(const void *a, const void *b)
 {
   return (char *)a - (char *)b;
 }
@@ -96,7 +97,7 @@ static dblint CmpParaLo(const Real *para1, const Real *para2, int n,
 #endif
 
 
-Integer cachelookup(const Real *para, double *base,
+memindex cachelookup(const Real *para, double *base,
   void (*calc)(const Real *, Real *, const int *),
   const int *pnpara, const int *pnval)
 {
@@ -170,6 +171,6 @@ Integer cachelookup(const Real *para, double *base,
   calc(node->para, &node->para[npara], &one);
 
 found:
-  return PtrDiff(&node->para[npara], base)/sizeof(Complex);
+  return PtrDiff(&node->para[npara], base)/(long)sizeof(Complex);
 }
 

@@ -4,7 +4,7 @@
 * code adapted from the "Handbook" routines for complex A
 * (Wilkinson, Reinsch: Handbook for Automatic Computation, p. 202)
 * this file is part of LoopTools
-* last modified 29 Jan 08 th
+* last modified 9 Dec 10 th
 
 #include "defs.h"
 
@@ -16,32 +16,25 @@
 
 
 ************************************************************************
-** XEigen diagonalizes a general complex n-by-n matrix.
+** XEigen diagonalizes a complex symmetric n-by-n matrix.
 ** Input: n, A = n-by-n matrix
+** (only the upper triangle of A needs to be filled).
 ** Output: d = vector of eigenvalues, U = transformation matrix
-** these fulfill diag(d) = U A U^-1.
+** these fulfill diag(d) = U A U^T = U A U^-1 with U U^T = 1.
 
-	subroutine XEigen(n, Ain,ldAin, d, U,ldU)
+	subroutine XEigen(n, A,ldA, d, U,ldU)
 	implicit none
-	integer n, ldAin, ldU
-	QVAR Ain(ldAin,*)
-	double complex U(ldU,*), d(*)
+	integer n, ldA, ldU
+	QVAR A(ldA,*), U(ldU,*), d(*)
 
 	integer p, q, j, sweep
 	QREAL red, off, thresh
-	double complex delta, t, invc, sx, sy, tx, ty
-	double complex x, y
-	double complex ev(2,MAXDIM), A(MAXDIM,MAXDIM)
+	QVAR delta, t, invc, s, x, y
+	QVAR ev(2,MAXDIM)
 
 	QREAL sq
 	QVAR c
-	sq(c) = QPREC(c*QCC(c))
-
-	do p = 1, n
-	  do q = 1, n
-	    A(q,p) = Ain(q,p)
-	  enddo
-	enddo
+	sq(c) = QRE(c*QCC(c))
 
 	do p = 1, n
 	  ev(1,p) = 0
@@ -56,72 +49,74 @@
 	  U(p,p) = 1
 	enddo
 
-	red = .01D0/n**4
+	red = .04D0/n**4
 
 	do sweep = 1, 50
 	  off = 0
 	  do q = 2, n
 	    do p = 1, q - 1
-	      off = off + sq(A(p,q)) + sq(A(q,p))
+	      off = off + sq(A(p,q))
 	    enddo
 	  enddo
-	  if( off .lt. EPS ) return
+	  if( .not. off .gt. EPS ) return
 
 	  thresh = 0
 	  if( sweep .lt. 4 ) thresh = off*red
 
 	  do q = 2, n
 	    do p = 1, q - 1
-	      off = sq(A(p,q)) + sq(A(q,p))
+	      delta = A(p,q)
+	      off = sq(delta)
 	      if( sweep .gt. 4 .and. off .lt.
      &              EPS*max(sq(ev(2,p)), sq(ev(2,q))) ) then
 	        A(p,q) = 0
-	        A(q,p) = 0
-	      else
-	        if( off .gt. thresh ) then
-	          delta = A(p,q)*A(q,p)
-	          x = .5D0*(ev(2,p) - ev(2,q))
-	          y = sqrt(x**2 + delta)
-	          t = x - y
-	          x = x + y
-	          if( abs(t) .lt. abs(x) ) t = x
+	      else if( off .gt. thresh ) then
+	        x = .5D0*(ev(2,p) - ev(2,q))
+	        y = sqrt(x**2 + delta**2)
+	        t = x - y
+	        s = x + y
+	        if( sq(t) .lt. sq(s) ) t = s
 
-	          t = 1/t
-	          delta = delta*t
-	          ev(1,p) = ev(1,p) + delta
-	          ev(2,p) = d(p) + ev(1,p)
-	          ev(1,q) = ev(1,q) - delta
-	          ev(2,q) = d(q) + ev(1,q)
+	        t = delta/t
+	        delta = delta*t
+	        ev(1,p) = ev(1,p) + delta
+	        ev(2,p) = d(p) + ev(1,p)
+	        ev(1,q) = ev(1,q) - delta
+	        ev(2,q) = d(q) + ev(1,q)
 
-	          invc = sqrt(delta*t + 1)
-	          x = t/invc
-	          t = t/(invc + 1)
-	          sx = x*A(p,q)
-	          ty = t*A(p,q)
-	          sy = x*A(q,p)
-	          tx = t*A(q,p)
+	        invc = sqrt(t**2 + 1)
+	        s = t/invc
+	        t = t/(invc + 1)
 
-	          do j = 1, n
-	            x = A(j,p)
-	            y = A(j,q)
-	            A(j,p) = x + sy*(y - ty*x)
-	            A(j,q) = y - sx*(x + tx*y)
-	            x = A(p,j)
-	            y = A(q,j)
-	            A(p,j) = x + sx*(y - tx*x)
-	            A(q,j) = y - sy*(x + ty*y)
-	          enddo
+	        do j = 1, p - 1
+	          x = A(j,p)
+	          y = A(j,q)
+	          A(j,p) = x + s*(y - t*x)
+	          A(j,q) = y - s*(x + t*y)
+	        enddo
 
-	          A(p,q) = 0
-	          A(q,p) = 0
+	        do j = p + 1, q - 1
+	          x = A(p,j)
+	          y = A(j,q)
+	          A(p,j) = x + s*(y - t*x)
+	          A(j,q) = y - s*(x + t*y)
+	        enddo
 
-	          do j = 1, n
-	            x = U(p,j)
-	            y = U(q,j)
-	            U(p,j) = x + sx*(y - tx*x)
-	            U(q,j) = y - sy*(x + ty*y)
-	          enddo
-	        endif
+	        do j = q + 1, n
+	          x = A(p,j)
+	          y = A(q,j)
+	          A(p,j) = x + s*(y - t*x)
+	          A(q,j) = y - s*(x + t*y)
+	        enddo
+
+	        A(p,q) = 0
+
+	        do j = 1, n
+	          x = U(p,j)
+	          y = U(q,j)
+	          U(p,j) = x + s*(y - t*x)
+	          U(q,j) = y - s*(x + t*y)
+	        enddo
 	      endif
 	    enddo
 	  enddo
@@ -142,16 +137,15 @@
 	integer n, ldA
 	QVAR A(ldA,*), det
 
-	double complex d(MAXDIM), U(MAXDIM,MAXDIM), cdet
+	QVAR d(MAXDIM), U(MAXDIM,MAXDIM)
 	integer p
 
 	call XEigen(n, A,ldA, d, U,MAXDIM)
 
-	cdet = 1
+	det = 1
 	do p = 1, n
-	  cdet = cdet*d(p)
+	  det = det*d(p)
 	enddo
-	det = cdet
 	end
 
 ************************************************************************
@@ -166,23 +160,69 @@
 	QVAR A(ldA,*), Ainv(ldAinv,*)
 
 	integer p, q, j
-	double complex U(MAXDIM,MAXDIM), d(MAXDIM)
-	QVAR t
+	QVAR U(MAXDIM,MAXDIM), d(MAXDIM), t
+
+#if 0
+	PRINT *, "SEigen"
+	PRINT *, "A11=", A(1,1)
+	PRINT *, "A12=", A(1,2)
+	PRINT *, "A21=", A(2,1)
+	PRINT *, "A22=", A(2,2)
+	if( ldA .gt. 2 ) then
+	PRINT *, "A13=", A(1,3), A(3,1)
+	PRINT *, "A23=", A(2,3), A(3,2)
+	PRINT *, "A33=", A(3,3)
+	endif
+	PRINT *, "-----------"
+#endif
 
 	call XEigen(n, A,ldA, d, U,MAXDIM)
 
-* form (pseudo)inverse U^+ ev^-1 U
+* form (pseudo)inverse U^T d^-1 U
 
 	do p = 1, n
 	  do q = 1, n
 	    t = 0
 	    do j = 1, n
 	      if( abs(d(j)) .gt. EPS )
-     &          t = t + DCONJG(U(j,q))*U(j,p)/d(j)
+     &          t = t + U(j,q)*U(j,p)/d(j)
 	    enddo
 	    Ainv(q,p) = t
 	  enddo
 	enddo
+
+#if 0
+	PRINT *, "d1=", d(1)
+	PRINT *, "d2=", d(2)
+	if( ldA .gt. 2 ) PRINT *, "d3=", d(3)
+	PRINT *, "-----------"
+
+	PRINT *, "U11=", U(1,1)
+	PRINT *, "U12=", U(1,2)
+	PRINT *, "U21=", U(2,1)
+	PRINT *, "U22=", U(2,2)
+	if( ldA .gt. 2 ) then
+	PRINT *, "U13=", U(1,3)
+	PRINT *, "U23=", U(2,3)
+	PRINT *, "U31=", U(3,1)
+	PRINT *, "U32=", U(3,2)
+	PRINT *, "U33=", U(3,3)
+	endif
+	PRINT *, "-----------"
+
+	PRINT *, "Ai11=", Ainv(1,1)
+	PRINT *, "Ai12=", Ainv(1,2)
+	PRINT *, "Ai21=", Ainv(2,1)
+	PRINT *, "Ai22=", Ainv(2,2)
+	if( ldA .gt. 2 ) then
+	PRINT *, "Ai13=", Ainv(1,3)
+	PRINT *, "Ai23=", Ainv(2,3)
+	PRINT *, "Ai31=", Ainv(3,1)
+	PRINT *, "Ai32=", Ainv(3,2)
+	PRINT *, "Ai33=", Ainv(3,3)
+	endif
+	PRINT *, "-----------"
+#endif
 	end
 
 ************************************************************************

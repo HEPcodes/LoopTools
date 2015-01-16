@@ -2,12 +2,12 @@
 * retrieve the four-point tensor coefficients
 * this file is part of LoopTools
 * improvements by M. Rauch
-* last modified 24 Aug 09 th
+* last modified 16 Jun 11 th
 
 #include "defs.h"
 
 
-	integer function XDget(p1, p2, p3, p4, p1p2, p2p3,
+	memindex function XDget(p1, p2, p3, p4, p1p2, p2p3,
      &    m1, m2, m3, m4)
 	implicit none
 	DVAR p1, p2, p3, p4, p1p2, p2p3
@@ -15,7 +15,7 @@
 
 #include "lt.h"
 
-	integer cachelookup
+	memindex cachelookup
 	external cachelookup, XDcoeff
 
 	DVAR para(Pdd)
@@ -49,10 +49,10 @@
 
 #include "lt.h"
 
-	integer XDget
+	memindex XDget
 	external XDget
 
-	integer b
+	memindex b
 
 	b = XDget(p1, p2, p3, p4, p1p2, p2p3, m1, m2, m3, m4)
 	XD0i = Dval(i,b)
@@ -68,7 +68,7 @@
 
 #include "lt.h"
 
-	integer XCget
+	memindex XCget
 	double complex XD0
 	external XCget, XD0
 
@@ -78,7 +78,8 @@
 	double complex c0sum, c1sum, c2sum, csum
 	double complex c00sum, c11sum, c12sum, c22sum
 	double complex in(3)
-	integer C234, C134, C124, C123
+	integer finite
+	memindex C234, C134, C124, C123
 	logical dump
 
 #ifdef SOLVE_EIGEN
@@ -98,8 +99,9 @@
      &      abs(DIMAG(para(1,3))) +
      &      abs(DIMAG(para(1,4))) +
      &      abs(DIMAG(para(1,5))) +
-     &      abs(DIMAG(para(1,6))) +
-     &      abs(DIMAG(para(1,7))) +
+     &      abs(DIMAG(para(1,6))) .gt. 0 )
+     &    print *, "Warning: complex momenta not implemented"
+	if( abs(DIMAG(para(1,7))) +
      &      abs(DIMAG(para(1,8))) +
      &      abs(DIMAG(para(1,9))) +
      &      abs(DIMAG(para(1,10))) .eq. 0 ) then
@@ -118,6 +120,9 @@
 	m2 = para(1,8)
 	m3 = para(1,9)
 	m4 = para(1,10)
+
+	finite = 1
+	if( lambda .lt. 0 ) finite = 0
 
 	C234 = XCget(p2, p3, p2p3, m2, m3, m4)
 	C134 = XCget(p1p2, p3, p4, m1, m3, m4)
@@ -237,7 +242,7 @@
 
 	D(dd0000) = 1/3D0*(m1*D(dd00) -
      &    .5D0*(f1*D(dd001) + f2*D(dd002) + f3*D(dd003) -
-     &      Cval(cc00,C234) - 1/6D0))
+     &      Cval(cc00,C234) - finite/6D0))
 	D(dd0011) = 1/3D0*(m1*D(dd11) -
      &    .5D0*(f1*D(dd111) + f2*D(dd112) + f3*D(dd113) - csum))
 	D(dd0012) = 1/3D0*(m1*D(dd12) -

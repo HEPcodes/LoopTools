@@ -7,7 +7,7 @@
 * {ra,rb,rc,rg,rh} are real, {cd,ce,cf,cj} are complex.
 * important: variables "signX" is the sign of im(X) in case X becomes real.
 * this file is part of LoopTools
-* last modified 2 Dec 09 th
+* last modified 8 Dec 10 th
 
 * Written by Le Duc Ninh, MPI, Munich (2008).
 * Spence, log and eta functions are taken from FF.
@@ -211,7 +211,7 @@
 	          cyij = -Sgn(j)*(cy(i) + cbk(j))/cck(j)
 	          syij = -Sgn(j)*sy(i)*DBLE(cck(j))
 	          if( syij .eq. 0 ) syij = sy(i)
-	          cresd = cresd + Sgn(i+j)*
+	          cresd = cresd - Sgn(i+j)*
      &              zfflog((cyij - 1)/cyij, 1, DCMPLX(syij), ier)
 	        endif
 	      enddo

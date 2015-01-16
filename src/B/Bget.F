@@ -1,18 +1,18 @@
 * Bget.F
 * retrieve the two-point tensor coefficients
 * this file is part of LoopTools
-* last modified 15 Jun 09 th
+* last modified 21 Jan 11 th
 
 #include "defs.h"
 
 
-	integer function XBget(p, m1, m2)
+	memindex function XBget(p, m1, m2)
 	implicit none
 	DVAR p, m1, m2
 
 #include "lt.h"
 
-	integer cachelookup
+	memindex cachelookup
 	external cachelookup, XBcoeff
 
 	DVAR para(Pbb)
@@ -35,10 +35,10 @@
 
 #include "lt.h"
 
-	integer XBget
+	memindex XBget
 	external XBget
 
-	integer b
+	memindex b
 
 	b = XBget(p, m1, m2)
 	XB0i = Bval(i,b)
@@ -52,7 +52,7 @@
 
 #include "lt.h"
 
-	integer XBget
+	memindex XBget
 	external XBget
 
 	XB0 = Bval(bb0,XBget(p, m1, m2))
@@ -66,7 +66,7 @@
 
 #include "lt.h"
 
-	integer XBget
+	memindex XBget
 	external XBget
 
 	XB1 = Bval(bb1,XBget(p, m1, m2))
@@ -80,7 +80,7 @@
 
 #include "lt.h"
 
-	integer XBget
+	memindex XBget
 	external XBget
 
 	XB00 = Bval(bb00,XBget(p, m1, m2))
@@ -94,7 +94,7 @@
 
 #include "lt.h"
 
-	integer XBget
+	memindex XBget
 	external XBget
 
 	XB11 = Bval(bb11,XBget(p, m1, m2))
@@ -108,7 +108,7 @@
 
 #include "lt.h"
 
-	integer XBget
+	memindex XBget
 	external XBget
 
 	XB001 = Bval(bb001,XBget(p, m1, m2))
@@ -122,7 +122,7 @@
 
 #include "lt.h"
 
-	integer XBget
+	memindex XBget
 	external XBget
 
 	XB111 = Bval(bb111,XBget(p, m1, m2))
@@ -136,7 +136,7 @@
 
 #include "lt.h"
 
-	integer XBget
+	memindex XBget
 	external XBget
 
 	XDB0 = Bval(dbb0,XBget(p, m1, m2))
@@ -150,7 +150,7 @@
 
 #include "lt.h"
 
-	integer XBget
+	memindex XBget
 	external XBget
 
 	XDB1 = Bval(dbb1,XBget(p, m1, m2))
@@ -164,7 +164,7 @@
 
 #include "lt.h"
 
-	integer XBget
+	memindex XBget
 	external XBget
 
 	XDB00 = Bval(dbb00,XBget(p, m1, m2))
@@ -178,7 +178,7 @@
 
 #include "lt.h"
 
-	integer XBget
+	memindex XBget
 	external XBget
 
 	XDB11 = Bval(dbb11,XBget(p, m1, m2))

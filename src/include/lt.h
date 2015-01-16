@@ -1,7 +1,7 @@
 * lt.h
 * internal common blocks for the LoopTools routines
 * this file is part of LoopTools
-* last modified 15 Feb 10 th
+* last modified 3 Mar 11 th
 
 
 #include "ff.h"
@@ -38,5 +38,6 @@
 
 #ifndef sig
 #define sig(c) int(sign(1D0,DBLE(r))
+#define DEBUGLEVEL ibits(debugkey,8,2)
 #endif
 

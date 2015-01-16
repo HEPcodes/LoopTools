@@ -1,7 +1,7 @@
 #! /bin/sh
 # configure script for LoopTools
 # note: has nothing to do with GNU autoconf
-# last modified 14 Jul 10 by Thomas Hahn
+# last modified 20 Jun 11 by Thomas Hahn
 
 
 LC_ALL=C
@@ -42,10 +42,10 @@ findprog()
 }
 
 
-ldflags()
+getldflags()
 {
-  # Mma 5.1's mcc needs this for static linking
-  LDFLAGS="$LDFLAGS -lpthread"
+  # Mma 5.1's mcc needs -lpthread for static linking
+  ldflags="$LDFLAGS $CONF_STATIC -lpthread"
 
   while read line ; do
     ld=0
@@ -54,16 +54,16 @@ ldflags()
       case $1 in
       */collect2$CONF_EXE | */ld$CONF_EXE | ld$CONF_EXE)
         ld=1 ;;
-      *.o)
+      *.o | -lc | -lgcc)
         ;;
       -l* | -L* | *.a)
-        [ $ld -eq 1 ] && LDFLAGS="$LDFLAGS $1" ;;
-      *.ld)
-        [ $ld -eq 1 ] && LDFLAGS="$LDFLAGS -Wl,$1" ;;
+        [ $ld -eq 1 ] && ldflags="$ldflags $1" ;;
+      -Bstatic | -Bdynamic | *.ld)
+        [ $ld -eq 1 ] && ldflags="$ldflags -Wl,$1" ;;
       /*)
-        [ $ld -eq 1 ] && LDFLAGS="$LDFLAGS -L$1" ;;
+        [ $ld -eq 1 ] && ldflags="$ldflags -L$1" ;;
       -rpath*)
-        [ $ld -eq 1 ] && LDFLAGS="$LDFLAGS -Wl,$1,$2"
+        [ $ld -eq 1 ] && ldflags="$ldflags -Wl,$1,$2"
         shift ;;
       -dynamic-linker)
         shift ;;
@@ -74,20 +74,26 @@ ldflags()
 
   # this is supposed to fix the saveFP/restFP problem on Macs
   # not needed on Tiger anymore
-#  case $CONF_HOSTTYPE in
-#  *mac*) LDFLAGS=`echo $LDFLAGS | sed 's/-lgcc /-lcc_dynamic /g'` ;;
+#  case "$CONF_OS" in
+#  Darwin) ldflags=`echo $ldflags | sed 's/-lgcc /-lcc_dynamic /g'` ;;
 #  esac
 
-  echo $LDFLAGS
+  echo $ldflags
 }
 
 
+CONF_SRC=`dirname $0`/src
 CONF_OS=`uname -s`
-CONF_HOSTTYPE=`tcsh -cf 'echo $HOSTTYPE'`
-CONF_PREFIX=$CONF_HOSTTYPE
-
-case $CONF_HOSTTYPE in
-*cyg*) CONF_EXE=.exe ;;
+CONF_MACH=`uname -m`
+CONF_DEFPREFIX="$CONF_MACH-$CONF_OS"
+CONF_PREFIX="$CONF_DEFPREFIX"
+[ "$CONF_PREFIX" = x86_64-Linux ] && CONF_LIBDIRSUFFIX=64
+CONF_STATIC=
+CONF_DEBUG=
+CONF_BITS=
+CONF_EXE=
+case "$CONF_OS" in
+CYG*) CONF_EXE=.exe ;;
 esac
 
 for arg in "$@" ; do
@@ -101,10 +107,14 @@ for arg in "$@" ; do
 # http://developer.apple.com/qa/qa2001/qa1118.html,
 # so we make only libgcc static.  For a static libg2c do:
 # sudo chmod 000 /usr/local/lib/libg2c.dylib
-	Darwin) CONF_STATIC="-static-libgcc" ;;
+	Darwin | CYG*) CONF_STATIC="-static-libgcc" ;;
 	esac ;;
   --debug)
 	CONF_DEBUG="-O0 -g" ;;
+  --32)
+	CONF_BITS=32 ;;
+  --64)
+	CONF_BITS=64 ;;
   --help)
 	cat << _EOF_ 1>&2
 $0 configures LoopTools, i.e. determines or guesses the
@@ -116,7 +126,11 @@ $0 understands the following options:
 
 --static            link the executables statically,
 
---debug             compile without optimization.
+--debug             compile without optimization,
+
+--32                force 32-bit compilation,
+
+--64                force 64-bit compilation.
 
 _EOF_
 	exit 1 ;;
@@ -129,14 +143,16 @@ _EOF_
   esac
 done
 
+CONF_M=${CONF_BITS:+-m$CONF_BITS}
+
 
 ## look for some programs
 
-CONF_MAKE=`findprog make gmake Make make` || exit 1
+CONF_MAKE=`findprog make $MAKE gmake Make make` || exit 1
 
 CONF_CC=`findprog gcc $CC gcc` || exit 1
 
-CONF_CFLAGS="${CFLAGS-${CONF_DEBUG--O3 -g} -fomit-frame-pointer -ffast-math -Wall} $CONF_STATIC"
+CONF_CFLAGS="${CFLAGS-${CONF_DEBUG:--O3 -g} -fomit-frame-pointer -ffast-math -Wall} $CONF_STATIC $CONF_M"
 
 CONF_FC=`findprog f77 $FC pgf77 ifort xlf fort77 f77 f90 g77 g95 gfortran` || exit 1
 
@@ -144,35 +160,39 @@ CONF_DEF="-D"
 
 case "`$CONF_FC --version -c 2>&1`" in
 *G95*)
-  CONF_FFLAGS="-O0 -g -ffixed-line-length-132 -freal-loops $CONF_STATIC $FFLAGS" ;;
+  CONF_FFLAGS="-O0 -g -ffixed-line-length-132 -freal-loops $CONF_STATIC $CONF_M $FFLAGS" ;;
 *GNU*)
+  CONF_FFLAGS="-O0 -g -ffixed-line-length-none"
   case "$CONF_FC" in
-  *gfortran*) CONF_WARN="-Wall -Wtabs ${CONF_DEBUG:+-ffpe-trap=invalid,overflow,zero}" ;;
-  *) CONF_WARN="-Wall" ;;
+  *gfortran*)
+     CONF_EXTRA="-Wall -Wtabs ${CONF_DEBUG:+-ffpe-trap=invalid,overflow,zero}"
+     CONF_FFLAGS="$CONF_FFLAGS -fno-range-check -ff2c" ;;
+  *) CONF_EXTRA="-Wall" ;;
   esac
-  CONF_FFLAGS="-O0 -g -ffixed-line-length-none ${CONF_DEBUG:+$CONF_WARN} $CONF_STATIC $FFLAGS" ;;
-#  case $CONF_HOSTTYPE in
-#  *cyg*) CONF_FFLAGS="$CONF_FFLAGS -mno-cygwin"
-#         CONF_CFLAGS="$CONF_CFLAGS -mno-cygwin" ;;
+  CONF_FFLAGS="$CONF_FFLAGS ${CONF_DEBUG:+$CONF_EXTRA} $CONF_STATIC $CONF_M $FFLAGS"
+#  case "$CONF_OS" in
+#  CYG*) CONF_FFLAGS="$CONF_FFLAGS -mno-cygwin"
+#        CONF_CFLAGS="$CONF_CFLAGS -mno-cygwin" ;;
 #  esac
+  ;;
 *)
   CONF_FFLAGS="${FFLAGS-default}"
-  [ "$CONF_FFLAGS" = default ] && case "$CONF_FC$CONF_HOSTTYPE" in
-  *pgf77*)
-	CONF_FFLAGS="${CONF_DEBUG--fast -g} ${CONF_DEBUG:+-Ktrap=fp} -Mextend -Minform=inform -g77libs ${CONF_STATIC+-Bstatic}" ;;
+  [ "$CONF_FFLAGS" = default ] && case "$CONF_FC$CONF_MACH" in
+  *pgf*)
+	CONF_FFLAGS="${CONF_DEBUG:--O3 -g} ${CONF_DEBUG:+-Ktrap=fp} -Mextend -Minform=inform -g77libs ${CONF_STATIC:+-Bstatic} $CONF_M" ;;
   *ifort*)
-	CONF_FFLAGS="${CONF_DEBUG--O3 -g} -extend_source -warn truncated_source $CONF_STATIC ${CONF_STATIC+-static-intel}" ;;
+	CONF_FFLAGS="${CONF_DEBUG:--O3 -g} -extend_source -warn truncated_source $CONF_STATIC ${CONF_STATIC:+-static-intel} $CONF_M" ;;
   *alpha)
-	CONF_FFLAGS="-old_f77 ${CONF_DEBUG--fast -g3} ${CONF_DEBUG:+-fpe0} -extend_source -warn truncated_source $CONF_STATIC" ;;
+	CONF_FFLAGS="-old_f77 ${CONF_DEBUG:--O3 -g3} ${CONF_DEBUG:+-fpe0} -extend_source -warn truncated_source ${CONF_STATIC:+-non_shared}" ;;
   *sun* | *sparc*)
-	CONF_FFLAGS="${CONF_DEBUG--fast -g} ${CONF_DEBUG:+-ftrap=common} -e ${CONF_STATIC+-Bstatic}" ;;
+	CONF_FFLAGS="${CONF_DEBUG:--O3 -g} ${CONF_DEBUG:+-ftrap=common} -e ${CONF_STATIC:+-Bstatic}" ;;
   *hp*)
-	CONF_FFLAGS="${CONF_DEBUG--O2 -g} ${CONF_DEBUG:++FPVZO} +es +U77 ${CONF_STATIC+-Wl,-noshared}" ;;
+	CONF_FFLAGS="${CONF_DEBUG:--O2 -g} ${CONF_DEBUG:++FPVZO} +es +U77 ${CONF_STATIC:+-Wl,-noshared}" ;;
   *xlf*)
-	CONF_FFLAGS="${CONF_DEBUG--O2 -g} ${CONF_DEBUG:+-qflttrap=enable:invalid:overflow:zerodivide} -qfixed=132 -qmaxmem=-1 -qextname"
+	CONF_FFLAGS="${CONF_DEBUG:--O2 -g} ${CONF_DEBUG:+-qflttrap=enable:invalid:overflow:zerodivide} -qfixed=132 -qmaxmem=-1 -qextname"
 	CONF_DEF="-WF,-D" ;;
   *)
-	CONF_FFLAGS="${CONF_DEBUG--O -g}" ;;
+	CONF_FFLAGS="${CONF_DEBUG:--O -g}" ;;
   esac
   ;;
 esac
@@ -190,9 +210,19 @@ cat > $test.f << _EOF_
 	end
 _EOF_
 
-CONF_LDFLAGS=`$CONF_FC $CONF_FFLAGS -v -o $test $test.f 2>&1 | ldflags`
+CONF_LDFLAGS=`$CONF_FC $CONF_FFLAGS -v -o $test $test.f 2>&1 | getldflags`
 
 echo $CONF_LDFLAGS 1>&2
+
+
+[ -z "$CONF_BITS" ] && case "$CONF_MACH" in
+*86*)	CONF_BITS=32
+	case "`file $test`" in
+	*x86?64*) CONF_BITS=64 ;;
+	esac
+	CONF_M="-m$CONF_BITS"
+	CONF_CFLAGS="$CONF_CFLAGS $CONF_M" ;;
+esac
 
 
 ## does f77 support REAL*16?
@@ -263,15 +293,6 @@ else
 fi
 
 
-case "`uname -m`" in
-*86*)	mach=32
-	case "`file $test.o`" in
-	*x86?64*) mach=64 ;;
-	esac
-	CONF_CFLAGS="$CONF_CFLAGS -m$mach" ;;
-esac
-
-
 ## are we on a big-endian machine?
 
 echo $echo_n "are we big-endian... $echo_c" 1>&2
@@ -325,10 +346,12 @@ int main(int argc, char **argv) {
 }
 _EOF_
 
-FCC="`dirname $0`/src/tools/fcc.in"
-CC="$FCC" CXX="$FCC" REALCC="$CONF_CC" PATH="$PATH:tools" \
-  mcc ${CONF_STATIC+-st} $CONF_CFLAGS \
-    -o $test$CONF_EXE $test.tm  > /dev/null 2>&1
+CONF_MCC=${MCC:-mcc}
+CONF_MCFLAGS="${CONF_STATIC:+-st} ${CONF_BITS+-b$CONF_BITS}"
+FCC="$CONF_SRC/tools/fcc.in"
+REALCC="$CONF_CC" CC="$FCC" CXX="$FCC" PATH="$PATH:$CONF_SRC/tools" \
+  "$CONF_MCC" $CONF_MCFLAGS $CONF_CFLAGS \
+    -o $test$CONF_EXE $test.tm > /dev/null 2>&1
 
 if [ -x $test$CONF_EXE ] ; then
   echo "yes" 1>&2
@@ -342,7 +365,7 @@ fi
 case "$CONF_OS" in
 Linux*)	cpus=`grep -c processor /proc/cpuinfo` ;;
 Darwin)	cpus=`system_profiler SPHardwareDataType | \
-	  awk '/Total Number Of Cores:/ { print $5 }'` ;;
+	  awk '/Total Number .f Cores:/ { print $5 }'` ;;
 esac
 [ "${cpus:-1}" -gt 1 ] && CONF_PARALLEL="-j $cpus"
 
@@ -352,23 +375,25 @@ echo "creating makefile" 1>&2
 cat - `dirname $0`/makefile.in > makefile << _EOF_
 # --- variables defined by configure ---
 
-SRC = `dirname $0`/src
+SRC = $CONF_SRC
 PREFIX = $CONF_PREFIX
+LIBDIRSUFFIX = $CONF_LIBDIRSUFFIX
 
 EXE = $CONF_EXE
 DEF = $CONF_DEF
 UNDERSCORE = $CONF_UNDERSCORE
 
 FC = $CONF_FC
-FFLAGS = $CONF_FFLAGS ${CONF_DEF}QUAD=$CONF_QUAD ${CONF_DEF}U77EXT=$CONF_U77EXT
+FFLAGS = $CONF_FFLAGS \$(DEF)QUAD=$CONF_QUAD \$(DEF)U77EXT=$CONF_U77EXT
 
 CC = $CONF_CC
 CFLAGS = $CONF_CFLAGS -DUNDERSCORE=\$(UNDERSCORE) -DBIGENDIAN=$CONF_BIGENDIAN
 
 ML = $CONF_ML
-MCFLAGS = ${CONF_STATIC+-st} \$(CFLAGS)
+MCC = $CONF_MCC
+MCFLAGS = $CONF_MCFLAGS
 
-LDFLAGS = $CONF_LDFLAGS
+LDFLAGS = $CONF_LDFLAGS $CONF_M
 
 PARALLEL = $CONF_PARALLEL
 

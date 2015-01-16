@@ -2,7 +2,7 @@
 * the five-point tensor coefficients
 * this file is part of LoopTools
 * written by M. Rauch
-* last modified 24 Aug 09 th
+* last modified 16 Jun 11 th
 
 #include "defs.h"
 
@@ -15,7 +15,7 @@
 
 #include "lt.h"
 
-	integer XDget
+	memindex XDget
 	double complex XE0
 	external XDget, XE0
 
@@ -25,8 +25,8 @@
 	QVAR Y(5,5), Yi(5,5), Z(4,4), Zij(3,3)
 	QVAR eta(5), zeta(4,4), detY, detZ
 	double precision del, del4
-	integer i, j, k, l
-	integer Di1, Di2, Di3, Di4, Di5
+	integer i, j, k, l, finite
+	memindex Di1, Di2, Di3, Di4, Di5
 	logical dump
 
 	QVAR Yflat(25), Yiflat(25)
@@ -64,8 +64,9 @@
      &      abs(DIMAG(para(1,7))) +
      &      abs(DIMAG(para(1,8))) +
      &      abs(DIMAG(para(1,9))) +
-     &      abs(DIMAG(para(1,10))) +
-     &      abs(DIMAG(para(1,11))) +
+     &      abs(DIMAG(para(1,10))) .gt. 0 )
+     &    print *, "Warning: complex momenta not implemented"
+	if( abs(DIMAG(para(1,11))) +
      &      abs(DIMAG(para(1,12))) +
      &      abs(DIMAG(para(1,13))) +
      &      abs(DIMAG(para(1,14))) +
@@ -90,6 +91,15 @@
 	m3 = para(1,13)
 	m4 = para(1,14)
 	m5 = para(1,15)
+
+	finite = 0
+	if( lambda .ge. 0 ) then
+	  finite = 1
+	  del = (delta + log(mudim))/24D0
+	else if( lambda .eq. -1 ) then
+	  del = 1/24D0
+	endif
+	del4 = .25D0*del
 
 	Di1 = XDget(p2, p3, p4, p5p1, p2p3, p3p4, m2, m3, m4, m5)
 	Di1 = XDget(p2, p3, p4, p5p1, p2p3, p3p4, m2, m3, m4, m5)
@@ -180,9 +190,6 @@
 	  enddo
 	enddo
 	call XDet(4, Z,4, detZ)
-
-	del = (delta + log(mudim))/24D0
-	del4 = .25D0*del
 
 	help1 = Dval(dd003,Di1) + 2*Dval(dd0033,Di1) + 
      &   Dval(dd00333,Di1)
@@ -816,7 +823,7 @@
      &   6*(zeta(1,4) + zeta(2,4) + zeta(3,4) + zeta(4,4))*
      &    Dval(dd0033,Di1)
 
-	E(ee0000) = (-(detZ/detY) - 
+	E(ee0000) = (-finite*(detZ/detY) - 
      &     48*(eta(2)*(Dval(dd0000,Di2) - del) + 
      &        eta(3)*(Dval(dd0000,Di3) - del) + 
      &        eta(4)*(Dval(dd0000,Di4) - del) + 

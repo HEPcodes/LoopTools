@@ -6,11 +6,13 @@
 * cza and czb are the 2 roots of: a y^2 + b y + c == 0
 * remarks: ieps is needed for cza, czb.
 * this file is part of LoopTools
-* last modified 12 Oct 09 th
+* last modified 8 Dec 10 th
 
 * Written by Le Duc Ninh, MPI, Munich (2008).
 * Spence, log and eta functions are taken from FF.
 * Oct 28 2008
+
+#include "externals.h"
 
 
 	double complex function ffS2(ra, cb, cc, signc, ier)

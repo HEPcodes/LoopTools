@@ -1,3 +1,6 @@
+#include "externals.h"
+
+
 *###[ ffdcc0:
 	subroutine ffdcc0(cs3,ipi12,isoort,clogi,ilogi,xpi,piDpj,
      +		xqi,qiDqj,sdel2,del2s,etalam,etami,delpsi,alph,
@@ -56,7 +59,7 @@
 *
 *	common blocks:
 *
-	include 'ff.h'
+#include "ff.h"
 *
 *	statement function
 *

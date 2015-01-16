@@ -1,3 +1,6 @@
+#include "externals.h"
+
+
 *###[ ffabcd:
 	subroutine ffabcd(aijkl,xpi,dpipj,piDpj,del2s,sdel2s,
      +		in,jn,jin,isji, kn,ln,lkn,islk, ifirst, ier)
@@ -52,7 +55,7 @@
 *
 *	common blocks:
 *
-	include 'ff.h'
+#include "ff.h"
 *
 *	data
 *
@@ -223,7 +226,7 @@
 *** vvv Added 11 Feb 08:
 	smax = abs(abs(xb) - abs(xd))
 	xmax = xloss*max(abs(xb), abs(xd))
-	if( smax .lt. xmax ) then
+	if( smax .lt. xmax .and. xmax .gt. 0 ) then
 	  if( smax .ne. 0 ) then
 	    ier = ier + int(log10(xmax/smax))
 	  else

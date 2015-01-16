@@ -2,12 +2,13 @@
 * the scalar four-point function
 * this file is part of LoopTools
 * written by M. Rauch
-* last modified 29 Jan 08 th
+* last modified 8 Dec 10 th
 
 #include "defs.h"
 
 
 #ifdef COMPLEXPARA
+#undef E0b
 #define E0b E0C
 #else
 	double complex function E0(p1, p2, p3, p4, p5, 

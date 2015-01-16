@@ -1,7 +1,7 @@
 * lt.F
 * the LoopTools command-line interface to Bget, Cget, Dget, Eget
 * this file is part of LoopTools
-* last modified 15 Feb 10 th
+* last modified 21 Jan 11 th
 
 #include "defs.h"
 
@@ -19,10 +19,11 @@
 	integer argc
 	character argv*100
 	double precision para(Pee)
-	integer i, npoint, fail, b
+	integer i, npoint, fail
+	memindex b
 
 	double complex A0, A00
-	integer cachelookup
+	memindex cachelookup
 	external cachelookup, A0, A00
 	external Bcoeff, Ccoeff, Dcoeff, Ecoeff
 
@@ -57,7 +58,7 @@
 	  read(argv, *, iostat=fail, err=999) para(i)
 	enddo
 
-	call ffini
+	call ltini
 
 	if( argc .eq. i ) then
 	  call getarg(i, argv)
@@ -85,6 +86,6 @@
 	  call DumpCoeff(npoint, Nval(npoint,1,b))
 	endif
 
-	call ffexi
+	call ltexi
 	end
 

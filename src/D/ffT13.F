@@ -1,7 +1,10 @@
 * ffT13.F
 * part of the complex four-point function
 * this file is part of LoopTools
-* last modified 2 Dec 09 th
+* last modified 8 Dec 10 th
+
+#include "externals.h"
+
 
 * T13 = \int_0^1 dx \int_0^x dy
 *   y/( (rg y^2 + rh xy + cd x + cj y + cf + I signf) *
@@ -10,7 +13,6 @@
 * variables "signX" is the sign of im(X) in case X becomes real.
 * No extra term is needed.
 * Nov 11 2008
-
 
 	double complex function ffT13(ra, rc, rg, rh,
      &    cd, ce, cf, signf, cj, ier)

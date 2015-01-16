@@ -2,7 +2,9 @@
 * a special case of the D0 function
 * original code by Francesco Tramontano
 * this file is part of LoopTools
-* last modified 24 Dec 09 th
+* last modified 8 Dec 10 th
+
+#include "externals.h"
 
 
 	subroutine ffd0tra(res, S, T, ML2, ME2, ier)
@@ -103,7 +105,7 @@ c	PRINT *, "xm'=", xm
 
 * compute \int_0^1 dz log(z - y)/(z - x)
 
-	include 'ff.h'
+#include "ff.h"
 
 	DOUBLE COMPLEX arg1, arg2, dd1, dd2, zlog
 	integer ipi121, ipi122

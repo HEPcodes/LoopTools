@@ -1,4 +1,4 @@
-SUFFIX = -quad
+QUADSUFFIX = -quad
 F90 = f90
 FC-quad = ./q77
 FFLAGS-quad = -DQUAD=1 -DKIND=2

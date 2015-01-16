@@ -1,7 +1,7 @@
 * ini.F
 * routines for initializing and setting some parameters
 * this file is part of LoopTools
-* last modified 15 Feb 10 th
+* last modified 9 Dec 10 th
 
 #include "defs.h"
 
@@ -58,6 +58,15 @@
 	double complex base(*)
 	integer offset
 
+	logical ini
+	data ini /.TRUE./
+
+	if( ini ) then
+	  print *, "setcachelast is deprecated"
+	  print *, "use clearcache or restorecache instead"
+	  ini = .FALSE.
+	endif
+
 	if( offset .eq. 0 ) then
 	  call clearcache
 	else
@@ -72,6 +81,15 @@
 	integer function getcachelast(base)
 	implicit none
 	double complex base(*)
+
+	logical ini
+	data ini /.TRUE./
+
+	if( ini ) then
+	  print *, "getcachelast is deprecated"
+	  print *, "use markcache instead"
+	  ini = .FALSE.
+	endif
 
 	getcachelast = 1
 	call markcache

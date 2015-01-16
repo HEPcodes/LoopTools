@@ -2,7 +2,9 @@
 * the one-point function for real mass
 * original code by G.J. van Oldenborgh
 * this file is part of LoopTools
-* last modified 30 Jan 09 th
+* last modified 7 Dec 10 th
+
+#include "externals.h"
 
 * Input:	xm	(real) mass2,
 * Output:	ca0	(complex) A0, the one-point function,

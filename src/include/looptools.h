@@ -1,7 +1,7 @@
 * looptools.h
 * the header file for Fortran with all definitions for LoopTools
 * this file is part of LoopTools
-* last modified 6 Jul 10 th
+* last modified 1 Apr 11 th
 
 
 #ifndef LOOPTOOLS_H
@@ -225,6 +225,8 @@
 #define DebugE 2**3
 #define DebugAll 15
 
+#define memindex integer*8
+
 #define Bval(id,p) cache(p+id,1)
 #define BvalC(id,p) cache(p+id,2)
 #define Cval(id,p) cache(p+id,3)
@@ -245,7 +247,7 @@
 	double complex cache(2,ncaches)
 	common /ltvars/ cache
 
-	double complex A0, A0C, B0i, B0iC
+	double complex A0, A0C, A00, A00C, B0i, B0iC
 	double complex B0, B1, B00, B11, B001, B111
 	double complex B0C, B1C, B00C, B11C, B001C, B111C
 	double complex DB0, DB1, DB00, DB11
@@ -253,14 +255,15 @@
 	double complex C0, C0C, C0i, C0iC
 	double complex D0, D0C, D0i, D0iC
 	double complex E0, E0C, E0i, E0iC
-	double complex Li2, Li2C
-	integer Bget, BgetC, Cget, CgetC, Dget, DgetC, Eget, EgetC
-	double precision getmudim, getdelta, getlambda, getmaxdev
+	double complex Li2, Li2C, Li2omx, Li2omxC
+	memindex Bget, BgetC, Cget, CgetC, Dget, DgetC, Eget, EgetC
+	double precision getmudim, getdelta, getlambda, getminmass
+	double precision getmaxdev
 	integer getwarndigits, geterrdigits
 	integer getversionkey, getdebugkey
 	integer getcachelast
 
-	external A0, A0C, B0i, B0iC
+	external A0, A0C, A00, A00C, B0i, B0iC
 	external B0, B1, B00, B11, B001, B111
 	external B0C, B1C, B00C, B11C, B001C, B111C
 	external DB0, DB1, DB00, DB11
@@ -268,10 +271,11 @@
 	external C0, C0C, C0i, C0iC
 	external D0, D0C, D0i, D0iC
 	external E0, E0C, E0i, E0iC
-	external Li2, Li2C
+	external Li2, Li2C, Li2omx, Li2omxC
 	external Bget, BgetC, Cget, CgetC, Dget, DgetC, Eget, EgetC
-	external getmudim, getdelta, getlambda, getmaxdev
+	external getmudim, getdelta, getlambda, getminmass
+	external getmaxdev
 	external getwarndigits, geterrdigits
 	external getversionkey, getdebugkey
-	external setcachelast, getcachelast
+	external getcachelast
 

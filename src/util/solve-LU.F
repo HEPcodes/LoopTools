@@ -2,7 +2,7 @@
 * Solution of the linear system A.x = B by LU decomposition
 * with partial pivoting
 * this file is part of LoopTools
-* last modified 21 Feb 08 th
+* last modified 14 Dec 10 th
 
 * Author: Michael Rauch, 7 Dec 2004
 * Reference: Folkmar Bornemann, lecture notes to
@@ -140,6 +140,7 @@
 
 #ifdef COMPLEXPARA
 
+#undef RSolve
 #define RSolve XSolve
 
 #else

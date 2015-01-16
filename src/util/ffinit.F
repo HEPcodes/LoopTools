@@ -1,8 +1,8 @@
 #include "defs.h"
 
 *	$Id: ffinit.f,v 1.9 1996/04/26 10:39:03 gj Exp $
-*###[ ffini:
-	subroutine ffini
+*###[ ltini:
+	subroutine ltini
 ***#[*comment:***********************************************************
 *	calculate a lot of commonly-used constants in the common block	*
 *	/ffcnst/. also set the precision, maximum loss of digits and	*
@@ -398,7 +398,7 @@
 		elseif ( ji.lt.0 ) then
 		    isgn6(j,i) = -1
 		else
-		    print *,'ffini: internal error in isgn6'
+		    print *,'ltini: internal error in isgn6'
 		    stop
 		endif
 	    enddo
@@ -458,12 +458,12 @@
 	lsmug = .FALSE.
 *
 *  #] defaults for flags:
-*###] ffini:
+*###] ltini:
 	end
 
 
 *###[ ffexi:
-	subroutine ffexi
+	subroutine ltexi
 ***#[*comment:***********************************************************
 *	check a lot of commonly-used constants in the common block	*
 *	/ffcnst/.							*
@@ -471,7 +471,7 @@
 *  #[ declarations:
 	implicit none
 	integer i,ier
-	include 'ff.h'
+#include "ff.h"
 *  #] declarations:
 *  #[ checks:
 *
@@ -554,8 +554,8 @@
 	integer nerr,ierr
 	integer noccur(nmax),i,inone,nnerr
 	save error,noccur
-	include 'ff.h'
-	include 'fferr.h'
+#include "ff.h"
+#include "fferr.h"
 *  #] declarations:
 *  #[ data:
 	data noccur /nmax*0/
@@ -599,7 +599,7 @@
 ***#[*comment:***********************************************************
 *									*
 *	The warning routine.  A warning is aloss of precision greater	*
-*	than xloss (which is default set in ffini), whenever in a	*
+*	than xloss (which is default set in ltini), whenever in a	*
 *	subtraction the result is smaller than xloss*max(operands) this	*
 *	routine is called.  Now the strategy is to remember these	*
 *	warnings until a 998 message is obtained; then all warnings of	*
@@ -641,8 +641,8 @@
 *
 *	common blocks
 *
-	include 'ff.h'
-	include 'ffwarn.h'
+#include "ff.h"
+#include "ffwarn.h"
 *  #] declarations:
 *  #[ data:
 	data noccur /nmax*0/
@@ -744,13 +744,15 @@
 	implicit none
 	integer n1,n2
 	DOUBLE PRECISION array(n1+n2)
-	include 'ff.h'
+#include "ff.h"
 	if ( array(n1+n2) .eq. 0 ) then
 	   print *,'ffbnd: fatal: array not initialized; did you call ',
-     +		'ffini?'
+     +		'ltini?'
 	   stop
 	endif
 	ffbnd = (precx*abs(array(n1)/array(n1+n2)))**(1/DBLE(n2))
+* added 22 Mar 11: be a bit more conservative:
+	ffbnd = .8D0*ffbnd
 *###] ffbnd:
 	end
 
@@ -775,7 +777,7 @@
 *
 *	common blocks:
 *
-	include 'ff.h'
+#include "ff.h"
 *  #] declarations:
 *  #[ check input:
 	if ( a .eq. 0 ) then
@@ -831,7 +833,7 @@
 *
 *	common blocks:
 *
-	include 'ff.h'
+#include "ff.h"
 *
 *	statement function
 *
@@ -880,7 +882,7 @@
 	DOUBLE PRECISION xpi(ns),dpipj(ns,ns)
 	integer i,j
 	DOUBLE PRECISION xheck,rloss
-	include 'ff.h'
+#include "ff.h"
 *  #] declarations:
 *  #[ calculations:
 	if ( ier.lt.0 ) then
@@ -918,7 +920,7 @@
 	integer i,j
 	DOUBLE COMPLEX check
 	DOUBLE PRECISION absc,rloss
-	include 'ff.h'
+#include "ff.h"
 	absc(c) = abs(DBLE(c)) + abs(DIMAG(c))
 *  #] declarations:
 *  #[ calculations:
@@ -958,7 +960,7 @@
 	integer ier
 	DOUBLE COMPLEX ca,cb
 	DOUBLE PRECISION a,b,ab,rab
-	include 'ff.h'
+#include "ff.h"
 *  #] declarations:
 *  #[ calculations:
 	a = DIMAG(ca)
@@ -1004,7 +1006,7 @@
 	integer ier
 	DOUBLE COMPLEX ca,cb,cc
 	DOUBLE PRECISION a,b,ab
-	include 'ff.h'
+#include "ff.h"
 *  #] declarations:
 *  #[ calculations:
 	a = DIMAG(ca)
@@ -1061,7 +1063,7 @@
 *
 *	common blocks
 *
-	include 'ff.h'
+#include "ff.h"
 *
 *	statement function
 *
@@ -1113,7 +1115,7 @@
 *
 *	common blocks
 *
-	include 'ff.h'
+#include "ff.h"
 *
 *  #] declarations:
 *  #[ work:

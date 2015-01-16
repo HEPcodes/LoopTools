@@ -6,11 +6,13 @@
 * cza and czb are the 2 roots of: a y^2 + b y + c == 0
 * remarks: ieps is needed for cza, czb and y0.
 * this file is part of LoopTools
-* last modified 15 Feb 10 th
+* last modified 8 Dec 10 th
 
 * Written by Le Duc Ninh, MPI, Munich (2008).
 * Spence, log and eta functions are taken from FF.
 * Oct 27 2008
+
+#include "externals.h"
 
 
 	double complex function ffS3n(cy, signy, ra, cb, cc, signc,
@@ -60,7 +62,7 @@
 	  if( sza .eq. 0 ) sza = -signc
 
 	  ffS3n = cl*zfflog(cb, 1, DCMPLX(signc), ier) +
-     &      ffRn(cy, signy, cza, sza)
+     &      ffRn(cy, signy, cza, sza, ier)
 
 	  if( abs(DIMAG(cb)) .gt. precx ) then
 	    szb = DIMAG(cza)
@@ -82,7 +84,7 @@
 	czb = -.5D0*(cb/ra - crdisc)
 	if( abs(cza) .gt. abs(czb) ) then
 	  czb = cc/(ra*cza)
-	else
+	else if( abs(czb) .gt. 1D-13 ) then
 	  cza = cc/(ra*czb)
 	endif
 
@@ -103,7 +105,7 @@
      &    cl*( zfflog(DCMPLX(ra), 1, DCMPLX(sc), ier) +
      &      c2ipi*nffet1(DCMPLX(0D0, -sy1), DCMPLX(0D0, -sy2),
      &        DCMPLX(0D0, sc/ra), ier) ) +
-     &    ffRn(cy, signy, cza, sza) +
-     &    ffRn(cy, signy, czb, szb)
+     &    ffRn(cy, signy, cza, sza, ier) +
+     &    ffRn(cy, signy, czb, szb, ier)
 	end
 

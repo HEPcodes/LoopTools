@@ -2,12 +2,12 @@
 * retrieve the five-point tensor coefficients
 * this file is part of LoopTools
 * written by M. Rauch
-* last modified 24 Aug 09 th
+* last modified 21 Jan 11 th
 
 #include "defs.h"
 
 
-	integer function XEget(p1, p2, p3, p4, p5, 
+	memindex function XEget(p1, p2, p3, p4, p5, 
      &    p1p2, p2p3, p3p4, p4p5, p5p1, m1, m2, m3, m4, m5)
 	implicit none
 	DVAR p1, p2, p3, p4, p5
@@ -16,7 +16,7 @@
 
 #include "lt.h"
 
-	integer cachelookup
+	memindex cachelookup
 	external cachelookup, XEcoeff
 
 	DVAR para(Pee)
@@ -57,10 +57,10 @@
 
 #include "lt.h"
 
-	integer XEget
+	memindex XEget
 	external XEget
 
-	integer b
+	memindex b
 
 	b = XEget(p1, p2, p3, p4, p5,
      &    p1p2, p2p3, p3p4, p4p5, p5p1, m1, m2, m3, m4, m5)

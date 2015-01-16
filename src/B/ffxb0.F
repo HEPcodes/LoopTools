@@ -1,3 +1,6 @@
+#include "externals.h"
+
+
 *###[ ffxb0:
 	subroutine ffxb0(cb0,xp,xma,xmb,ier)
 ***#[*comment:***********************************************************
@@ -31,7 +34,7 @@
 *
 *	common blocks
 *
-	include 'ff.h'
+#include "ff.h"
 *
 *  #] declarations:
 *  #[ get differences:
@@ -119,7 +122,7 @@
 *
 *	common blocks
 *
-	include 'ff.h'
+#include "ff.h"
 *
 *	data
 *
@@ -633,14 +636,17 @@
 	    s2 = (slam/xp)*atan2(slam,xnoe)
 	    xx = s1 + s2 - 2
 *--#]	    first try:
-	    if ( abs(xx) .lt. xloss**2*max(abs(s1),abs(s2)) ) then
+* 13 Apr 11: added x .ne. 0 check to safeguard against div by zero
+	    x = 2*xp*xnoe
+	    if ( x .ne. 0 .and.
+     &           abs(xx) .lt. xloss**2*max(abs(s1),abs(s2)) ) then
 *--#[		second try:
 *		Again two times xloss as we'll accept that in the next
 *		step as well.
 *
 		xtel = dm1m2**2 - xp**2
-		alpha = -xlam/(2*xp*xnoe)
-		alph1 = xtel/(2*xp*xnoe)
+		alpha = -xlam/x
+		alph1 = xtel/x
 *
 *		try a taylor expansion on the terms.  First s1:
 *
@@ -764,7 +770,7 @@
 *
 *	common blocks
 *
-	include 'ff.h'
+#include "ff.h"
 *  #] declarations:
 *  #[ calculations:
 	aa1 = abs(a1)
@@ -843,7 +849,7 @@
 *
 *	common blocks
 *
-	include 'ff.h'
+#include "ff.h"
 *
 *	statement function
 *
@@ -926,7 +932,7 @@
 *
 *	common blocks
 *
-	include 'ff.h'
+#include "ff.h"
 *
 *	statement function
 *

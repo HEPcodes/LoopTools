@@ -35,7 +35,8 @@ OBJS = $(OBJS-quad) \
   Ecoeffa.o EcoeffaC.o Ecoeffb.o EcoeffbC.o \
   ffxe0.o ffdel5.o \
   ini.o auxCD.o solve.o solveC.o \
-  Dump.o DumpC.o Li2.o Li2C.o cache.o ffinit.o \
+  Dump.o DumpC.o Li2.o Li2C.o Li2omx.o Li2omxC.o \
+  cache.o ffinit.o \
   ffxli2.o ffcli2.o ffxxyz.o ffcxyz.o \
   ffcrr.o ffcxr.o fftran.o ffabcd.o ff2dl2.o \
   ffcxs3.o ffcxs4.o ffdcxs.o ffbndc.o
@@ -100,7 +101,7 @@ ffdel2.o: ffdel2.F $(FFINC)
 ffcel2.o: ffcel2.F $(FFINC)
 	$(XFC) -c -o ffcel2.o ffcel2.F
 
-C0.o: C0.F $(LTINC)
+C0.o: C0.F $(LTINC) perm.h
 	$(XFC) -c -o C0.o C0.F
 C0C.o: C0C.F $(LTINC)
 	$(XFC) -c -o C0C.o C0C.F
@@ -127,7 +128,7 @@ ffdel3.o: ffdel3.F $(FFINC)
 ffcel3.o: ffcel3.F $(FFINC)
 	$(XFC) -c -o ffcel3.o ffcel3.F
 
-D0.o: D0.F $(LTINC)
+D0.o: D0.F $(LTINC) perm.h
 	$(XFC) -c -o D0.o D0.F
 D0C.o: D0C.F $(LTINC)
 	$(XFC) -c -o D0C.o D0C.F
@@ -153,7 +154,7 @@ ffdcc0.o: ffdcc0.F $(FFINC)
 	$(XFC) -c -o ffdcc0.o ffdcc0.F
 ffdel4.o: ffdel4.F $(FFINC)
 	$(XFC) -c -o ffdel4.o ffdel4.F
-ffd0c.o: ffd0c.F $(FFINC)
+ffd0c.o: ffd0c.F $(FFINC) perm.h
 	$(XFC) -c -o ffd0c.o ffd0c.F
 ffTn.o: ffTn.F $(FFINC)
 	$(XFC) -c -o ffTn.o ffTn.F
@@ -203,6 +204,10 @@ Li2.o: Li2.F defs.h
 	$(XFC) -c -o Li2.o Li2.F
 Li2C.o: Li2.F defs.h
 	$(CFC) -c -o Li2C.o Li2.F
+Li2omx.o: Li2omx.F defs.h
+	$(XFC) -c -o Li2omx.o Li2omx.F
+Li2omxC.o: Li2omx.F defs.h
+	$(CFC) -c -o Li2omxC.o Li2omx.F
 cache.o: cache.c $(LTINC)
 	$(CC) $(CFLAGS) -c -o cache.o cache.c
 ffinit.o: ffinit.F $(LTINC) fferr.h ffwarn.h
@@ -252,12 +257,12 @@ clooptools.h: clooptools.h.in ftypes.h
 	sed "s:UNDERSCORE:$(UNDERSCORE):" ftypes.h clooptools.h.in > clooptools.h
 
 fcc: fcc.in
-	sed "s:^libs=.*:libs=\"$(LDFLAGS)\":" fcc.in > fcc
+	sed -e 's|^fldflags=.*|fldflags="$(LDFLAGS)"|' fcc.in > fcc
 	chmod 755 fcc
 
 LoopTools$(EXE): LoopTools.tm clooptools.h.in fortranflush.o $(LIB) fcc
-	CC="./fcc" CXX="./fcc" REALCC="$(CC)" PATH="$$PATH:tools" \
-	  mcc LoopTools.tm -o LoopTools$(EXE) $(MCFLAGS) \
+	REALCC="$(CC)" CC="./fcc" CXX="./fcc" PATH="$$PATH:tools" \
+	  "$(MCC)" LoopTools.tm -o LoopTools$(EXE) $(MCFLAGS) $(CFLAGS) \
 	    fortranflush.o $(LIB)
 	rm -f LoopTools.tm.c
 
@@ -265,5 +270,4 @@ LoopTools-quad$(EXE):
 
 fortranflush.o: fortranflush.F
 	$(XFC) -c -o fortranflush.o fortranflush.F
-
 

@@ -3,11 +3,14 @@
 * Input: cy, cz, signz, signy
 * i*sign=-i*eps is needed in the case of real masses
 * this file is part of LoopTools
-* last modified 12 Oct 09 th
+* last modified 8 Dec 10 th
 
 * Written by Le Duc Ninh, MPI, Munich (Dec 15, 2008).
 * Spence, log and eta functions are taken from FF.
 * 14 Aug 2009: changed ieps of cdyza to "signy" (before used "signza").
+
+#include "externals.h"
+
 
 	double complex function ffRn(cy, signy, cz, signz, ier)
 	implicit none

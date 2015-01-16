@@ -1,3 +1,6 @@
+#include "externals.h"
+
+
 *###[ ffcdb0:
 	subroutine ffcdb0(cdb0,cdb0p,cp,cma,cmb,ier)
 ***#[*comment:***********************************************************
@@ -31,7 +34,7 @@
 *
 *	common
 *
-	include 'ff.h'
+#include "ff.h"
 *
 *  #] declarations: 
 *  #[ check input:
@@ -108,7 +111,7 @@
 *
 *	common blocks
 *
-	include 'ff.h'
+#include "ff.h"
 *
 *	data
 *
@@ -250,11 +253,10 @@
 		print *,'ffcdbd: IR divergent B0'', using cutoff ',
      &            lambda
 	    endif
-	    if ( lambda.eq.0 ) then
-		call fferr(74,ier)
-		cdb0p = 0
+	    if ( lambda .le. 0 ) then
+		cdb0p = -1 + log(cm/mudim)/2
 	    else
-		cdb0p = -1 + log(cm/DBLE(lambda))/2
+		cdb0p = -1 + log(cm/lambda)/2
 	    endif
 	    cdb0 = cdb0p/cp
 	    goto 990

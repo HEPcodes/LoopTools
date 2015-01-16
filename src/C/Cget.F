@@ -2,18 +2,18 @@
 * the three-point tensor coefficients
 * this file is part of LoopTools
 * improvements by M. Rauch
-* last modified 24 Aug 09 th
+* last modified 16 Jun 11 th
 
 #include "defs.h"
 
 
-	integer function XCget(p1, p2, p1p2, m1, m2, m3)
+	memindex function XCget(p1, p2, p1p2, m1, m2, m3)
 	implicit none
 	DVAR p1, p2, p1p2, m1, m2, m3
 
 #include "lt.h"
 
-	integer cachelookup
+	memindex cachelookup
 	external cachelookup, XCcoeff
 
 	DVAR para(Pcc)
@@ -40,10 +40,10 @@
 
 #include "lt.h"
 
-	integer XCget
+	memindex XCget
 	external XCget
 
-	integer b
+	memindex b
 
 	b = XCget(p1, p2, p1p2, m1, m2, m3)
 	XC0i = Cval(i,b)
@@ -59,7 +59,7 @@
 
 #include "lt.h"
 
-	integer XBget
+	memindex XBget
 	double complex XC0
 	external XBget, XC0
 
@@ -67,7 +67,8 @@
 	DVAR f1, f2
 	QVAR G(2,2)
 	double complex bsum, b1sum, b00sum, b11sum, in(2)
-	integer B12, B23, B13
+	integer finite
+	memindex B12, B23, B13
 	logical dump
 
 #ifdef SOLVE_EIGEN
@@ -84,8 +85,9 @@
 #ifdef COMPLEXPARA
 	if( abs(DIMAG(para(1,1))) +
      &      abs(DIMAG(para(1,2))) +
-     &      abs(DIMAG(para(1,3))) +
-     &      abs(DIMAG(para(1,4))) +
+     &      abs(DIMAG(para(1,3))) .gt. 0 )
+     &    print *, "Warning: complex momenta not implemented"
+	if( abs(DIMAG(para(1,4))) +
      &      abs(DIMAG(para(1,5))) +
      &      abs(DIMAG(para(1,6))) .eq. 0 ) then
 	  call Ccoeff(para, C, 2)
@@ -99,6 +101,9 @@
 	m1 = para(1,4)
 	m2 = para(1,5)
 	m3 = para(1,6)
+
+	finite = 1
+	if( lambda .lt. 0 ) finite = 0
 
 	B12 = XBget(p1, m1, m2)
 	B23 = XBget(p2, m2, m3)
@@ -132,7 +137,7 @@
 	C(cc2) = in(2)
 
 	C(cc00) = .5D0*(m1*C(cc0) -
-     &    .5D0*(f1*C(cc1) + f2*C(cc2) - Bval(bb0,B23) - 1))
+     &    .5D0*(f1*C(cc1) + f2*C(cc2) - Bval(bb0,B23) - finite))
 
 	IN(1) = f1*C(cc1) + bsum - 2*C(cc00)
 	IN(2) = f2*C(cc1) + bsum + Bval(bb1,B12)
@@ -147,9 +152,9 @@
 	C(cc22) = in(2)
 
 	C(cc001) = 1/3D0*(m1*C(cc1) -
-     &    .5D0*(f1*C(cc11) + f2*C(cc12) + bsum + 1/3D0))
+     &    .5D0*(f1*C(cc11) + f2*C(cc12) + bsum + finite/3D0))
 	C(cc002) = 1/3D0*(m1*C(cc2) -
-     &    .5D0*(f1*C(cc12) + f2*C(cc22) - Bval(bb1,B23) + 1/3D0))
+     &    .5D0*(f1*C(cc12) + f2*C(cc22) - Bval(bb1,B23) + finite/3D0))
 
 	bsum = bsum + b1sum
 	IN(1) = f1*C(cc11) - bsum - 4*C(cc001)
@@ -166,7 +171,7 @@
 
 	C(cc0000) = 1/4D0*(m1*C(cc00) -
      &    .5D0*(f1*C(cc001) + f2*C(cc002) - Bval(bb00,B23) -
-     &          (m1 + m2 + m3 - .25D0*(p1 + p2 + p1p2))/6D0))
+     &      finite*(m1 + m2 + m3 - .25D0*(p1 + p2 + p1p2))/6D0))
 
 	IN(1) = f1*C(cc001) + b00sum - 2*C(cc0000)
 	IN(2) = f2*C(cc001) + b00sum + Bval(bb001,B12)

@@ -2,7 +2,7 @@
 * the scalar one-point function
 * this file is part of LoopTools
 * written by M. Rauch
-* last modified 24 Jan 06 th
+* last modified 15 Apr 11 th
 
 #include "defs.h"
 
@@ -16,7 +16,8 @@
 	double complex XA0
 	external XA0
 
-	XA00 = .25D0*m*(XA0(m) + .5D0*m)
+	XA00 = .25D0*m*XA0(m)
+	if( lambda .ge. 0 ) XA00 = XA00 + .125D0*m**2
 	end
 
 ************************************************************************

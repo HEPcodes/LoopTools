@@ -1,7 +1,7 @@
 * A0.F
 * the scalar one-point function
 * this file is part of LoopTools
-* last modified 20 Dec 06 th
+* last modified 15 Apr 11 th
 
 #include "defs.h"
 
@@ -17,6 +17,12 @@
 
 	double complex res(0:1)
 	integer key, ier
+
+	if( lambda .lt. 0 ) then
+	  XA0 = 0
+	  if( lambda .eq. -1 ) XA0 = m
+	  return
+	endif
 
 	key = ibits(versionkey, KeyA0, 2)
 

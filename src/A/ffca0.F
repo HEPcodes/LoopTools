@@ -2,7 +2,9 @@
 * the one-point function for complex mass
 * original code by G.J. van Oldenborgh
 * this file is part of LoopTools
-* last modified 30 Jan 09 th
+* last modified 7 Dec 10 th
+
+#include "externals.h"
 
 * Input:	cm	(complex) mass2, re > 0, im < 0.
 * Output:	ca0	(complex) A0, the one-point function,

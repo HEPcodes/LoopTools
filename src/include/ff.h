@@ -169,7 +169,7 @@
 *	regularization parameters
 *
 	DOUBLE PRECISION mudim,delta,lambda,minmass
-	common /ffregul/ mudim,delta,lambda,minmass
+	common /ltregul/ mudim,delta,lambda,minmass
 *
 *	nan is used for undefined values and is supposed to
 *	"poison" a result, much as the IEEE NaN, which is just
