@@ -1,11 +1,11 @@
 * ffd0c.F
 * the scalar four-point function with complex masses
 * this file is part of LoopTools
-* last modified 3 Mar 11 th
+* last modified 26 Jan 14 th
 
 * Written by Le Duc Ninh, MPI, Munich (2008).     
 * Spence, log and eta functions are taken from FF.
-* Please cite arXiV:0902.0325 [hep-ph] if you use this function.
+* Please cite arXiv:0902.0325 [hep-ph] if you use this function.
 
 #include "externals.h"
 #include "types.h"

@@ -1,8 +1,8 @@
-* E0.F
+* E0para.F
 * the scalar four-point function
 * this file is part of LoopTools
 * written by M. Rauch
-* last modified 15 Sep 12 th
+* last modified 25 Jan 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -11,88 +11,10 @@
 #include "defs.h"
 
 
-	ComplexType function XE0(p1, p2, p3, p4, p5, 
-     &    p1p2, p2p3, p3p4, p4p5, p5p1, m1, m2, m3, m4, m5)
-	implicit none
-	DVAR p1, p2, p3, p4, p5
-	DVAR p1p2, p2p3, p3p4, p4p5, p5p1
-	DVAR m1, m2, m3, m4, m5
-
-#include "lt.h"
-
-	DVAR para(1,Pee)
-
-	P(1) = p1
-	P(2) = p2
-	P(3) = p3
-	P(4) = p4
-	P(5) = p5
-	P(6) = p1p2
-	P(7) = p2p3
-	P(8) = p3p4
-	P(9) = p4p5
-	P(10) = p5p1
-
-	M(1) = m1
-	if( abs(M(1)) .lt. minmass ) M(1) = 0
-	M(2) = m2
-	if( abs(M(2)) .lt. minmass ) M(2) = 0
-	M(3) = m3
-	if( abs(M(3)) .lt. minmass ) M(3) = 0
-	M(4) = m4
-	if( abs(M(4)) .lt. minmass ) M(4) = 0
-	M(5) = m5
-	if( abs(M(5)) .lt. minmass ) M(5) = 0
-
-	call XE0para(XE0, para)
-	end
-
-************************************************************************
-* subroutine version for C++
-
-	subroutine XE0sub(res, p1, p2, p3, p4, p5,
-     &    p1p2, p2p3, p3p4, p4p5, p5p1, m1, m2, m3, m4, m5)
-	implicit none
-	ComplexType res
-	DVAR p1, p2, p3, p4, p5
-	DVAR p1p2, p2p3, p3p4, p4p5, p5p1
-	DVAR m1, m2, m3, m4, m5
-
-#include "lt.h"
-
-	DVAR para(1,Pee)
-
-	P(1) = p1
-	P(2) = p2
-	P(3) = p3
-	P(4) = p4
-	P(5) = p5
-	P(6) = p1p2
-	P(7) = p2p3
-	P(8) = p3p4
-	P(9) = p4p5
-	P(10) = p5p1
-
-	M(1) = m1
-	if( abs(M(1)) .lt. minmass ) M(1) = 0
-	M(2) = m2
-	if( abs(M(2)) .lt. minmass ) M(2) = 0
-	M(3) = m3
-	if( abs(M(3)) .lt. minmass ) M(3) = 0
-	M(4) = m4
-	if( abs(M(4)) .lt. minmass ) M(4) = 0
-	M(5) = m5
-	if( abs(M(5)) .lt. minmass ) M(5) = 0
-
-	call XE0para(res, para)
-	end
-
-************************************************************************
-
 #ifndef COMPLEXPARA
 	subroutine E0para(res, para)
 	implicit none
-	ComplexType res
+	ComplexType res(0:2)
 	RealType para(1,*)
 
 #include "lt.h"
@@ -105,13 +27,15 @@
 	if( key .ne. 1 ) then
 	  call E0parab(res, para)
 	  if( key .eq. 0 ) return
-	  alt = res
+	  alt = res(0)
 	endif
 
-	call ffxe0(res, d0, para, ier)
+	call ffxe0(res(0), d0, para, ier)
+	res(1) = 0
+	res(2) = 0
 
 	if( key .gt. 1 .and.
-     &      abs(res - alt) .gt. maxdev*abs(alt) ) then
+     &      abs(res(0) - alt) .gt. maxdev*abs(alt) ) then
 	  print *, "Discrepancy in E0:"
 	  print *, "  p1   =", P(1)
 	  print *, "  p2   =", P(2)
@@ -129,11 +53,11 @@
 	  print *, "  m4   =", M(4)
 	  print *, "  m5   =", M(5)
 	  print *, "E0 a   =", alt
-	  print *, "E0 b   =", res
-	  if( ier .gt. errdigits ) alt = res
+	  print *, "E0 b   =", res(0)
+	  if( ier .gt. errdigits ) alt = res(0)
 	endif
 
-	if( .not. btest(key, 0) ) res = alt
+	if( .not. btest(key, 0) ) res(0) = alt
 	end
 #endif
 
@@ -145,10 +69,13 @@
 	subroutine E0parab(res, para)
 #endif
 	implicit none
-	ComplexType res
+	ComplexType res(0:2)
 	DVAR para(1,*)
 
 #include "lt.h"
+
+	memindex XDget
+	external XDget
 
 	DVAR p1, p2, p3, p4, p5
 	DVAR p1p2, p2p3, p3p4, p4p5, p5p1
@@ -156,13 +83,11 @@
 
 	QVAR Y(5,5), Yi(5,5), eta(5), detY
 	integer i, j
+	memindex D2345, D1345, D1245, D1235, D1234
 
 	QVAR Yflat(25), Yiflat(25)
 	equivalence (Y, Yflat)
 	equivalence (Yi, Yiflat)
-
-	ComplexType XD0
-	external XD0
 
 	m1 = M(1)
 	m2 = M(2)
@@ -238,12 +163,20 @@
 
 	call XDet(5, Y,5, detY)
 
-	res = -(
-     &    eta(1)*XD0(p2, p3, p4, p5p1, p2p3, p3p4, m2, m3, m4, m5) +
-     &    eta(2)*XD0(p1p2, p3, p4, p5, p4p5, p3p4, m1, m3, m4, m5) +
-     &    eta(3)*XD0(p1, p2p3, p4, p5, p4p5, p5p1, m1, m2, m4, m5) +
-     &    eta(4)*XD0(p1, p2, p3p4, p5, p1p2, p5p1, m1, m2, m3, m5) +
-     &    eta(5)*XD0(p1, p2, p3, p4p5, p1p2, p2p3, m1, m2, m3, m4)
+	D2345 = XDget(p2, p3, p4, p5p1, p2p3, p3p4, m2, m3, m4, m5)
+	D1345 = XDget(p1p2, p3, p4, p5, p4p5, p3p4, m1, m3, m4, m5)
+	D1245 = XDget(p1, p2p3, p4, p5, p4p5, p5p1, m1, m2, m4, m5)
+	D1235 = XDget(p1, p2, p3p4, p5, p1p2, p5p1, m1, m2, m3, m5)
+	D1234 = XDget(p1, p2, p3, p4p5, p1p2, p2p3, m1, m2, m3, m4)
+
+	res(0) = -(
+     &    eta(1)*Dval(dd0,D2345) +
+     &    eta(2)*Dval(dd0,D1345) +
+     &    eta(3)*Dval(dd0,D1245) +
+     &    eta(4)*Dval(dd0,D1235) +
+     &    eta(5)*Dval(dd0,D1234)
      &  )/detY
+	res(1) = 0
+	res(2) = 0
 	end
 

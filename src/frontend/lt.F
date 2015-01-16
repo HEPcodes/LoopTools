@@ -1,7 +1,7 @@
 * lt.F
-* the LoopTools command-line interface to Bget, Cget, Dget, Eget
+* the LoopTools command-line interface to Aget, Bget, Cget, Dget, Eget
 * this file is part of LoopTools
-* last modified 15 Sep 12 th
+* last modified 30 Jan 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -25,13 +25,12 @@
 	integer i, npoint, fail
 	memindex b
 
-	ComplexType A0, A00
-	memindex Bget, Cget, Dget, Eget
+	memindex Aget, Bget, Cget, Dget, Eget
 	integer getdebugkey
-	external A0, A00, Bget, Cget, Dget, Eget, getdebugkey
+	external Aget, Bget, Cget, Dget, Eget, getdebugkey
 
 	integer npara(5), key(5)
-	data npara /1, Pbb, Pcc, Pdd, Pee/
+	data npara /Paa, Pbb, Pcc, Pdd, Pee/
 	data key /KeyA0, KeyBget, KeyC0, KeyD0, KeyEget/
 
 	argc = iargc() 
@@ -71,24 +70,21 @@
 	  versionkey = ishft(i, key(npoint))
 	endif
 
+	call setdebugkey(ior(getdebugkey(), 2**(npoint - 1)))
+
 	if( npoint .eq. 1 ) then
-	  print *, "m       =", x(1)
-	  print *, "A0      =", A0(x(1))
-	  print *, "A00     =", A00(x(1))
+	  b = Aget(x(1))
+	else if( npoint .eq. 2 ) then
+	  b = Bget(x(1), x(2), x(3))
+	else if( npoint .eq. 3 ) then
+	  b = Cget(x(1), x(2), x(3), x(4), x(5), x(6))
+	else if( npoint .eq. 4 ) then
+	  b = Dget(x(1), x(2), x(3), x(4), x(5), x(6),
+     &      x(7), x(8), x(9), x(10))
 	else
-	  call setdebugkey(ior(getdebugkey(), 2**(npoint - 2)))
-	  if( npoint .eq. 2 ) then
-	    b = Bget(x(1), x(2), x(3))
-	  else if( npoint .eq. 3 ) then
-	    b = Cget(x(1), x(2), x(3), x(4), x(5), x(6))
-	  else if( npoint .eq. 4 ) then
-	    b = Dget(x(1), x(2), x(3), x(4), x(5), x(6),
-     &        x(7), x(8), x(9), x(10))
-	  else
-	    b = Eget(x(1), x(2), x(3), x(4), x(5), x(6),
-     &        x(7), x(8), x(9), x(10),
-     &        x(11), x(12), x(13), x(14), x(15))
-	  endif
+	  b = Eget(x(1), x(2), x(3), x(4), x(5), x(6),
+     &      x(7), x(8), x(9), x(10),
+     &      x(11), x(12), x(13), x(14), x(15))
 	endif
 
 	call ltexi

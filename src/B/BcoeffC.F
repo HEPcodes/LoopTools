@@ -1,7 +1,7 @@
 * BcoeffC.F
 * invoke the two-point tensor coefficients
 * this file is part of LoopTools
-* last modified 19 Sep 12 th
+* last modified 26 Jan 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -15,28 +15,24 @@
 	ComplexType B(*), para(1,*)
 
 #include "lt.h"
+#include "ltnames.h"
 
 	integer ier(Nbb), i
 	logical ini
 
-	character*5 name(Nbb)
-	data name /"bb0", "bb1", "bb11", "bb00", "bb001", "bb111",
-     &    "dbb0", "dbb1", "dbb00", "dbb11"/
+	do i = 1, Nbb
+	  B(i) = 0
+	enddo
 
-	if( lambda .lt. 0 ) then
-	  do i = 1, Nbb
-	    B(i) = 0
-	  enddo
-	  if( lambda .eq. -1 ) then
-	    B(bb0) = 1
-	    B(bb1) = -.5D0
-	    B(bb00) = -(P(1) - 3*(M(1) + M(2)))/12D0
-	    B(bb11) = 1/3D0
-	    B(bb001) = -(P(1) - 2*M(1) - 4*M(2))/24D0
-	    B(bb111) = -.25D0
-	    B(dbb00) = -1/12D0
-	  endif
-	  return
+	if( lambda .le. 0 ) then
+	  B(1+bb0) = 1
+	  B(1+bb1) = -.5D0
+	  B(1+bb00) = -(P(1) - 3*(M(1) + M(2)))/12D0
+	  B(1+bb11) = 1/3D0
+	  B(1+bb001) = (P(1) - 2*M(1) - 4*M(2))/24D0
+	  B(1+bb111) = -.25D0
+	  B(1+dbb00) = -1/12D0
+	  B(1+dbb001) = 1/24D0
 	endif
 
 	call BcoeffFFC(B, para, ier)
@@ -49,7 +45,7 @@
 	      call DumpParaC(2, para, " ")
 	      ini = .FALSE.
 	    endif
-	    print *, name(i), " claims ", ier(i), "lost digits"
+	    print *, coeffname(i,2), " claims ", ier(i), "lost digits"
 	  endif
 	enddo
 	end

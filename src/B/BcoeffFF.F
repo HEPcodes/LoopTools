@@ -1,7 +1,7 @@
 * BcoeffFF.F
 * the two-point tensor coefficients from FF
 * this file is part of LoopTools
-* last modified 22 Mar 13 th
+* last modified 26 Jan 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -100,5 +100,8 @@
 
 	B(dbb00) = 1/6D0*( 2*m1*B(dbb0) + B(bb1) +
      &    (p + dm)*B(dbb1) - 1/3D0 )
+
+	B(dbb001) = 1/8D0*( 2*m1*B(dbb1) + B(bb11) +
+     &    (p + dm)*B(dbb11) + 1/6D0 )
 	end
 

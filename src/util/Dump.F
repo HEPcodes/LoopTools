@@ -1,7 +1,7 @@
 * Dump.F
 * dumps the parameters and coefficients on screen
 * this file is part of LoopTools
-* last modified 10 Sep 12 th
+* last modified 30 Jan 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -16,14 +16,12 @@
 	character*(*) origin
 
 #include "lt.h"
+#include "ltnames.h"
 
 	integer i
 
-	character*6 paraname(Pee,2:5)
-	common /ltparanames/ paraname
-
-	integer npara(2:5)
-	data npara /Pbb, Pcc, Pdd, Pee/
+	integer npara(5)
+	data npara /Paa, Pbb, Pcc, Pdd, Pee/
 
 #ifdef COMPLEXPARA
 	if( len(origin) .gt. 1 ) print *, origin, "C", serial
@@ -49,17 +47,16 @@
 	ComplexType coeff(*)
 
 #include "lt.h"
+#include "ltnames.h"
 
 	integer i
 
-	character*8 coeffname(Nee,2:5)
-	common /ltcoeffnames/ coeffname
-
-	integer ncoeff(2:5)
-	data ncoeff /Nbb, Ncc, Ndd, Nee/
+	integer ncoeff(5)
+	data ncoeff /Naa, Nbb, Ncc, Ndd, Nee/
 
 	do i = 1, ncoeff(npoint)
-	  print *, coeffname(i,npoint), "=", coeff(i)
+	  if( coeff(i) .ne. 0 )
+     &      print *, coeffname(i,npoint), "=", coeff(i)
 	enddo
 
 	print *, "===================================================="

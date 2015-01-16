@@ -670,7 +670,7 @@
 *
 *	local variables:
 *
-	RealType s(8),sum,fac,xmax
+	RealType s(8),ssum,fac,xmax
 	integer i
 *
 *	common blocks:
@@ -698,22 +698,22 @@
 		s(6) = -piDpj(4,3)*piDpj(6,3)*fac
 		s(7) = xpi(3)*dpipj(5,6)*fac
 		if ( i1 .eq. 1 ) then
-		    sum = s(1)+s(2)+s(3)+s(4) - (s(5)+s(6)+s(7))
+		    ssum = s(1)+s(2)+s(3)+s(4) - (s(5)+s(6)+s(7))
 		else
-		    sum = s(1)+s(2)+s(3)+s(4) + s(5)+s(6)+s(7)
+		    ssum = s(1)+s(2)+s(3)+s(4) + s(5)+s(6)+s(7)
 		endif
 		xmax = abs(s(1))
 		do 10 i=2,7
 		    xmax = max(xmax,abs(s(i)))
    10		continue
-		if ( abs(sum) .lt. xloss*xmax ) then
+		if ( abs(ssum) .lt. xloss*xmax ) then
 *		    this result is not used if it is not accurate (see
 *		    ffxc0p)
 		    ier = ier + 1
 		    xmax = xmax/abs(alpha*xpi(5))
-		    dwz(i1,j1) = sum/(alpha*xpi(5))
+		    dwz(i1,j1) = ssum/(alpha*xpi(5))
 		else
-		    dwz(i1,j1) = sum/(alpha*xpi(5))
+		    dwz(i1,j1) = ssum/(alpha*xpi(5))
 		endif
 	    else
 		ier = ier + 100

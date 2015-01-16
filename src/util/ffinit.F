@@ -143,8 +143,10 @@
 
 	call getenv("LTLAMBDA", env)
 	lambda = 1
+	epsi = 0
 	read(env, *, end=102, err=102) lambda
 	print *, "env LTLAMBDA =", lambda
+	call setlambda(lambda)
 102	continue
 *
 *  #] LoopTools stuff

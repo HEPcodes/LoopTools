@@ -1,7 +1,7 @@
 * C0.F
 * the scalar three-point function
 * this file is part of LoopTools
-* last modified 7 Jan 13 th
+* last modified 20 Jan 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -10,65 +10,18 @@
 #include "defs.h"
 
 
-	ComplexType function C0(p1, p2, p1p2, m1, m2, m3)
-	implicit none
-	RealType p1, p2, p1p2, m1, m2, m3
-
-#include "lt.h"
-
-	RealType para(1,Pcc)
-
-	P(1) = p1
-	P(2) = p2
-	P(3) = p1p2
-
-	M(1) = m1
-	if( abs(M(1)) .lt. minmass ) M(1) = 0
-	M(2) = m2
-	if( abs(M(2)) .lt. minmass ) M(2) = 0
-	M(3) = m3
-	if( abs(M(3)) .lt. minmass ) M(3) = 0
-
-	call C0para(C0, para)
-	end
-
-************************************************************************
-
-* subroutine version for C++
-
-	subroutine c0sub(res, p1, p2, p1p2, m1, m2, m3)
-	implicit none
-	ComplexType res
-	RealType p1, p2, p1p2, m1, m2, m3
-
-#include "lt.h"
-
-	RealType para(1,Pcc)
-
-	P(1) = p1
-	P(2) = p2
-	P(3) = p1p2
-
-	M(1) = m1
-	if( abs(M(1)) .lt. minmass ) M(1) = 0
-	M(2) = m2
-	if( abs(M(2)) .lt. minmass ) M(2) = 0
-	M(3) = m3
-	if( abs(M(3)) .lt. minmass ) M(3) = 0
-
-	call C0para(res, para)
-	end
-
-************************************************************************
-
 	subroutine C0para(res, para)
 	implicit none
-	ComplexType res
+	ComplexType res(0:2)
 	RealType para(1,*)
 
 #include "lt.h"
 
 	external C0soft, C0coll, C0softDR, C0collDR
+
+	res(0) = 0
+	res(1) = 0
+	res(2) = 0
 
 	if( lambda .le. 0 ) then
 	  call CDispatch(res, para, C0softDR, C0collDR)
@@ -81,7 +34,7 @@
 
 	subroutine CDispatch(res, para, soft, coll)
 	implicit none
-	ComplexType res
+	ComplexType res(0:2)
 	RealType para(1,*)
 	external soft, coll
 
@@ -100,8 +53,8 @@
 #define Px(j) P(ibits(perm,3*(3-j),3))
 #define Mx(j) M(ibits(perm,3*(3-j),3))
 
-555	z = 0
 	c = 0
+555	z = 0
 	s = 0
 	do i = 1, 3
 	  perm = paraperm(i)
@@ -122,12 +75,12 @@
 	  if( DEBUGLEVEL .gt. 0 )
      &      print '("collinear C0, perm = ",O3)', perm
 	  call coll(res, para, c)
-	  if( res .eq. c ) goto 555
+	  if( c .eq. 0 ) goto 555
 	  return
 	endif
 
 556	if( lambda .lt. 0 .or. (s .ne. 0 .and. lambda .eq. 0) ) then
-	  res = 0
+	  res(0) = 0
 	  if( s .ne. 0 ) call soft(res, para, s)
 	  return
 	endif
@@ -136,15 +89,15 @@
 
 	if( key .ne. 1 ) then
 	  ier = 0
-	  call ffxc0(res, para, ier)
+	  call ffxc0(res(0), para, ier)
 	  if( ier .gt. warndigits ) then
 	    ier = 0
-	    call ffxc0r(res, para, ier)
+	    call ffxc0r(res(0), para, ier)
 	    if( ier .gt. warndigits ) key = ior(key, 2)
 	    if( ier .ge. errdigits ) key = ior(key, 3)
 	  endif
 	  if( key .eq. 0 ) return
-	  alt = res
+	  alt = res(0)
 	endif
 
 	if( s .ne. 0 ) then
@@ -154,20 +107,20 @@
 
 	goto (1, 2, 3) z
 
-	res = C0p3(para, p123) + C0p3(para, p231) + C0p3(para, p312)
+	res(0) = C0p3(para, p123) + C0p3(para, p231) + C0p3(para, p312)
 	goto 9
 
-1	res = C0p2(para, p123) + C0p2(para, p231) + C0p2(para, p312)
+1	res(0) = C0p2(para, p123) + C0p2(para, p231) + C0p2(para, p312)
 	goto 9
 
-2	res = C0p1(para, p123) + C0p1(para, p231) + C0p1(para, p312)
+2	res(0) = C0p1(para, p123) + C0p1(para, p231) + C0p1(para, p312)
 	goto 9
 
-3	res = C0p0(para)
+3	res(0) = C0p0(para)
 
 9	if( key .ne. 0 ) then
 	  if( key .gt. 1 .and.
-     &        abs(res - alt) .gt. maxdev*abs(alt) ) then
+     &        abs(res(0) - alt) .gt. maxdev*abs(alt) ) then
 	    print *, "Discrepancy in C0:"
 	    print *, "  p1   =", P(1)
 	    print *, "  p2   =", P(2)
@@ -176,12 +129,12 @@
 	    print *, "  m2   =", M(2)
 	    print *, "  m3   =", M(3)
 	    print *, "C0 a   =", alt
-	    print *, "C0 b   =", res
-	    if( ier .gt. errdigits ) alt = res
+	    print *, "C0 b   =", res(0)
+	    if( ier .gt. errdigits ) alt = res(0)
 	  endif
 	endif
 
-	if( .not. btest(key, 0) ) res = alt
+	if( .not. btest(key, 0) ) res(0) = alt
 	end
 
 ************************************************************************
@@ -574,18 +527,19 @@
 	if( DEBUGLEVEL .gt. 0 ) call CDump("C0coll", para, perm)
 
 	Px(1) = max(minmass, 1D-14)
-	res = perm
+	if( ini ) then
+	  print *, "collinear-divergent C0, using mass cutoff ", Px(1)
+	  ini = .TRUE.
+	endif
 
-	if( ini ) return
-	print *, "collinear-divergent C0, using mass cutoff ", Px(1)
-	ini = .TRUE.
+	perm = 0
 	end
 
 ************************************************************************
 
 	subroutine C0softDR(res, para, perm)
 	implicit none
-	ComplexType res
+	ComplexType res(0:2)
 	RealType para(1,*)
 	integer perm
 
@@ -611,51 +565,37 @@
 	    if( abs(m1) .lt. eps ) then
 	      if( abs(s) .lt. eps ) then
 	        print *, "C0softDR: all scales zero"
-	        res = nan
+	        res(0) = nan
+	        res(1) = nan
+	        res(2) = nan
 	        return
 	      endif
 * qltri1
 	      if( DEBUGLEVEL .gt. 1 ) print *, "C0softDR: qltri1"
-	      if( lambda .eq. -2 ) then
-	        res = 1/s
-	      else if( lambda .eq. -1 ) then
-	        res = lnrat(mudim, -s)/s
-	      else
-	        res = .5D0*lnrat(mudim, -s)**2/s
-	      endif
+	      lm = lnrat(mudim, -s)
+	      res(0) = .5D0*lm**2/s
+	      res(1) = lm/s
+	      res(2) = 1/s
 	      return
 	    endif
 	  endif
 	  if( abs(s - m1) .lt. acc ) then
 * qltri5
 	    if( DEBUGLEVEL .gt. 1 ) print *, "C0softDR: qltri5"
-	    if( lambda .eq. -2 ) then
-	      res = 0
-	    else if( lambda .eq. -1 ) then
-	      res = -.5D0/m1
-	    else
-	      res = (-.5D0*lnrat(mudim, m1) + 1)/m1
-	    endif
+	    res(0) = (-.5D0*lnrat(mudim, m1) + 1)/m1
+	    res(1) = -.5D0/m1
+	    res(2) = 0
 	    return
 	  endif
 
 * qltri4
 	  if( DEBUGLEVEL .gt. 1 ) print *, "C0softDR: qltri4"
-	  if( lambda .eq. -2 ) then
-	    res = .5D0/(s - m1)
-	  else if( lambda .eq. -1 ) then
-	    res = (.5D0*lnrat(mudim, m1) + lnrat(m1, m1 - s))/(s - m1)
-	  else
-	    ls = lnrat(m1, m1 - s)
-	    lm = lnrat(mudim, m1)
-	    res = (lm*(.25D0*lm + ls) + .5D0*ls**2 + pi12 -
-     &        spence(0, ToComplex(s/(s - m1)), 0D0))/(s - m1)
-	  endif
-	  return
-	endif
-
-	if( lambda .eq. -2 ) then
-	  res = 0
+	  ls = lnrat(m1, m1 - s)
+	  lm = lnrat(mudim, m1)
+	  res(0) = (lm*(.25D0*lm + ls) + .5D0*ls**2 + pi12 -
+     &      spence(0, ToComplex(s/(s - m1)), 0D0))/(s - m1)
+	  res(1) = (.5D0*lm + ls)/(s - m1)
+	  res(2) = .5D0/(s - m1)
 	  return
 	endif
 
@@ -667,36 +607,31 @@
 	mK = -4*m/(r*(1 + root)**2)
 
 	if( abs(mK - 1) .lt. acc ) then
-	  if( lambda .eq. -1 ) then
-	    res = .5D0/m
-	  else
-	    res = 0
-	    if( abs(m1 - m2) .gt. acc )
-     &        res = 2 + .5D0*(sqrt(m1) + sqrt(m2))/dm*log(m2/m1)
-	    res = .5D0/m*(log(mudim/m) - res)
-	  endif
+	  r = 0
+	  if( abs(m1 - m2) .gt. acc )
+     &      r = 2 + .5D0*(sqrt(m1) + sqrt(m2))/dm*log(m2/m1)
+	  res(0) = .5D0/m*(log(mudim/m) - r)
+	  res(1) = .5D0/m
+	  res(2) = 0
 	  return
 	endif
 
 	lmK = ln(mK, 1)
 	fac = 1/(r*root)
-
-	if( lambda .eq. -1 ) then
-	  res = fac*lmK
-	else
-	  res = fac*( lmK*(.5D0*lmK + log(mudim/m)) -
-     &      .125D0*log(m1/m2)**2 +
-     &      Li2omx2(mK, 1D0, mK, 1D0) -
-     &      Li2omx2(mK, 1D0, ToComplex(sqrt(m1/m2)), 0D0) -
-     &      Li2omx2(mK, 1D0, ToComplex(sqrt(m2/m1)), 0D0) )
-	endif
+	res(0) = fac*( lmK*(.5D0*lmK + log(mudim/m)) -
+     &    .125D0*log(m1/m2)**2 +
+     &    Li2omx2(mK, 1D0, mK, 1D0) -
+     &    Li2omx2(mK, 1D0, ToComplex(sqrt(m1/m2)), 0D0) -
+     &    Li2omx2(mK, 1D0, ToComplex(sqrt(m2/m1)), 0D0) )
+	res(1) = fac*lmK
+	res(2) = 0
 	end
 
 ************************************************************************
 
 	subroutine C0collDR(res, para, perm)
 	implicit none
-	ComplexType res
+	ComplexType res(0:2)
 	RealType para(1,*)
 	integer perm
 
@@ -711,11 +646,6 @@
 
 	if( DEBUGLEVEL .gt. 0 ) call CDump("C0collDR", para, perm)
 
-	if( lambda .eq. -2 ) then
-	  res = 0
-	  return
-	endif
-
 	m = Mx(3)
 	s1 = Px(2)
 	s2 = Px(3)
@@ -725,17 +655,16 @@
 	  if( DEBUGLEVEL .gt. 1 ) print *, "C0collDR: qltri2"
 	  r = .5D0*(s2 - s1)/s1
 	  if( abs(r) .lt. acc ) then
-	    if( lambda .eq. -1 ) then
-	      res = (1 - r*mudim/s1)/s1
-	    else
-	      res = (lnrat(mudim, -s1)*(1 - r) - r)/s1
-	    endif
+	    res(0) = (lnrat(mudim, -s1)*(1 - r) - r)/s1
+	    res(1) = (1 - r*mudim/s1)/s1
+	    res(2) = 0
 	    return
 	  endif
 	  l1 = lnrat(mudim, -s1)
 	  l2 = lnrat(mudim, -s2)
-	  res = (l1 - l2)/(s1 - s2)
-	  if( lambda .ne. -1 ) res = .5D0*(l1 + l2)*res
+	  res(1) = (l1 - l2)/(s1 - s2)
+	  res(0) = .5D0*(l1 + l2)*res(1)
+	  res(2) = 0
 	  return
 	endif
 
@@ -743,26 +672,23 @@
 	if( DEBUGLEVEL .gt. 1 ) print *, "C0collDR: qltri3"
 	m1 = m - s1
 	m2 = m - s2
-	l1 = lnrat(m1, m)
 	l2 = lnrat(m2, m)
 	lm = lnrat(mudim, m)
 
 	r = .5D0*(s1 - s2)/m1
 	if( abs(r) .lt. acc ) then
-	  if( lambda .eq. -1 ) then
-	    res = (1 - r)/m1
-	  else
-	    m = m/s1
-	    res = (lm - (m + 1)*(l2 + r) -
-     &        r*((m*(m - 2) - 1)*l2 + lm))/m1
-	  endif
+	  m = m/s1
+	  res(0) = (lm - (m + 1)*(l2 + r) -
+     &      r*((m*(m - 2) - 1)*l2 + lm))/m1
+	  res(1) = (1 - r)/m1
+	  res(2) = 0
 	  return
 	endif
 
-	res = l2 - l1
-	if( lambda .ne. -1 )
-     &    res = (lm - l1 - l2)*res +
-     &      Li2omrat(m1, m) - Li2omrat(m2, m)
-	res = res/(s1 - s2)
+	l1 = lnrat(m1, m)
+	res(0) = ((lm - l1 - l2)*(l2 - l1) +
+     &    Li2omrat(m1, m) - Li2omrat(m2, m))/(s1 - s2)
+	res(1) = (l2 - l1)/(s1 - s2)
+	res(2) = 0
 	end
 

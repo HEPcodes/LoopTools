@@ -479,7 +479,7 @@ c
 		cdyzp = -cmipj(1,3)*Re(wm)/(2*Re(xpi(6))) -
      +			cmipj(2,2)/(2*Re(sdel2))
 		clog1 = zfflog(-cdyzp,-ieps,cone,ier)
-		if ( ieps*Im(cdyzp).lt.0.and.Re(cdyzp).gt.0 ) then
+		if ( ieps*Im(cdyzp).lt.0 .and. Re(cdyzp).gt.0 ) then
 		    clog1 = clog1 - ieps*c2ipi
 		endif
 		cs(10) = -clog1**2/2
@@ -490,7 +490,7 @@ c
 		cdyzm = -cmipj(1,3)*Re(wp)/(2*Re(xpi(6))) -
      +			cmipj(2,2)/(2*Re(sdel2))
 		clog2 = zfflog(-cdyzm,+ieps,cone,ier)
-		if ( ieps*Im(cdyzm).gt.0.and.Re(cdyzm).gt.0 ) then
+		if ( ieps*Im(cdyzm).gt.0 .and. Re(cdyzm).gt.0 ) then
 		    clog2 = clog2 + ieps*c2ipi
 		endif
 		cs(11) = -clog2**2/2

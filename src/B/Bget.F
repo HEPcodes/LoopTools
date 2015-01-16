@@ -1,7 +1,7 @@
 * Bget.F
 * retrieve the two-point tensor coefficients
 * this file is part of LoopTools
-* last modified 13 Sep 12 th
+* last modified 26 Jan 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -94,7 +94,7 @@
 	memindex b
 
 	b = XBget(p, m1, m2)
-	XB0i = Bval(i,b)
+	XB0i = Bval(i+epsi,b)
 	end
 
 ************************************************************************
@@ -105,10 +105,10 @@
 
 #include "lt.h"
 
-	memindex XBget
-	external XBget
+	ComplexType XB0i
+	external XB0i
 
-	XB0 = Bval(bb0,XBget(p, m1, m2))
+	XB0 = XB0i(bb0, p, m1, m2)
 	end
 
 ************************************************************************
@@ -119,10 +119,10 @@
 
 #include "lt.h"
 
-	memindex XBget
-	external XBget
+	ComplexType XB0i
+	external XB0i
 
-	XB1 = Bval(bb1,XBget(p, m1, m2))
+	XB1 = XB0i(bb1, p, m1, m2)
 	end
 
 ************************************************************************
@@ -133,10 +133,10 @@
 
 #include "lt.h"
 
-	memindex XBget
-	external XBget
+	ComplexType XB0i
+	external XB0i
 
-	XB00 = Bval(bb00,XBget(p, m1, m2))
+	XB00 = XB0i(bb00, p, m1, m2)
 	end
 
 ************************************************************************
@@ -147,10 +147,10 @@
 
 #include "lt.h"
 
-	memindex XBget
-	external XBget
+	ComplexType XB0i
+	external XB0i
 
-	XB11 = Bval(bb11,XBget(p, m1, m2))
+	XB11 = XB0i(bb11, p, m1, m2)
 	end
 
 ************************************************************************
@@ -161,10 +161,10 @@
 
 #include "lt.h"
 
-	memindex XBget
-	external XBget
+	ComplexType XB0i
+	external XB0i
 
-	XB001 = Bval(bb001,XBget(p, m1, m2))
+	XB001 = XB0i(bb001, p, m1, m2)
 	end
 
 ************************************************************************
@@ -175,10 +175,10 @@
 
 #include "lt.h"
 
-	memindex XBget
-	external XBget
+	ComplexType XB0i
+	external XB0i
 
-	XB111 = Bval(bb111,XBget(p, m1, m2))
+	XB111 = XB0i(bb111, p, m1, m2)
 	end
 
 ************************************************************************
@@ -189,10 +189,10 @@
 
 #include "lt.h"
 
-	memindex XBget
-	external XBget
+	ComplexType XB0i
+	external XB0i
 
-	XDB0 = Bval(dbb0,XBget(p, m1, m2))
+	XDB0 = XB0i(dbb0, p, m1, m2)
 	end
 
 ************************************************************************
@@ -203,10 +203,10 @@
 
 #include "lt.h"
 
-	memindex XBget
-	external XBget
+	ComplexType XB0i
+	external XB0i
 
-	XDB1 = Bval(dbb1,XBget(p, m1, m2))
+	XDB1 = XB0i(dbb1, p, m1, m2)
 	end
 
 ************************************************************************
@@ -217,10 +217,10 @@
 
 #include "lt.h"
 
-	memindex XBget
-	external XBget
+	ComplexType XB0i
+	external XB0i
 
-	XDB00 = Bval(dbb00,XBget(p, m1, m2))
+	XDB00 = XB0i(dbb00, p, m1, m2)
 	end
 
 ************************************************************************
@@ -231,9 +231,23 @@
 
 #include "lt.h"
 
-	memindex XBget
-	external XBget
+	ComplexType XB0i
+	external XB0i
 
-	XDB11 = Bval(dbb11,XBget(p, m1, m2))
+	XDB11 = XB0i(dbb11, p, m1, m2)
+	end
+
+************************************************************************
+
+	ComplexType function XDB001(p, m1, m2)
+	implicit none
+	DVAR p, m1, m2
+
+#include "lt.h"
+
+	ComplexType XB0i
+	external XB0i
+
+	XDB001 = XB0i(dbb001, p, m1, m2)
 	end
 

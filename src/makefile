@@ -15,7 +15,7 @@ mma0 lib: $(LIB) clooptools.h fcc
 
 
 OBJS = $(OBJS-quad) \
-  A0.o A0C.o A00.o A00C.o \
+  Aget.o AgetC.o \
   ffxa0.o ffca0.o \
   Bget.o BgetC.o Bcoeff.o BcoeffC.o \
   BcoeffAD.o BcoeffFF.o BcoeffFFC.o \
@@ -23,15 +23,15 @@ OBJS = $(OBJS-quad) \
   ffxb2p.o ffcb2p.o \
   ffxdb0.o ffcdb0.o ffxdb1.o \
   ffdel2.o ffcel2.o \
-  C0.o C0C.o Cget.o CgetC.o \
+  C0para.o C0paraC.o Cget.o CgetC.o \
   ffxc0.o ffcc0.o ffxc0i.o ffxc0p0.o \
   ffxc0p.o ffcc0p.o ffdxc0.o ffdcc0.o \
   ffdel3.o ffcel3.o \
-  D0.o D0C.o Dget.o DgetC.o \
+  D0para.o D0paraC.o Dget.o DgetC.o \
   ffxd0.o ffxd0h.o ffxd0i.o ffxd0p.o \
   ffxd0m0.o ffxd0tra.o ffxdbd.o ffdel4.o ffd0c.o \
   ffTn.o ffT13.o ffS2.o ffS3n.o ffRn.o \
-  E0.o E0C.o Eget.o EgetC.o \
+  E0para.o E0paraC.o Eget.o EgetC.o \
   Ecoeffa.o EcoeffaC.o Ecoeffb.o EcoeffbC.o \
   ffxe0.o ffdel5.o \
   ini.o auxCD.o solve.o solveC.o \
@@ -50,14 +50,10 @@ CFC = $(XFC) $(DEF)COMPLEXPARA
 qcomplex.o qcomplex.mod: qcomplex.f90
 	$(F90) -O -c -o qcomplex.o qcomplex.f90
 
-A0.o: A0.F $(LTINC)
-	$(XFC) -c -o A0.o A0.F
-A0C.o: A0.F $(LTINC)
-	$(CFC) -c -o A0C.o A0.F
-A00.o: A00.F $(LTINC)
-	$(XFC) -c -o A00.o A00.F
-A00C.o: A00.F $(LTINC)
-	$(CFC) -c -o A00C.o A00.F
+Aget.o: Aget.F $(LTINC)
+	$(XFC) -c -o Aget.o Aget.F
+AgetC.o: Aget.F $(LTINC)
+	$(CFC) -c -o AgetC.o Aget.F
 ffxa0.o: ffxa0.F $(FFINC)
 	$(XFC) -c -o ffxa0.o ffxa0.F
 ffca0.o: ffca0.F $(FFINC)
@@ -100,10 +96,10 @@ ffdel2.o: ffdel2.F $(FFINC)
 ffcel2.o: ffcel2.F $(FFINC)
 	$(XFC) -c -o ffcel2.o ffcel2.F
 
-C0.o: C0.F $(LTINC) perm.h
-	$(XFC) -c -o C0.o C0.F
-C0C.o: C0C.F $(LTINC)
-	$(XFC) -c -o C0C.o C0C.F
+C0para.o: C0para.F $(LTINC) perm.h
+	$(XFC) -c -o C0para.o C0para.F
+C0paraC.o: C0paraC.F $(LTINC)
+	$(XFC) -c -o C0paraC.o C0paraC.F
 Cget.o: Cget.F $(LTINC)
 	$(XFC) -c -o Cget.o Cget.F
 CgetC.o: Cget.F $(LTINC)
@@ -127,10 +123,10 @@ ffdel3.o: ffdel3.F $(FFINC)
 ffcel3.o: ffcel3.F $(FFINC)
 	$(XFC) -c -o ffcel3.o ffcel3.F
 
-D0.o: D0.F $(LTINC) perm.h
-	$(XFC) -c -o D0.o D0.F
-D0C.o: D0C.F $(LTINC)
-	$(XFC) -c -o D0C.o D0C.F
+D0para.o: D0para.F $(LTINC) perm.h
+	$(XFC) -c -o D0para.o D0para.F
+D0paraC.o: D0paraC.F $(LTINC)
+	$(XFC) -c -o D0paraC.o D0paraC.F
 Dget.o: Dget.F $(LTINC)
 	$(XFC) -c -o Dget.o Dget.F
 DgetC.o: Dget.F $(LTINC)
@@ -166,10 +162,10 @@ ffS3n.o: ffS3n.F $(FFINC)
 ffRn.o: ffRn.F $(FFINC)
 	$(XFC) -c -o ffRn.o ffRn.F
 
-E0.o: E0.F $(LTINC)
-	$(XFC) -c -o E0.o E0.F
-E0C.o: E0.F $(LTINC)
-	$(CFC) -c -o E0C.o E0.F
+E0para.o: E0para.F $(LTINC)
+	$(XFC) -c -o E0para.o E0para.F
+E0paraC.o: E0para.F $(LTINC)
+	$(CFC) -c -o E0paraC.o E0para.F
 Eget.o: Eget.F $(LTINC)
 	$(XFC) -c -o Eget.o Eget.F
 EgetC.o: Eget.F $(LTINC)

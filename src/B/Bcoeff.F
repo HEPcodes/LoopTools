@@ -1,7 +1,7 @@
 * Bcoeff.F
 * invoke the two-point tensor coefficients
 * this file is part of LoopTools
-* last modified 11 Sep 12 th
+* last modified 26 Jan 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -10,9 +10,9 @@
 #include "defs.h"
 
 
-	subroutine Bcoeff(res, para)
+	subroutine Bcoeff(B, para)
 	implicit none
-	ComplexType res(*)
+	ComplexType B(*)
 	RealType para(1,*)
 
 #include "lt.h"
@@ -32,53 +32,52 @@
 	if( dump ) call XDumpPara(2, para, "Bcoeff")
 
 	do i = 1, Nbb
-	  res(i) = 0
+	  B(i) = 0
 	enddo
 
 	if( abs(p) + abs(m1) + abs(m2) .lt. eps ) goto 9
 
-	if( lambda .lt. 0 ) then
-	  if( lambda .ne. -1 ) goto 9
-	  res(bb0) = 1
-	  res(bb1) = -.5D0
-	  res(bb00) = -(p - 3*(m1 + m2))/12D0
-	  res(bb11) = 1/3D0
-	  res(bb001) = (p - 2*m1 - 4*m2)/24D0
-	  res(bb111) = -.25D0
+	if( lambda .le. 0 ) then
+	  B(1+bb0) = 1
+	  B(1+bb1) = -.5D0
+	  B(1+bb00) = -(p - 3*(m1 + m2))/12D0
+	  B(1+bb11) = 1/3D0
+	  B(1+bb001) = (p - 2*m1 - 4*m2)/24D0
+	  B(1+bb111) = -.25D0
 	  if( m1*m2 .eq. 0 .and. abs(p - m1 - m2) .lt. acc )
-     &      res(dbb0) = -.5D0/p
+     &      B(1+dbb0) = -.5D0/p
 	  if( m2 .eq. 0 .and. abs(p - m1) .lt. acc )
-     &      res(dbb1) = .5D0/p
-	  res(dbb00) = -1/12D0
-	  goto 9
+     &      B(1+dbb1) = .5D0/p
+	  B(1+dbb00) = -1/12D0
+	  B(1+dbb001) = 1/24D0
 	endif
 
 	goto (1, 2, 3) ibits(versionkey, KeyBget, 2)
 
-	call BcoeffAD(res, para)
+	call BcoeffAD(B, para)
 	goto 9
 
-1	call BcoeffFF(res, para, ier)
+1	call BcoeffFF(B, para, ier)
 	ierall = 0
-	do i = 1, Nbb
+	do i = 1, Nbb, 3
 	  ierall = max(ierall, ier(i))
 	enddo
 	if( ierall .gt. warndigits ) then
 	  call BcoeffAD(cmp, para)
-	  call Bcheck(cmp, res, ier, para)
+	  call Bcheck(cmp, B, ier, para)
 	endif
 	goto 9
 
-2	call BcoeffAD(res, para)
+2	call BcoeffAD(B, para)
 	call BcoeffFF(cmp, para, ier)
-	call Bcheck(res, cmp, ier, para)
+	call Bcheck(B, cmp, ier, para)
 	goto 9
 
-3	call BcoeffFF(res, para, ier)
+3	call BcoeffFF(B, para, ier)
 	call BcoeffAD(cmp, para)
-	call Bcheck(cmp, res, ier, para)
+	call Bcheck(cmp, B, ier, para)
 
-9	if( dump ) call DumpCoeff(2, res)
+9	if( dump ) call DumpCoeff(2, B)
 	end
 
 ************************************************************************
@@ -90,23 +89,20 @@
 	DVAR para(1,*)
 
 #include "lt.h"
+#include "ltnames.h"
 
 	integer i
 	logical ini
 
-	character*5 name(Nbb)
-	data name /"bb0", "bb1", "bb00", "bb11", "bb001", "bb111",
-     &    "dbb0", "dbb1", "dbb00", "dbb11"/
-
 	ini = .TRUE.
-	do i = 1, Nbb
+	do i = 1, Nbb, 3
 	  if( abs(Ba(i) - Bb(i)) .gt. maxdev*abs(Ba(i)) ) then
 	    if( ini ) then
 	      call DumpPara(2, para, "Discrepancy in Bget")
 	      ini = .FALSE.
 	    endif
-	    print *, name(i), " a =", Ba(i)
-	    print *, name(i), " b =", Bb(i)
+	    print *, coeffname(i,2), " a =", Ba(i)
+	    print *, coeffname(i,2), " b =", Bb(i)
 	    if( ier(i) .gt. errdigits ) Bb(i) = Ba(i)
 	  endif
 	enddo

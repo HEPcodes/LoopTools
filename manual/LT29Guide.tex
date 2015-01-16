@@ -150,11 +150,11 @@
 
 \hfill\hbox{\underline{%
 \vrule width 0pt height 0pt depth 2ex%
-\Huge \LT~2.8~~~User's Guide}}
+\Huge \LT~2.9~~~User's Guide}}
 
 \vspace*{1ex}
 
-\hfill\hbox{September 18, 2012~~~~~Thomas Hahn}
+\hfill\hbox{February 5, 2014~~~~~Thomas Hahn}
 
 \clearpage
 
@@ -230,15 +230,15 @@ most programming tastes should be served.%
 \section{Installation}
 
 \index{installation!\LT}%
-To compile the package, a Fortran 77 compiler and the GNU C compiler 
-(\Code{gcc}) are required.
+To compile the package, a Fortran compiler and the GNU C compiler 
+(\Code{gcc} or \Code{clang}) are required.
 
-\LT\ comes in a compressed tar archive \Code{LoopTools-2.7.tar.gz}. 
+\LT\ comes in a compressed tar archive \Code{LoopTools-2.9.tar.gz}. 
 Execute the following commands to unpack and compile the package.
 \bbox
 \begin{verbatim}
-   gunzip -c LoopTools-2.7.tar.gz | tar xvf -
-   cd LoopTools-2.7
+   gunzip -c LoopTools-2.9.tar.gz | tar xvf -
+   cd LoopTools-2.9
    ./configure
    make
    make install
@@ -271,24 +271,12 @@ The resulting directory structure is
 \begin{tabbing}
 \rlap{\Code{LoopTools/}}\hspace{.3\linewidth} \=
 	the \LT\ directory \\
+\Code{\greyed{LoopTools/}src/} \>
+	directory of the source files \\
+\Code{\greyed{LoopTools/}build/} \>
+	(temporary) directory for object files (after \Code{make}) \\
 \Code{\greyed{LoopTools/}\Var{hosttype}/} \>
-	directory for the compiled programs and libraries \\
-\Code{\greyed{LoopTools/}include/} \>
-	directory of the include files \\
-\Code{\greyed{LoopTools/}A/} \>
-	directory for the one-point functions \\
-\Code{\greyed{LoopTools/}B/} \>
-	directory for the two-point functions \\
-\Code{\greyed{LoopTools/}C/} \>
-	directory for the three-point functions \\
-\Code{\greyed{LoopTools/}D/} \>
-	directory for the four-point functions \\
-\Code{\greyed{LoopTools/}E/} \>
-	directory for the five-point functions \\
-\Code{\greyed{LoopTools/}util/} \>
-	directory for utility routines \\
-\Code{\greyed{LoopTools/}tools/} \>
-	scripts for compilation
+	directory for programs and libraries (after \Code{make install}) 
 \end{tabbing}
 
 \index{hosttype}%
@@ -535,6 +523,12 @@ the right version.
 
 \subsection{One-point function}
 
+\indextt{Aget}%
+\indextt{AgetC}%
+\indextt{Aput}%
+\indextt{AputC}%
+\indextt{A0i}%
+\indextt{A0iC}%
 \indextt{A0}%
 \indextt{A0C}%
 \indextt{A00}%
@@ -542,6 +536,13 @@ the right version.
 \begin{center}
 \begin{tabular}{|l|l|l|} \hline
 Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
+\Code{A0i(id, \Va)} & \Code{A0iC(id, \Va)} &
+	one-point tensor coefficient \Code{id} \\
+\Code{Aget(\Va)} & \Code{AgetC(\Va)} &
+	all one-point tensor coefficients \\
+\Code{Aput(res,\,\Va)} & \Code{AputC(res,\,\Va)} &
+	all one-point tensor coefficients \\
+\textit{special cases:} && \\
 \Code{A0(\Va)} & \Code{A0C(\Va)} &
 	one-point function \\
 \Code{A00(\Va)} & \Code{A00C(\Va)} &
@@ -811,7 +812,7 @@ Function call (\Va\ real) & (\Va\ complex) & Description \\ \hline
 	scalar five-point function \\
 \hline
 \multicolumn{3}{|l|}{$\begin{aligned}
-  \Va = p_1^2, p_2^2, p_3^2, p_4^2,
+  \Va = p_1^2, p_2^2, p_3^2, p_4^2, p_5^2,
          (p_1 + p_2)^2, (p_2 + p_3)^2, (p_3 + p_4)^2,
          (p_4 + p_5)^2, (&p_5 + p_1)^2, \\
         &m_1^2, m_2^2, m_3^2, m_4^2, m_5^2
@@ -996,7 +997,7 @@ where the makefile is one of the following:
 \begin{center}
 \begin{tabular}{lll}
 gfortran & 4.6+, all platforms & \Code{makefile.quad-gfortran} \\
-f77 & HP Tru64 Unix & \Code{makefile.quad-alpha} \\
+f90 & HP Tru64 Unix & \Code{makefile.quad-alpha} \\
 ifort & Linux, Mac OS & \Code{makefile.quad-ifort} \\
 xlf & IBM RS6000, Mac OS (PPC) & \Code{makefile.quad-xlf}
 \end{tabular}
@@ -1221,8 +1222,7 @@ finiteness.
 \item
 In dimensional regularization, $\lambda^2 = -2$ returns the coefficient
 of $\varepsilon^{-2}$, $\lambda^2 = -1$ the coefficient of
-$\varepsilon^{-1}$, and $\lambda^2 = 0$ (indeed, all other non-positive
-values) the finite piece.
+$\varepsilon^{-1}$, and $\lambda^2 = 0$ the finite piece.
 
 In this case, testing IR finiteness numerically proceeds through
 checking the coefficients of $\varepsilon^{-1}$, $\varepsilon^{-2}$
@@ -1230,6 +1230,21 @@ coefficients, which have to add up to zero in observable quantities.
 This can be done particularly conveniently through the \Code{LTLAMBDA}
 environment variable (see below), such that no recompilation of the 
 program is necessary.
+
+While a non-positive value of $\lambda$ immediately affects the 
+functions returning complex values (\Code{$N$0i} and special cases) it 
+has no impact on the output of the functions returning the full set of 
+tensor coefficients (\Code{$N$get}, \Code{$N$put}).  Rather, the sets 
+contain all three $\varepsilon$-coefficients to start with, for example
+\begin{verbatim}
+   i = Bget(...)
+   e0coeff = Bval(bb0,i)
+   e1coeff = Bval(bb0+1,i)
+   e2coeff = Bval(bb0+2,i)
+\end{verbatim}
+The index 0, 1, 2 corresponding to the current value of $\lambda^2$ can
+be obtained with the \Code{getepsi} function.
+
 \end{itemize}
 
 
@@ -1330,7 +1345,7 @@ always enter squared.
 \label{sect:fortran}
 
 \index{Fortran}%
-\index{f77 command line@\Code{f77} command line}%
+\index{command line@command line}%
 \index{environment variable}%
 Some technical details concerning compilation:
 \begin{itemize}
@@ -1343,20 +1358,16 @@ When compiling a program that uses \LT, use
 \begin{verbatim}
    -I$LT/include (source files) -L$LT/lib -looptools
 \end{verbatim}
-on the \Code{f77} command line.  As Unix linker are one-pass linkers, 
-the library flags (\Code{-L...}, \Code{-l...}) must come after the 
-Fortran or object files on the command line.  In a makefile, you have 
-to use parentheses around the environment variables, \ie \Code{\$(LT)} 
-instead of \Code{\$LT}.
+on the command line.  As Unix linker are one-pass linkers, the library
+flags (\Code{-L...}, \Code{-l...}) must come after the Fortran or object
+files on the command line.  In a makefile, you have to use parentheses
+around the environment variables, \ie \Code{\$(LT)} instead of
+\Code{\$LT}.
 
 \index{C preprocessor}%
-\indextt{F77}%
 \item Fortran files that use \LT\ must have the extension \Code{.F}, not
 \Code{.f}.  This tells the Fortran compiler that the files need to be run
-through the C preprocessor first.  If you are using an older Fortran
-compiler which does not recognize the \Code{.F} extension, use the script
-\Code{F77} in the \Code{\$LT/bin} subdirectory instead of the normal
-\Code{f77}.
+through the C preprocessor first.
 \end{itemize}
 
 \indextt{looptools.h}%

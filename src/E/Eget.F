@@ -2,7 +2,7 @@
 * retrieve the five-point tensor coefficients
 * this file is part of LoopTools
 * written by M. Rauch
-* last modified 13 Sep 12 th
+* last modified 26 Jan 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -147,7 +147,25 @@
 
 	b = XEget(p1, p2, p3, p4, p5,
      &    p1p2, p2p3, p3p4, p4p5, p5p1, m1, m2, m3, m4, m5)
-	XE0i = Eval(i,b)
+	XE0i = Eval(i+epsi,b)
+	end
+
+************************************************************************
+
+	ComplexType function XE0(p1, p2, p3, p4, p5,
+     &    p1p2, p2p3, p3p4, p4p5, p5p1, m1, m2, m3, m4, m5)
+	implicit none
+	DVAR p1, p2, p3, p4, p5
+	DVAR p1p2, p2p3, p3p4, p4p5, p5p1
+	DVAR m1, m2, m3, m4, m5
+
+#include "lt.h"
+
+	ComplexType XE0i
+	external XE0i
+
+	XE0 = XE0i(ee0, p1, p2, p3, p4, p5,
+     &    p1p2, p2p3, p3p4, p4p5, p5p1, m1, m2, m3, m4, m5)
 	end
 
 ************************************************************************
@@ -187,6 +205,7 @@
 	DVAR para(1,*)
 
 #include "lt.h"
+#include "ltnames.h"
 
 	ComplexType dE(Nee)
 	integer i
@@ -195,179 +214,176 @@
 	QVAR Ginv(4,4)
 	common /XInvGramE/ Ginv
 
-	character*8 coeffname(Nee,2:5)
-	common /ltcoeffnames/ coeffname
-
 	call XEcoeffa(Ea, para)
 	call XEcoeffb(Eb, para)
 
-	dE(ee0) = 0
-	dE(ee1) = 0
-	dE(ee2) = 0
-	dE(ee3) = 0
-	dE(ee4) = 0
-	dE(ee11) = -2*Ea(ee00)*Ginv(1,1)
-	dE(ee12) = -2*Ea(ee00)*Ginv(1,2)
-	dE(ee13) = -2*Ea(ee00)*Ginv(1,3)
-	dE(ee14) = -2*Ea(ee00)*Ginv(1,4)
-	dE(ee22) = -2*Ea(ee00)*Ginv(2,2)
-	dE(ee23) = -2*Ea(ee00)*Ginv(2,3)
-	dE(ee24) = -2*Ea(ee00)*Ginv(2,4)
-	dE(ee33) = -2*Ea(ee00)*Ginv(3,3)
-	dE(ee34) = -2*Ea(ee00)*Ginv(3,4)
-	dE(ee44) = -2*Ea(ee00)*Ginv(4,4)
-	dE(ee00) = Ea(ee00)
-	dE(ee111) = -6*Ea(ee001)*Ginv(1,1)
-	dE(ee112) = -2*(Ea(ee002)*Ginv(1,1) +
-     &    Ea(ee001)*(Ginv(1,2) + Ginv(2,1)))
-	dE(ee113) = -2*(Ea(ee003)*Ginv(1,1) +
-     &    Ea(ee001)*(Ginv(1,3) + Ginv(3,1)))
-	dE(ee114) = -2*(Ea(ee004)*Ginv(1,1) +
-     &    Ea(ee001)*(Ginv(1,4) + Ginv(4,1)))
-	dE(ee122) = -2*(Ea(ee002)*(Ginv(1,2) + Ginv(2,1)) +
-     &    Ea(ee001)*Ginv(2,2))
-        dE(ee123) = -2*(Ea(ee003)*Ginv(1,2) + Ea(ee001)*Ginv(2,3) + 
-     &    Ea(ee002)*Ginv(3,1))
-        dE(ee124) = -2*(Ea(ee004)*Ginv(1,2) + Ea(ee001)*Ginv(2,4) + 
-     &    Ea(ee002)*Ginv(4,1))
-	dE(ee133) = -2*(Ea(ee003)*(Ginv(1,3) + Ginv(3,1)) +
-     &    Ea(ee001)*Ginv(3,3))
-        dE(ee134) = -2*(Ea(ee004)*Ginv(1,3) + Ea(ee001)*Ginv(3,4) + 
-     &    Ea(ee003)*Ginv(4,1))
-	dE(ee144) = -2*(Ea(ee004)*(Ginv(1,4) + Ginv(4,1)) +
-     &    Ea(ee001)*Ginv(4,4))
-	dE(ee222) = -6*Ea(ee002)*Ginv(2,2)
-	dE(ee223) = -2*(Ea(ee003)*Ginv(2,2) +
-     &    Ea(ee002)*(Ginv(2,3) + Ginv(3,2)))
-	dE(ee224) = -2*(Ea(ee004)*Ginv(2,2) +
-     &    Ea(ee002)*(Ginv(2,4) + Ginv(4,2)))
-	dE(ee233) = -2*(Ea(ee003)*(Ginv(2,3) + Ginv(3,2)) +
-     &    Ea(ee002)*Ginv(3,3))
-        dE(ee234) = -2*(Ea(ee004)*Ginv(2,3) + Ea(ee002)*Ginv(3,4) + 
-     &    Ea(ee003)*Ginv(4,2))
-	dE(ee244) = -2*(Ea(ee004)*(Ginv(2,4) + Ginv(4,2)) +
-     &    Ea(ee002)*Ginv(4,4))
-	dE(ee333) = -6*Ea(ee003)*Ginv(3,3)
-	dE(ee334) = -2*(Ea(ee004)*Ginv(3,3) +
-     &    Ea(ee003)*(Ginv(3,4) + Ginv(4,3)))
-	dE(ee344) = -2*(Ea(ee004)*(Ginv(3,4) + Ginv(4,3)) +
-     &    Ea(ee003)*Ginv(4,4))
-	dE(ee444) = -6*Ea(ee004)*Ginv(4,4)
-	dE(ee001) = Ea(ee001)
-	dE(ee002) = Ea(ee002)
-	dE(ee003) = Ea(ee003)
-	dE(ee004) = Ea(ee004)
-	dE(ee1111) = -12*Ginv(1,1)*(Ea(ee0011) + Ea(ee0000)*Ginv(1,1))
-        dE(ee1112) = -6*(Ea(ee0012)*Ginv(1,1) + 
-     &     (Ea(ee0011) + 2*Ea(ee0000)*Ginv(1,1))*Ginv(1,2))
-        dE(ee1113) = -6*(Ea(ee0013)*Ginv(1,1) + 
-     &     (Ea(ee0011) + 2*Ea(ee0000)*Ginv(1,1))*Ginv(1,3))
-        dE(ee1114) = -6*(Ea(ee0014)*Ginv(1,1) + 
-     &     (Ea(ee0011) + 2*Ea(ee0000)*Ginv(1,1))*Ginv(1,4))
-        dE(ee1122) = -2*(Ea(ee0022)*Ginv(1,1) + 
-     &     4*Ginv(1,2)*(Ea(ee0012) + Ea(ee0000)*Ginv(1,2)) + 
-     &     (Ea(ee0011) + 2*Ea(ee0000)*Ginv(1,1))*Ginv(2,2))
-        dE(ee1123) = -2*(Ea(ee0023)*Ginv(1,1) + 
-     &     2*Ea(ee0013)*Ginv(1,2) + 
-     &     2*(Ea(ee0012) + 2*Ea(ee0000)*Ginv(1,2))*Ginv(1,3) + 
-     &     (Ea(ee0011) + 2*Ea(ee0000)*Ginv(1,1))*Ginv(2,3))
-        dE(ee1124) = -2*(Ea(ee0024)*Ginv(1,1) + 
-     &     2*Ea(ee0014)*Ginv(1,2) + 
-     &     2*(Ea(ee0012) + 2*Ea(ee0000)*Ginv(1,2))*Ginv(1,4) + 
-     &     (Ea(ee0011) + 2*Ea(ee0000)*Ginv(1,1))*Ginv(2,4))
-        dE(ee1133) = -2*(Ea(ee0033)*Ginv(1,1) + 
-     &     4*Ginv(1,3)*(Ea(ee0013) + Ea(ee0000)*Ginv(1,3)) + 
-     &     (Ea(ee0011) + 2*Ea(ee0000)*Ginv(1,1))*Ginv(3,3))
-        dE(ee1134) = -2*(Ea(ee0034)*Ginv(1,1) + 
-     &     2*Ea(ee0014)*Ginv(1,3) + 
-     &     2*(Ea(ee0013) + 2*Ea(ee0000)*Ginv(1,3))*Ginv(1,4) + 
-     &     (Ea(ee0011) + 2*Ea(ee0000)*Ginv(1,1))*Ginv(3,4))
-        dE(ee1144) = -2*(Ea(ee0044)*Ginv(1,1) + 
-     &     4*Ginv(1,4)*(Ea(ee0014) + Ea(ee0000)*Ginv(1,4)) + 
-     &     (Ea(ee0011) + 2*Ea(ee0000)*Ginv(1,1))*Ginv(4,4))
-        dE(ee1222) = -6*(Ea(ee0022)*Ginv(1,2) + 
-     &     (Ea(ee0012) + 2*Ea(ee0000)*Ginv(1,2))*Ginv(2,2))
-        dE(ee1223) = -2*(2*Ea(ee0023)*Ginv(1,2) + 
-     &     Ea(ee0022)*Ginv(1,3) + 
-     &     (Ea(ee0013) + 2*Ea(ee0000)*Ginv(1,3))*Ginv(2,2) + 
-     &     2*(Ea(ee0012) + 2*Ea(ee0000)*Ginv(1,2))*Ginv(2,3))
-        dE(ee1224) = -2*(2*Ea(ee0024)*Ginv(1,2) + 
-     &     Ea(ee0022)*Ginv(1,4) + 
-     &     (Ea(ee0014) + 2*Ea(ee0000)*Ginv(1,4))*Ginv(2,2) + 
-     &     2*(Ea(ee0012) + 2*Ea(ee0000)*Ginv(1,2))*Ginv(2,4))
-        dE(ee1233) = -2*(Ea(ee0033)*Ginv(1,2) + 
-     &     2*Ea(ee0023)*Ginv(1,3) + 
-     &     2*(Ea(ee0013) + 2*Ea(ee0000)*Ginv(1,3))*Ginv(2,3) + 
-     &     (Ea(ee0012) + 2*Ea(ee0000)*Ginv(1,2))*Ginv(3,3))
-        dE(ee1234) = -2*(Ea(ee0023)*Ginv(1,4) + 
-     &     (Ea(ee0014) + 2*Ea(ee0000)*Ginv(1,4))*Ginv(2,3) + 
-     &     Ea(ee0013)*Ginv(2,4) + 
-     &     Ginv(1,3)*(Ea(ee0024) + 2*Ea(ee0000)*Ginv(2,4)) + 
-     &     Ea(ee0012)*Ginv(3,4) + 
-     &     Ginv(1,2)*(Ea(ee0034) + 2*Ea(ee0000)*Ginv(3,4)))
-        dE(ee1244) = -2*(Ea(ee0044)*Ginv(1,2) + 
-     &     2*Ea(ee0024)*Ginv(1,4) + 
-     &     2*(Ea(ee0014) + 2*Ea(ee0000)*Ginv(1,4))*Ginv(2,4) + 
-     &     (Ea(ee0012) + 2*Ea(ee0000)*Ginv(1,2))*Ginv(4,4))
-        dE(ee1333) = -6*(Ea(ee0033)*Ginv(1,3) + 
-     &     (Ea(ee0013) + 2*Ea(ee0000)*Ginv(1,3))*Ginv(3,3))
-        dE(ee1334) = -2*(2*Ea(ee0034)*Ginv(1,3) + 
-     &     Ea(ee0033)*Ginv(1,4) + 
-     &     (Ea(ee0014) + 2*Ea(ee0000)*Ginv(1,4))*Ginv(3,3) + 
-     &     2*(Ea(ee0013) + 2*Ea(ee0000)*Ginv(1,3))*Ginv(3,4))
-        dE(ee1344) = -2*(Ea(ee0044)*Ginv(1,3) + 
-     &     2*Ea(ee0034)*Ginv(1,4) + 
-     &     2*(Ea(ee0014) + 2*Ea(ee0000)*Ginv(1,4))*Ginv(3,4) + 
-     &     (Ea(ee0013) + 2*Ea(ee0000)*Ginv(1,3))*Ginv(4,4))
-        dE(ee1444) = -6*(Ea(ee0044)*Ginv(1,4) + 
-     &     (Ea(ee0014) + 2*Ea(ee0000)*Ginv(1,4))*Ginv(4,4))
-	dE(ee2222) = -12*Ginv(2,2)*(Ea(ee0022) + Ea(ee0000)*Ginv(2,2))
-        dE(ee2223) = -6*(Ea(ee0023)*Ginv(2,2) + 
-     &     (Ea(ee0022) + 2*Ea(ee0000)*Ginv(2,2))*Ginv(2,3))
-        dE(ee2224) = -6*(Ea(ee0024)*Ginv(2,2) + 
-     &     (Ea(ee0022) + 2*Ea(ee0000)*Ginv(2,2))*Ginv(2,4))
-        dE(ee2233) = -2*(Ea(ee0033)*Ginv(2,2) + 
-     &     4*Ginv(2,3)*(Ea(ee0023) + Ea(ee0000)*Ginv(2,3)) + 
-     &     (Ea(ee0022) + 2*Ea(ee0000)*Ginv(2,2))*Ginv(3,3))
-        dE(ee2234) = -2*(Ea(ee0034)*Ginv(2,2) + 
-     &     2*Ea(ee0024)*Ginv(2,3) + 
-     &     2*(Ea(ee0023) + 2*Ea(ee0000)*Ginv(2,3))*Ginv(2,4) + 
-     &     (Ea(ee0022) + 2*Ea(ee0000)*Ginv(2,2))*Ginv(3,4))
-        dE(ee2244) = -2*(Ea(ee0044)*Ginv(2,2) + 
-     &     4*Ginv(2,4)*(Ea(ee0024) + Ea(ee0000)*Ginv(2,4)) + 
-     &     (Ea(ee0022) + 2*Ea(ee0000)*Ginv(2,2))*Ginv(4,4))
-        dE(ee2333) = -6*(Ea(ee0033)*Ginv(2,3) + 
-     &     (Ea(ee0023) + 2*Ea(ee0000)*Ginv(2,3))*Ginv(3,3))
-        dE(ee2334) = -2*(2*Ea(ee0034)*Ginv(2,3) + 
-     &     Ea(ee0033)*Ginv(2,4) + 
-     &     (Ea(ee0024) + 2*Ea(ee0000)*Ginv(2,4))*Ginv(3,3) + 
-     &     2*(Ea(ee0023) + 2*Ea(ee0000)*Ginv(2,3))*Ginv(3,4))
-        dE(ee2344) = -2*(Ea(ee0044)*Ginv(2,3) + 
-     &     2*Ea(ee0034)*Ginv(2,4) + 
-     &     2*(Ea(ee0024) + 2*Ea(ee0000)*Ginv(2,4))*Ginv(3,4) + 
-     &     (Ea(ee0023) + 2*Ea(ee0000)*Ginv(2,3))*Ginv(4,4))
-        dE(ee2444) = -6*(Ea(ee0044)*Ginv(2,4) + 
-     &     (Ea(ee0024) + 2*Ea(ee0000)*Ginv(2,4))*Ginv(4,4))
-	dE(ee3333) = -12*Ginv(3,3)*(Ea(ee0033) + Ea(ee0000)*Ginv(3,3))
-        dE(ee3334) = -6*(Ea(ee0034)*Ginv(3,3) + 
-     &     (Ea(ee0033) + 2*Ea(ee0000)*Ginv(3,3))*Ginv(3,4))
-        dE(ee3344) = -2*(Ea(ee0044)*Ginv(3,3) + 
-     &     4*Ginv(3,4)*(Ea(ee0034) + Ea(ee0000)*Ginv(3,4)) + 
-     &     (Ea(ee0033) + 2*Ea(ee0000)*Ginv(3,3))*Ginv(4,4))
-        dE(ee3444) = -6*(Ea(ee0044)*Ginv(3,4) + 
-     &     (Ea(ee0034) + 2*Ea(ee0000)*Ginv(3,4))*Ginv(4,4))
-	dE(ee4444) = -12*Ginv(4,4)*(Ea(ee0044) + Ea(ee0000)*Ginv(4,4))
-	dE(ee0000) = Ea(ee0000)
-	dE(ee0011) = Ea(ee0011)
-	dE(ee0012) = Ea(ee0012)
-	dE(ee0013) = Ea(ee0013)
-	dE(ee0014) = Ea(ee0014)
-	dE(ee0022) = Ea(ee0022)
-	dE(ee0023) = Ea(ee0023)
-	dE(ee0024) = Ea(ee0024)
-	dE(ee0033) = Ea(ee0033)
-	dE(ee0034) = Ea(ee0034)
-	dE(ee0044) = Ea(ee0044)
+	dE(EE0) = 0
+	dE(EE1) = 0
+	dE(EE2) = 0
+	dE(EE3) = 0
+	dE(EE4) = 0
+	dE(EE11) = -2*Ea(EE00)*Ginv(1,1)
+	dE(EE12) = -2*Ea(EE00)*Ginv(1,2)
+	dE(EE13) = -2*Ea(EE00)*Ginv(1,3)
+	dE(EE14) = -2*Ea(EE00)*Ginv(1,4)
+	dE(EE22) = -2*Ea(EE00)*Ginv(2,2)
+	dE(EE23) = -2*Ea(EE00)*Ginv(2,3)
+	dE(EE24) = -2*Ea(EE00)*Ginv(2,4)
+	dE(EE33) = -2*Ea(EE00)*Ginv(3,3)
+	dE(EE34) = -2*Ea(EE00)*Ginv(3,4)
+	dE(EE44) = -2*Ea(EE00)*Ginv(4,4)
+	dE(EE00) = Ea(EE00)
+	dE(EE111) = -6*Ea(EE001)*Ginv(1,1)
+	dE(EE112) = -2*(Ea(EE002)*Ginv(1,1) +
+     &    Ea(EE001)*(Ginv(1,2) + Ginv(2,1)))
+	dE(EE113) = -2*(Ea(EE003)*Ginv(1,1) +
+     &    Ea(EE001)*(Ginv(1,3) + Ginv(3,1)))
+	dE(EE114) = -2*(Ea(EE004)*Ginv(1,1) +
+     &    Ea(EE001)*(Ginv(1,4) + Ginv(4,1)))
+	dE(EE122) = -2*(Ea(EE002)*(Ginv(1,2) + Ginv(2,1)) +
+     &    Ea(EE001)*Ginv(2,2))
+        dE(EE123) = -2*(Ea(EE003)*Ginv(1,2) + Ea(EE001)*Ginv(2,3) + 
+     &    Ea(EE002)*Ginv(3,1))
+        dE(EE124) = -2*(Ea(EE004)*Ginv(1,2) + Ea(EE001)*Ginv(2,4) + 
+     &    Ea(EE002)*Ginv(4,1))
+	dE(EE133) = -2*(Ea(EE003)*(Ginv(1,3) + Ginv(3,1)) +
+     &    Ea(EE001)*Ginv(3,3))
+        dE(EE134) = -2*(Ea(EE004)*Ginv(1,3) + Ea(EE001)*Ginv(3,4) + 
+     &    Ea(EE003)*Ginv(4,1))
+	dE(EE144) = -2*(Ea(EE004)*(Ginv(1,4) + Ginv(4,1)) +
+     &    Ea(EE001)*Ginv(4,4))
+	dE(EE222) = -6*Ea(EE002)*Ginv(2,2)
+	dE(EE223) = -2*(Ea(EE003)*Ginv(2,2) +
+     &    Ea(EE002)*(Ginv(2,3) + Ginv(3,2)))
+	dE(EE224) = -2*(Ea(EE004)*Ginv(2,2) +
+     &    Ea(EE002)*(Ginv(2,4) + Ginv(4,2)))
+	dE(EE233) = -2*(Ea(EE003)*(Ginv(2,3) + Ginv(3,2)) +
+     &    Ea(EE002)*Ginv(3,3))
+        dE(EE234) = -2*(Ea(EE004)*Ginv(2,3) + Ea(EE002)*Ginv(3,4) + 
+     &    Ea(EE003)*Ginv(4,2))
+	dE(EE244) = -2*(Ea(EE004)*(Ginv(2,4) + Ginv(4,2)) +
+     &    Ea(EE002)*Ginv(4,4))
+	dE(EE333) = -6*Ea(EE003)*Ginv(3,3)
+	dE(EE334) = -2*(Ea(EE004)*Ginv(3,3) +
+     &    Ea(EE003)*(Ginv(3,4) + Ginv(4,3)))
+	dE(EE344) = -2*(Ea(EE004)*(Ginv(3,4) + Ginv(4,3)) +
+     &    Ea(EE003)*Ginv(4,4))
+	dE(EE444) = -6*Ea(EE004)*Ginv(4,4)
+	dE(EE001) = Ea(EE001)
+	dE(EE002) = Ea(EE002)
+	dE(EE003) = Ea(EE003)
+	dE(EE004) = Ea(EE004)
+	dE(EE1111) = -12*Ginv(1,1)*(Ea(EE0011) + Ea(EE0000)*Ginv(1,1))
+        dE(EE1112) = -6*(Ea(EE0012)*Ginv(1,1) + 
+     &     (Ea(EE0011) + 2*Ea(EE0000)*Ginv(1,1))*Ginv(1,2))
+        dE(EE1113) = -6*(Ea(EE0013)*Ginv(1,1) + 
+     &     (Ea(EE0011) + 2*Ea(EE0000)*Ginv(1,1))*Ginv(1,3))
+        dE(EE1114) = -6*(Ea(EE0014)*Ginv(1,1) + 
+     &     (Ea(EE0011) + 2*Ea(EE0000)*Ginv(1,1))*Ginv(1,4))
+        dE(EE1122) = -2*(Ea(EE0022)*Ginv(1,1) + 
+     &     4*Ginv(1,2)*(Ea(EE0012) + Ea(EE0000)*Ginv(1,2)) + 
+     &     (Ea(EE0011) + 2*Ea(EE0000)*Ginv(1,1))*Ginv(2,2))
+        dE(EE1123) = -2*(Ea(EE0023)*Ginv(1,1) + 
+     &     2*Ea(EE0013)*Ginv(1,2) + 
+     &     2*(Ea(EE0012) + 2*Ea(EE0000)*Ginv(1,2))*Ginv(1,3) + 
+     &     (Ea(EE0011) + 2*Ea(EE0000)*Ginv(1,1))*Ginv(2,3))
+        dE(EE1124) = -2*(Ea(EE0024)*Ginv(1,1) + 
+     &     2*Ea(EE0014)*Ginv(1,2) + 
+     &     2*(Ea(EE0012) + 2*Ea(EE0000)*Ginv(1,2))*Ginv(1,4) + 
+     &     (Ea(EE0011) + 2*Ea(EE0000)*Ginv(1,1))*Ginv(2,4))
+        dE(EE1133) = -2*(Ea(EE0033)*Ginv(1,1) + 
+     &     4*Ginv(1,3)*(Ea(EE0013) + Ea(EE0000)*Ginv(1,3)) + 
+     &     (Ea(EE0011) + 2*Ea(EE0000)*Ginv(1,1))*Ginv(3,3))
+        dE(EE1134) = -2*(Ea(EE0034)*Ginv(1,1) + 
+     &     2*Ea(EE0014)*Ginv(1,3) + 
+     &     2*(Ea(EE0013) + 2*Ea(EE0000)*Ginv(1,3))*Ginv(1,4) + 
+     &     (Ea(EE0011) + 2*Ea(EE0000)*Ginv(1,1))*Ginv(3,4))
+        dE(EE1144) = -2*(Ea(EE0044)*Ginv(1,1) + 
+     &     4*Ginv(1,4)*(Ea(EE0014) + Ea(EE0000)*Ginv(1,4)) + 
+     &     (Ea(EE0011) + 2*Ea(EE0000)*Ginv(1,1))*Ginv(4,4))
+        dE(EE1222) = -6*(Ea(EE0022)*Ginv(1,2) + 
+     &     (Ea(EE0012) + 2*Ea(EE0000)*Ginv(1,2))*Ginv(2,2))
+        dE(EE1223) = -2*(2*Ea(EE0023)*Ginv(1,2) + 
+     &     Ea(EE0022)*Ginv(1,3) + 
+     &     (Ea(EE0013) + 2*Ea(EE0000)*Ginv(1,3))*Ginv(2,2) + 
+     &     2*(Ea(EE0012) + 2*Ea(EE0000)*Ginv(1,2))*Ginv(2,3))
+        dE(EE1224) = -2*(2*Ea(EE0024)*Ginv(1,2) + 
+     &     Ea(EE0022)*Ginv(1,4) + 
+     &     (Ea(EE0014) + 2*Ea(EE0000)*Ginv(1,4))*Ginv(2,2) + 
+     &     2*(Ea(EE0012) + 2*Ea(EE0000)*Ginv(1,2))*Ginv(2,4))
+        dE(EE1233) = -2*(Ea(EE0033)*Ginv(1,2) + 
+     &     2*Ea(EE0023)*Ginv(1,3) + 
+     &     2*(Ea(EE0013) + 2*Ea(EE0000)*Ginv(1,3))*Ginv(2,3) + 
+     &     (Ea(EE0012) + 2*Ea(EE0000)*Ginv(1,2))*Ginv(3,3))
+        dE(EE1234) = -2*(Ea(EE0023)*Ginv(1,4) + 
+     &     (Ea(EE0014) + 2*Ea(EE0000)*Ginv(1,4))*Ginv(2,3) + 
+     &     Ea(EE0013)*Ginv(2,4) + 
+     &     Ginv(1,3)*(Ea(EE0024) + 2*Ea(EE0000)*Ginv(2,4)) + 
+     &     Ea(EE0012)*Ginv(3,4) + 
+     &     Ginv(1,2)*(Ea(EE0034) + 2*Ea(EE0000)*Ginv(3,4)))
+        dE(EE1244) = -2*(Ea(EE0044)*Ginv(1,2) + 
+     &     2*Ea(EE0024)*Ginv(1,4) + 
+     &     2*(Ea(EE0014) + 2*Ea(EE0000)*Ginv(1,4))*Ginv(2,4) + 
+     &     (Ea(EE0012) + 2*Ea(EE0000)*Ginv(1,2))*Ginv(4,4))
+        dE(EE1333) = -6*(Ea(EE0033)*Ginv(1,3) + 
+     &     (Ea(EE0013) + 2*Ea(EE0000)*Ginv(1,3))*Ginv(3,3))
+        dE(EE1334) = -2*(2*Ea(EE0034)*Ginv(1,3) + 
+     &     Ea(EE0033)*Ginv(1,4) + 
+     &     (Ea(EE0014) + 2*Ea(EE0000)*Ginv(1,4))*Ginv(3,3) + 
+     &     2*(Ea(EE0013) + 2*Ea(EE0000)*Ginv(1,3))*Ginv(3,4))
+        dE(EE1344) = -2*(Ea(EE0044)*Ginv(1,3) + 
+     &     2*Ea(EE0034)*Ginv(1,4) + 
+     &     2*(Ea(EE0014) + 2*Ea(EE0000)*Ginv(1,4))*Ginv(3,4) + 
+     &     (Ea(EE0013) + 2*Ea(EE0000)*Ginv(1,3))*Ginv(4,4))
+        dE(EE1444) = -6*(Ea(EE0044)*Ginv(1,4) + 
+     &     (Ea(EE0014) + 2*Ea(EE0000)*Ginv(1,4))*Ginv(4,4))
+	dE(EE2222) = -12*Ginv(2,2)*(Ea(EE0022) + Ea(EE0000)*Ginv(2,2))
+        dE(EE2223) = -6*(Ea(EE0023)*Ginv(2,2) + 
+     &     (Ea(EE0022) + 2*Ea(EE0000)*Ginv(2,2))*Ginv(2,3))
+        dE(EE2224) = -6*(Ea(EE0024)*Ginv(2,2) + 
+     &     (Ea(EE0022) + 2*Ea(EE0000)*Ginv(2,2))*Ginv(2,4))
+        dE(EE2233) = -2*(Ea(EE0033)*Ginv(2,2) + 
+     &     4*Ginv(2,3)*(Ea(EE0023) + Ea(EE0000)*Ginv(2,3)) + 
+     &     (Ea(EE0022) + 2*Ea(EE0000)*Ginv(2,2))*Ginv(3,3))
+        dE(EE2234) = -2*(Ea(EE0034)*Ginv(2,2) + 
+     &     2*Ea(EE0024)*Ginv(2,3) + 
+     &     2*(Ea(EE0023) + 2*Ea(EE0000)*Ginv(2,3))*Ginv(2,4) + 
+     &     (Ea(EE0022) + 2*Ea(EE0000)*Ginv(2,2))*Ginv(3,4))
+        dE(EE2244) = -2*(Ea(EE0044)*Ginv(2,2) + 
+     &     4*Ginv(2,4)*(Ea(EE0024) + Ea(EE0000)*Ginv(2,4)) + 
+     &     (Ea(EE0022) + 2*Ea(EE0000)*Ginv(2,2))*Ginv(4,4))
+        dE(EE2333) = -6*(Ea(EE0033)*Ginv(2,3) + 
+     &     (Ea(EE0023) + 2*Ea(EE0000)*Ginv(2,3))*Ginv(3,3))
+        dE(EE2334) = -2*(2*Ea(EE0034)*Ginv(2,3) + 
+     &     Ea(EE0033)*Ginv(2,4) + 
+     &     (Ea(EE0024) + 2*Ea(EE0000)*Ginv(2,4))*Ginv(3,3) + 
+     &     2*(Ea(EE0023) + 2*Ea(EE0000)*Ginv(2,3))*Ginv(3,4))
+        dE(EE2344) = -2*(Ea(EE0044)*Ginv(2,3) + 
+     &     2*Ea(EE0034)*Ginv(2,4) + 
+     &     2*(Ea(EE0024) + 2*Ea(EE0000)*Ginv(2,4))*Ginv(3,4) + 
+     &     (Ea(EE0023) + 2*Ea(EE0000)*Ginv(2,3))*Ginv(4,4))
+        dE(EE2444) = -6*(Ea(EE0044)*Ginv(2,4) + 
+     &     (Ea(EE0024) + 2*Ea(EE0000)*Ginv(2,4))*Ginv(4,4))
+	dE(EE3333) = -12*Ginv(3,3)*(Ea(EE0033) + Ea(EE0000)*Ginv(3,3))
+        dE(EE3334) = -6*(Ea(EE0034)*Ginv(3,3) + 
+     &     (Ea(EE0033) + 2*Ea(EE0000)*Ginv(3,3))*Ginv(3,4))
+        dE(EE3344) = -2*(Ea(EE0044)*Ginv(3,3) + 
+     &     4*Ginv(3,4)*(Ea(EE0034) + Ea(EE0000)*Ginv(3,4)) + 
+     &     (Ea(EE0033) + 2*Ea(EE0000)*Ginv(3,3))*Ginv(4,4))
+        dE(EE3444) = -6*(Ea(EE0044)*Ginv(3,4) + 
+     &     (Ea(EE0034) + 2*Ea(EE0000)*Ginv(3,4))*Ginv(4,4))
+	dE(EE4444) = -12*Ginv(4,4)*(Ea(EE0044) + Ea(EE0000)*Ginv(4,4))
+	dE(EE0000) = Ea(EE0000)
+	dE(EE0011) = Ea(EE0011)
+	dE(EE0012) = Ea(EE0012)
+	dE(EE0013) = Ea(EE0013)
+	dE(EE0014) = Ea(EE0014)
+	dE(EE0022) = Ea(EE0022)
+	dE(EE0023) = Ea(EE0023)
+	dE(EE0024) = Ea(EE0024)
+	dE(EE0033) = Ea(EE0033)
+	dE(EE0034) = Ea(EE0034)
+	dE(EE0044) = Ea(EE0044)
 
 	ini = .TRUE.
 	do i = 1, Nee

@@ -1,7 +1,7 @@
-* D0C.F
+* D0Cpara.F
 * the scalar four-point function with complex masses
 * this file is part of LoopTools
-* last modified 19 Sep 12 th
+* last modified 27 Jan 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -10,100 +10,17 @@
 #include "defs.h"
 
 
-	ComplexType function D0C(p1, p2, p3, p4, p1p2, p2p3,
-     &    m1, m2, m3, m4)
-	implicit none
-	ComplexType p1, p2, p3, p4, p1p2, p2p3
-	ComplexType m1, m2, m3, m4
-
-#include "lt.h"
-
-	ComplexType D0
-	external D0
-
-	ComplexType para(1,Pdd)
-
-	P(1) = p1
-	P(2) = p2
-	P(3) = p3
-	P(4) = p4
-	P(5) = p1p2
-	P(6) = p2p3
-	if( abs(Im(P(1))) + abs(Im(P(2))) +
-     &      abs(Im(P(3))) + abs(Im(P(4))) +
-     &      abs(Im(P(5))) + abs(Im(P(6))) .gt. 0 )
-     &    print *, "D0C: Complex momenta not implemented"
-
-	M(1) = m1
-	if( abs(M(1)) .lt. minmass ) M(1) = 0
-	M(2) = m2
-	if( abs(M(2)) .lt. minmass ) M(2) = 0
-	M(3) = m3
-	if( abs(M(3)) .lt. minmass ) M(3) = 0
-	M(4) = m4
-	if( abs(M(4)) .lt. minmass ) M(4) = 0
-	if( abs(Im(M(1))) + abs(Im(M(2))) +
-     &      abs(Im(M(3))) + abs(Im(M(4))) .eq. 0 ) then
-	  D0C = D0(p1, p2, p3, p4, p1p2, p2p3,
-     &      m1, m2, m3, m4)
-	  return
-	endif
-
-	call D0Cpara(D0C, para)
-	end
-
-************************************************************************
-* subroutine version for C++
-
-	subroutine d0subc(res, p1, p2, p3, p4, p1p2, p2p3,
-     &    m1, m2, m3, m4)
-	implicit none
-	ComplexType res
-	ComplexType p1, p2, p3, p4, p1p2, p2p3
-	ComplexType m1, m2, m3, m4
-
-#include "lt.h"
-
-	ComplexType para(1,Pdd)
-
-	P(1) = p1
-	P(2) = p2
-	P(3) = p3
-	P(4) = p4
-	P(5) = p1p2
-	P(6) = p2p3
-	if( abs(Im(P(1))) + abs(Im(P(2))) +
-     &      abs(Im(P(3))) + abs(Im(P(4))) +
-     &      abs(Im(P(5))) + abs(Im(P(6))) .gt. 0 )
-     &    print *, "D0C: Complex momenta not implemented"
-
-	M(1) = m1
-	if( abs(M(1)) .lt. minmass ) M(1) = 0
-	M(2) = m2
-	if( abs(M(2)) .lt. minmass ) M(2) = 0
-	M(3) = m3
-	if( abs(M(3)) .lt. minmass ) M(3) = 0
-	M(4) = m4
-	if( abs(M(4)) .lt. minmass ) M(4) = 0
-	if( abs(Im(M(1))) + abs(Im(M(2))) +
-     &      abs(Im(M(3))) + abs(Im(M(4))) .eq. 0 ) then
-	  call d0sub(res, p1, p2, p3, p4, p1p2, p2p3,
-     &      m1, m2, m3, m4)
-	  return
-	endif
-
-	call D0Cpara(res, para)
-	end
-
-************************************************************************
-
 	subroutine D0Cpara(res, para)
 	implicit none
-	ComplexType res, para(1,*)
+	ComplexType res(0:2), para(1,*)
 
 #include "lt.h"
 
 	external D0CsoftDR, D0CcollDR, D0Csoft, D0Ccoll
+
+	res(0) = 0
+	res(1) = 0
+	res(2) = 0
 
 	if( lambda .le. 0 ) then
 	  call DCDispatch(res, para, D0CsoftDR, D0CcollDR)
@@ -116,7 +33,7 @@
 
 	subroutine DCDispatch(res, para, soft, coll)
 	implicit none
-	ComplexType res, para(1,*)
+	ComplexType res(0:2), para(1,*)
 	external soft, coll
 
 #include "lt.h"
@@ -125,15 +42,12 @@
 	integer i, z, s, perm, ier, key
 	ComplexType alt
 
-	integer pperm(12), mperm(0:7)
+	integer pperm(12)
 	data pperm /
      &    p1234, p1243, p1324,
      &    p2341, p2431, p2314,
      &    p3412, p3142, p3421,
      &    p4123, p4132, p4213 /
-	data mperm / p1234, p1234,
-     &    p1324, p1234, p1432,
-     &    p1243, p1342, p1234 /
 
 * 0 1 1xxx  O'1234561234'
 * 1 2 12xx  O'1234561234'
@@ -160,8 +74,10 @@ c	PRINT '(6F14.2)', Px(1), Px(2), Px(3), Px(4), Px(5), Px(6)
 c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	  if( abs(Mc(1)) .lt. eps ) then
 	    if( abs(Px(1)) + abs(Mc(2)) .lt. eps ) then
+	      if( DEBUGLEVEL .gt. 0 )
+     &          print '("collinear D0C, perm = ",O10)', perm
 	      call coll(res, para, perm)
-	      if( res .ne. perm ) return
+	      if( perm .eq. 0 ) return
 	    endif
 	    if( s .eq. 0 .and.
      &        abs(Px(1) - Mc(2)) +
@@ -171,28 +87,25 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	enddo
 
 	if( s .ne. 0 ) then
+	  if( DEBUGLEVEL .gt. 0 )
+     &      print '("soft D0C, perm = ",O10)', s
 	  call soft(res, para, s)
-	  return
-	endif
-
-	if( lambda .lt. 0 ) then
-	  res = 0
 	  return
 	endif
 
 	key = ibits(versionkey, KeyD0C, 2)
 
 	if( key .ne. 1 ) then
-	  call ffd0c(res, para, 0, ier)
+	  call ffd0c(res(0), para, 0, ier)
 	  if( key .eq. 0 ) return
-	  alt = res
+	  alt = res(0)
 	endif
 
 	ier = 0
-	call ffd0c(res, para, 1, ier)
+	call ffd0c(res(0), para, 1, ier)
 
 	if( key .gt. 1 .and.
-     &      abs(res - alt) .gt. maxdev*abs(alt) ) then
+     &      abs(res(0) - alt) .gt. maxdev*abs(alt) ) then
 	  print *, "Discrepancy in D0C:"
 	  print *, "  p1   =", P(1)
 	  print *, "  p2   =", P(2)
@@ -205,11 +118,11 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	  print *, "  m3   =", M(3)
 	  print *, "  m4   =", M(4)
 	  print *, "D0C a  =", alt
-	  print *, "D0C b  =", res
-	  if( ier .le. errdigits ) res = alt
+	  print *, "D0C b  =", res(0)
+	  if( ier .le. errdigits ) res(0) = alt
 	endif
 
-	if( .not. btest(key, 1) ) res = alt
+	if( .not. btest(key, 1) ) res(0) = alt
 	end
 
 ************************************************************************
@@ -285,7 +198,7 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	    res = -2*ln(-lambda/p1p2, 1)*lxs*fac
 	    return
 	  endif
-	  y = (r1*(p3 - p4 + cI*eps))/(r4*(p2 - p1 + cI*eps))
+	  y = (r1*(p3 - p4 + cIeps))/(r4*(p2 - p1 + cIeps))
 	  ly = log(y)
 	  c = ln(lambda/(r1*r4), 0) +
      &      ln((p2 - p1)/p1p2, p1 - p2) +
@@ -353,7 +266,7 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	if( abs(d) .lt. acc ) then
 	  bdKC = 1
 	else
-	  t = 4*m1*m2/(d + cI*eps)
+	  t = 4*m1*m2/(d + cIeps)
 	  bdKC = -t/(sqrt(1 - t) + 1)**2
 	endif
 	end
@@ -373,7 +286,6 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	if( DEBUGLEVEL .gt. 0 ) call DCDump("D0coll", para, perm)
 
 	Pc(1) = max(minmass, 1D-14)
-	res = perm
 
 	if( ini ) return
 	print *, "collinear-divergent D0C, using mass cutoff ", Px(1)
@@ -386,7 +298,7 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 
 	subroutine D0CsoftDR(res, para, perm)
 	implicit none
-	ComplexType res, para(1,*)
+	ComplexType res(0:2), para(1,*)
 	integer perm
 
 #include "lt.h"
@@ -400,11 +312,6 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	external bdK, bdKC, Li2omx2, Li2omx3
 
 	if( DEBUGLEVEL .gt. 0 ) call DCDump("D0CsoftDR", para, perm)
-
-	if( lambda .eq. -2 ) then
-	  res = 0
-	  return
-	endif
 
 	m3 = Mc(3)
 	t = m3 - Px(5)
@@ -428,28 +335,27 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	  fac = 2*xs/((1 - xs)*(1 + xs))*fac
 	endif
 
+	res(1) = fac*lxs
+	res(2) = 0
+
 	if( abs(m3) .lt. eps ) then
 * (should have been re-routed to real D0, keep here for safety)
 	  if( abs(q2) + abs(q3) .lt. acc ) then
 * qlbox14: D0(m2, m2, m4, m4; p1p2, p2p3; 0, m2, 0, m4)
 	    if( DEBUGLEVEL .gt. 1 ) print *, "D0CsoftDR: qlbox14"
-	    res = 2*fac*lxs
-	    if( lambda .ne. -1 ) res = res*lnrat(mudim, t)
+	    res(1) = 2*res(1)
+	    res(0) = res(1)*lnrat(mudim, t)
 	    return
 	  endif
 
 * qlbox15: D0(m2, p2, p3, m4; p1p2, p2p3; 0, m2, 0, m4)
 * Beenakker-Denner Eq. (2.11)
 	  if( DEBUGLEVEL .gt. 1 ) print *, "D0CsoftDR: qlbox15"
-	  if( lambda .eq. -1 ) then
-	    res = fac*lxs
-	    return
-	  endif
 
 	  if( abs(q2*q3) .lt. acc ) then
 	    m24 = m2
 	    if( abs(q2) .lt. acc ) m24 = m4
-	    res = fac*( lxs*(lxs + log(mudim/m24) +
+	    res(0) = fac*( lxs*(lxs + log(mudim/m24) +
      &        2*lnrat(q2 + q3, t)) +
      &        Li2omx2(xs, 1D0, xs, 1D0) )
 	    return
@@ -459,11 +365,11 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	  sy = sign(.5D0, r1*q3) - sign(.5D0, r4*q2)
 
 	  if( xs .eq. 1 ) then
-	    res = fac*( -log(mudim/(r1*r4)) +
+	    res(0) = fac*( -log(mudim/(r1*r4)) +
      &        lnrat(q2, t) + lnrat(q3, t) + 2 +
      &        (1 + y)/(1 - y)*ln(y, sy) )
 	  else
-	    res = fac*( -.5D0*ln(y, sy)**2 +
+	    res(0) = fac*( -.5D0*ln(y, sy)**2 +
      &        lxs*(.5D0*lxs + lnrat(q2, t) + lnrat(q3, t) +
      &          log(mudim/(r1*r4))) +
      &        Li2omx2(xs, 1D0, xs, 1D0) -
@@ -476,11 +382,6 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 * qlbox16: D0(m2, p2, p3, m4; p1p2, p2p3; 0, m2, m3, m4)
 * Beenakker-Denner Eq. (2.9)
 	if( DEBUGLEVEL .gt. 1 ) print *, "D0softDR: qlbox16"
-
-	if( lambda .eq. -1 ) then
-	  res = fac*lxs
-	  return
-	endif
 
 	r3 = sqrt(m3)
 	x2 = bdKC(p2, r1, r3)
@@ -498,9 +399,9 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	  else if( abs(x2 - 1) .gt. acc ) then
 	    c = -2*(x2**2 + 1)/((x2 - 1)*(x2 + 1))*lx2
 	  endif
-	  res = fac*(c - lm)
+	  res(0) = fac*(c - lm)
 	else
-	  res = fac*(lm*lxs - lx2**2 - lx3**2 +
+	  res(0) = fac*(lm*lxs - lx2**2 - lx3**2 +
      &      Li2omx2(xs, 1D0, xs, 1D0) -
      &      Li2omx3(xs, 1D0, x2, 1D0, x3, 1D0) -
      &      Li2omx3(xs, 1D0, 1/x2, -1D0, 1/x3, -1D0) -
@@ -511,15 +412,15 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 
 ************************************************************************
 
-	subroutine D0CcollDR(res, para, perm)
+	subroutine D0CcollDR(res, para, perm_)
 	implicit none
-	ComplexType res, para(1,*)
-	integer perm
+	ComplexType res(0:2), para(1,*)
+	integer perm_
 
 #include "lt.h"
 #include "perm.h"
 
-	integer z, s
+	integer perm, z, s
 
 * # of non-zero momenta
 	integer nz1, nz2, nz3
@@ -717,6 +618,9 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 
 	if( DEBUGLEVEL .gt. 0 ) call DCDump("D0CcollDR", para, perm)
 
+	perm = perm_
+	perm_ = 0
+
 	z = 0
 	if( abs(Mc(3)) .lt. eps ) z = 1
 	if( abs(Mc(4)) .lt. eps ) z = z + 2
@@ -766,7 +670,7 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 
 	subroutine D0Cm1p2(res, para, perm)
 	implicit none
-	ComplexType res, para(1,*)
+	ComplexType res(0:2), para(1,*)
 	integer perm
 
 #include "lt.h"
@@ -795,26 +699,20 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	  q4 = q3
 	endif
 
-	if( lambda .eq. -2 ) then
-	  res = .5D0*(2 + ir)*fac
-	  return
-	endif
+	res(2) = .5D0*(2 + ir)*fac
 
 	goto (1, 2) ir
 
 * qlbox8: D0(0, 0, p3, p4; p1p2, p2p3; 0, 0, 0, m4)
 	if( DEBUGLEVEL .gt. 1 ) print *, "D0Cm1p2: qlbox8"
 	lm = lnrat(s, mudim)
-	if( lambda .eq. -1 ) then
-	  res = fac*(lnrat(q3, t) + lnrat(q4, t) - lm)
-	else
-	  ls = lnrat(s, m4)
-	  res = fac*(-2*(cLi2omrat(q3, t) + cLi2omrat(q4, t)) -
-     &      cLi2omrat2(q3, s, q4, m4) - pi6 +
-     &      .5D0*(lm - ls)*(lm + ls) + 2*lm*lnrat(t, m4) -
-     &      lnrat(q3, mudimc)*lnrat(q3, m4) -
-     &      lnrat(q4, mudimc)*lnrat(q4, m4))
-	endif
+	ls = lnrat(s, m4)
+	res(0) = fac*(-2*(cLi2omrat(q3, t) + cLi2omrat(q4, t)) -
+     &    cLi2omrat2(q3, s, q4, m4) - pi6 +
+     &    .5D0*(lm - ls)*(lm + ls) + 2*lm*lnrat(t, m4) -
+     &    lnrat(q3, mudim)*lnrat(q3, m4) -
+     &    lnrat(q4, mudim)*lnrat(q4, m4))
+	res(1) = fac*(lnrat(q3, t) + lnrat(q4, t) - lm)
 	return
 
 1	continue
@@ -825,13 +723,10 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	lt = lnrat(t, m4)
 	lm = lnrat(mudim, m4)
 	lq = lnrat(q4, m4)
-	if( lambda .eq. -1 ) then
-	  res = fac*(1.5D0*lm - 2*lt - ls + lq)
-	else
-	  res = fac*(2*ls*lt - lq**2 - 5*pi12 +
-     &      lm*(.75D0*lm - 2*lt - ls + lq) -
-     &      2*Li2omrat(q4, t))
-	endif
+	res(0) = fac*(2*ls*lt - lq**2 - 5*pi12 +
+     &    lm*(.75D0*lm - 2*lt - ls + lq) -
+     &    2*Li2omrat(q4, t))
+	res(1) = fac*(1.5D0*lm - 2*lt - ls + lq)
 	return
 
 2	continue
@@ -841,34 +736,26 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	ls = lnrat(s, m4)
 	lt = lnrat(t, m4)
 	lm = lnrat(mudim, m4)
-	if( lambda .eq. -1 ) then
-	  res = fac*(2*(lm - lt) - ls)
-	else
-	  res = fac*((lm - ls)*(lm - 2*lt) - .5D0*pi**2)
-	endif
+	res(0) = fac*((lm - ls)*(lm - 2*lt) - .5D0*pi**2)
+	res(1) = fac*(2*(lm - lt) - ls)
 	end
 
 ************************************************************************
 
 	subroutine D0Cm1p3(res, para, perm)
 	implicit none
-	ComplexType res, para(1,*)
+	ComplexType res(0:2), para(1,*)
 	integer perm
 
 #include "lt.h"
 
 	ComplexType s, q2
-	ComplexType m4, m4mu, q3, q4, t, fac
+	ComplexType m4, m4mu, q3, q4, t, fac, ll
 
 	ComplexType Li2omrat, cLi2omrat, Li2omrat2, cLi2omrat2
 	external Li2omrat, cLi2omrat, Li2omrat2, cLi2omrat2
 
 	if( DEBUGLEVEL .gt. 1 ) call DCDump("D0Cm1p3", para, perm)
-
-	if( lambda .eq. -2 ) then
-	  res = 0
-	  return
-	endif
 
 	q2 = -Px(2)
 	s = -Px(5)
@@ -891,34 +778,34 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	if( abs(q4) .lt. acc ) then
 	  if( DEBUGLEVEL .gt. 1 ) print *, "D0Cm1p3: qlbox9"
 	  fac = 1/(Re(s)*Re(t))
-	  if( lambda .eq. -1 ) then
-	    res = -fac*(lnrat(t, m4mu) + lnrat(s, q2))
-	  else
-	    res = fac*(Li2omrat2(q3, q2, t, m4) + 2*Li2omrat(s, q2) +
-     &        lnrat(t, m4mu) + lnrat(s, q2) + pi12)
-	  endif
+	  ll = lnrat(t, m4mu) + lnrat(s, q2)
+	  res(0) = fac*(Li2omrat2(q3, q2, t, m4) +
+     &      2*Li2omrat(s, q2) + ll**2 + pi12)
+	  res(1) = -fac*ll
+	  res(2) = .5D0*fac
 	  return
 	endif
 
 * qlbox10: D0(0, p2, p3, p4; p1p2, p2p3; 0, 0, 0, m4)
 	if( DEBUGLEVEL .gt. 1 ) print *, "D0Cm1p3: qlbox10"
 	fac = 1/(Re(s)*t - Re(q2)*q4)
-	res = fac*(lnrat(q2, mudim) + lnrat(q4, mudimc) -
-     &    lnrat(s, mudim) - lnrat(t, mudimc))
-	if( lambda .ne. -1 ) then
-	  res = 2*res*lnrat(m4mu, t) + fac*(
-     &      cLi2omrat2(q3, q2, t, m4) -
-     &      cLi2omrat2(q3, s, q4, m4) +
-     &      2*(cLi2omrat2(q2, s, q4, t) +
-     &         cLi2omrat(q2, s) - cLi2omrat(t, q4)) )
-	endif
+	ll = lnrat(q2, mudim) + lnrat(q4, mudim) -
+     &    lnrat(s, mudim) - lnrat(t, mudim)
+	res(0) = fac*(
+     &    2*ll*lnrat(m4mu, t) +
+     &    cLi2omrat2(q3, q2, t, m4) -
+     &    cLi2omrat2(q3, s, q4, m4) +
+     &    2*(cLi2omrat2(q2, s, q4, t) -
+     &      cLi2omrat(q2, s) + cLi2omrat(t, q4)) )
+	res(1) = fac*ll
+	res(2) = 0
 	end
 
 ************************************************************************
 
 	subroutine D0Cm2p3(res, para, perm)
 	implicit none
-	ComplexType res, para(1,*)
+	ComplexType res(0:2), para(1,*)
 	integer perm
 
 #include "lt.h"
@@ -970,12 +857,7 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	  m3 = Mc(4)
 	endif
 
-	if( lambda .eq. -2 ) then
-	  res = .5D0*fac*ir
-	  return
-	endif
-
-	if( lambda .eq. -1 ) goto (10, 11, 12) ir + 1
+	res(2) = .5D0*fac*ir
 
 	p3 = Px(3)
 	if( abs(p3) .lt. eps ) then
@@ -1022,10 +904,10 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 * qlbox13: D0(0, p2, p3, p4; p1p2, p2p3; 0, 0, m3, m4)
 	if( DEBUGLEVEL .gt. 1 ) print *, "D0Cm2p3: qlbox13"
 
-	ls = lnrat(s, mudimc)
-	lt = lnrat(t, mudimc)
-	lq3 = lnrat(q3, mudimc)
-	lq4 = lnrat(q4, mudimc)
+	ls = lnrat(s, mudim)
+	lt = lnrat(t, mudim)
+	lq3 = lnrat(q3, mudim)
+	lq4 = lnrat(q4, mudim)
 
 	if( case .eq. 1 ) then
 	  dilogs = cLi2omrat2(q3, t, minus1, minus1) +
@@ -1048,14 +930,11 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
      &             Li2rat(r4s,s4s, r43m,0D0)
 	endif
 
-	res = -fac*(dilogs + .5D0*logs + lq3**2 + lq4**2 +
+	res(0) = -fac*(dilogs + .5D0*logs + lq3**2 + lq4**2 +
      &    2*(cLi2omrat(q3, s) + cLi2omrat(q4, t) -
      &      cLi2omrat2(q3, s, q4, t) - ls*lt) +
      &    (lt - lq3)*log(m3/mudim) + (ls - lq4)*log(m4/mudim))
-	return
-
-10	res = fac*(lnrat(q3, mudim) + lnrat(q4, mudim) -
-     &    lnrat(s, mudim) - lnrat(t, mudim))
+	res(1) = fac*(lq3 + lq4 - ls - lt)
 	return
 
 1	continue
@@ -1068,7 +947,8 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 	lq4 = lnrat(q4, m3mu)
 
 	if( case .eq. 1 ) then
-	  dilogs = 0
+	  dilogs = cLi2omrat2(q4, s, m3, m4) +
+     &             cLi2omrat2(q4, s, -1D0, -1D0)
 	else if( case .eq. 2 ) then
 	  dilogs = cLi2omrat2(q4, s, x43(1), x43(3)) +
      &             cLi2omrat2(q4, s, x43(2), x43(4))
@@ -1079,30 +959,24 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
      &             Li2rat(r4s,s4s, r43m,0D0)
 	endif
 
-	res = -fac*(dilogs + .5D0*logs + pi12 +
+	res(0) = -fac*(dilogs + .5D0*logs + pi12 +
      &    2*(cLi2omrat(q4, t) - ls*lt) +
      &    lq4**2 + (ls - lq4)*log(m4/m3))
-	return
-
-11	continue
-	m3mu = sqrt(Re(m3)*mudim)
-	res = fac*(lnrat(q4, m3mu) -
-     &    lnrat(s, m3mu) - lnrat(t, m3mu))
+	res(1) = fac*(lq4 - ls - lt)
 	return
 
 2	continue
 * qlbox11: D0(0, m3, p3, m4; p1p2, p2p3; 0, 0, m3, m4)
+
 * qlbox11a: D0(0, p2, p3, p4; m3, m4; 0, 0, m3, m4)
 * (should have been re-routed to real D0, keep here for safety)
 	if( DEBUGLEVEL .gt. 1 ) print *, "D0Cm2p3: qlbox11"
 
-	res = fac*(.25D0*log(Re(m3)/Re(m4))**2 -
-     &    .5D0*(logs + pi**2) +
-     &    2*lnrat(s, sqrt(Re(m3)*mudim))*
-     &      lnrat(t, sqrt(Re(m4)*mudim)))
-	return
+	ls = lnrat(s, sqrt(Re(m3)*mudim))
+	lt = lnrat(t, sqrt(Re(m4)*mudim))
 
-12	res = -fac*(lnrat(s, sqrt(Re(m3)*mudim)) +
-     &    lnrat(t, sqrt(Re(m4)*mudim)))
+	res(0) = fac*(.25D0*log(Re(m3)/Re(m4))**2 -
+     &    .5D0*(logs + pi**2) + 2*ls*lt)
+	res(1) = -fac*(ls + lt)
 	end
 

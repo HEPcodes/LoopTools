@@ -2,7 +2,7 @@
 * the two-point tensor coefficients from Ansgar Denner's bcanew.f,
 * adapted to the conventions of LoopTools
 * this file is part of LoopTools
-* last modified 19 Sep 12 th
+* last modified 30 Jan 14 th
 
 #include "externals.h"
 #include "types.h"
@@ -18,13 +18,13 @@
 
 #include "lt.h"
 
-	ComplexType fpv, yfpv, fth, xlogx, A0b
-	external fpv, yfpv, fth, xlogx, A0b
+	ComplexType fpv, yfpv, fth, xlogx
+	external fpv, yfpv, fth, xlogx
 
 	RealType p, m1, m2
 	RealType dm, la
 	ComplexType x1, x2, y1, y2, r
-	ComplexType mu, f1, f2, g1, g2
+	ComplexType mu, f1, f2, g1, g2, a0
 	integer sel
 
 	m1 = M(1)
@@ -100,10 +100,13 @@
 	    B(bb111) = nan
 	  endif
 
-	  B(bb00) = ((p + dm)*B(bb1) +
-     &      2*m1*B(bb0) + A0b(m2) + m1 + m2 - p/3D0)/6D0
+	  a0 = 0
+	  if( m2 .ne. 0 ) a0 = m2*(1 - log(m2/mudim) + delta)
 
-	  B(bb001) = .125D0*( 2*m1*B(bb1) - A0b(m2) +
+	  B(bb00) = ((p + dm)*B(bb1) +
+     &      2*m1*B(bb0) + a0 + m1 + m2 - p/3D0)/6D0
+
+	  B(bb001) = .125D0*( 2*m1*B(bb1) - a0 +
      &      (p + dm)*(B(bb11) + 1/6D0) - .5D0*(m1 + m2) )
 
 	  if( abs(x1 - x2) .gt. acc*abs(x1 + x2) ) then
@@ -118,6 +121,7 @@
 	    sel = 3
 	  else
 	    B(dbb11) = nan
+	    sel = 4
 	  endif
 
 	  if( m1*m2 .eq. 0 .and.
@@ -161,7 +165,9 @@
 	    B(bb1) = 1/2D0*(mu + fpv(2, x2, y2))
 	    B(bb11) = -1/3D0*(mu + fpv(3, x2, y2))
 	    B(bb111) = 1/4D0*(mu + fpv(4, x2, y2))
-	    B(bb00) = (2*(m1*B(bb0) + A0b(m2)) + m1 + m2)/8D0
+	    a0 = 0
+	    if( m2 .ne. 0 ) a0 = m2*(1 - log(m2/mudim) + delta)
+	    B(bb00) = (2*(m1*B(bb0) + a0) + m1 + m2)/8D0
 	  else
 	    mu = log(m1/mudim) - delta
 	    f1 = fpv(1, y2, x2)
@@ -172,7 +178,9 @@
 	    B(bb111) = 1/4D0*(mu -
      &        (1 + x2*(1 + x2*(1 + x2)))*yfpv(0, x2, y2) -
      &        x2*(x2*(x2 + 1/2D0) + 1/3D0) - 1/4D0)
-	    B(bb00) = (2*(m2*B(bb0) + A0b(m1)) + m1 + m2)/8D0
+	    a0 = 0
+	    if( m1 .ne. 0 ) a0 = m1*(1 - log(m1/mudim) + delta)
+	    B(bb00) = (2*(m2*B(bb0) + a0) + m1 + m2)/8D0
 	  endif
 
 	  B(bb001) = -( ((m1 + m2)/6D0)**2 +
@@ -203,6 +211,9 @@
 
 	B(dbb00) = 1/6D0*( 2*m1*B(dbb0) + B(bb1) +
      &    (p + dm)*B(dbb1) - 1/3D0 )
+
+	B(dbb001) = 1/8D0*( 2*m1*B(dbb1) + B(bb11) +
+     &    (p + dm)*B(dbb11) + 1/6D0 )
 	end
 
 ************************************************************************
