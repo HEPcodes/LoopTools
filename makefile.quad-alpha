@@ -1,0 +1,20 @@
+ARGS = \
+  SUFFIX='-quad' \
+  FC='$$(SRC)/tools/q77' \
+  F90='f90' \
+  FFLAGS='-I$$(BLD) -fast -fpe0 -g3 -DQUAD -DKIND=2' \
+  CC='gcc -DKIND=2' \
+  QOBJS='$$(BLD)/qcomplex.o' \
+  INCLUDE='$$(BLD)/looptools.h90 $$(BLD)/qcomplex.mod'
+
+default all: force
+	$(MAKE) $(ARGS) default
+
+install: force
+	$(MAKE) $(ARGS) install
+
+clean: force
+	$(MAKE) $(ARGS) clean
+
+force:
+

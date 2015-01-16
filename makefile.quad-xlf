@@ -1,0 +1,17 @@
+ARGS = \
+  SUFFIX='-quad' \
+  FC='xlf' \
+  FFLAGS='-O2 -g -qmaxmem=-1 -qextname -qflttrap=enable:invalid:overflow:zerodivide -qautodbl=dbl -WF,-DKIND=2' \
+  CC='cc -DKIND=2'
+
+default all: force
+	$(MAKE) $(ARGS) default
+
+install: force
+	$(MAKE) $(ARGS) install
+
+clean: force
+	$(MAKE) $(ARGS) clean
+
+force:
+

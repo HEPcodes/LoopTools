@@ -1,0 +1,24 @@
+#! /bin/sh
+# this script (hopefully) figures out the location of mcc on Mac OS X
+# last modified 14 Dec 06 th
+
+
+for dir in "" /Applications/Mathematica*/Contents/MacOS/ \
+           $HOME/Desktop/Mathematica*/Contents/MacOS/ ; do
+  SystemID=`"${dir}MathKernel" -run 'Print[$SystemID]; Exit[]' < /dev/null 2> /dev/null` && break
+done
+
+if [ -z "$SystemID" ] ; then
+  echo "Cannot determine system type"
+  exit 1
+fi
+
+sdk=AddOns/MathLink/DeveloperKit/`echo "$SystemID" | tail -1`/CompilerAdditions
+
+for dir in /Applications/Mathematica*/$sdk/ \
+           $HOME/Desktop/Mathematica*/$sdk/ ; do
+  [ -x "${dir}mcc" ] && "${dir}mcc" "$@" && exit 0
+done
+
+echo "mcc not found"
+

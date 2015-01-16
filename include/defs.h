@@ -1,11 +1,132 @@
-* looptools.h
-* the header file for Fortran with all definitions for LoopTools
+* defs.h
+* internal definitions for the LoopTools routines
 * this file is part of LoopTools
 * last modified 13 Apr 06 th
 
 
-#ifndef __LOOPTOOLS_H__
-#define __LOOPTOOLS_H__
+#ifdef COMPLEXPARA
+
+#define XA0 A0C
+#define XA0b A0bC
+#define XA0sub A0subC
+#define XA00 A00C
+#define XA00sub A00subC
+#define XB0 B0C
+#define XB1 B1C
+#define XB00 B00C
+#define XB11 B11C
+#define XB001 B001C
+#define XB111 B111C
+#define XDB0 DB0C
+#define XDB1 DB1C
+#define XDB00 DB00C
+#define XDB11 DB11C
+#define XB0i B0iC
+#define XBget BgetC
+#define XBcoeff BcoeffC
+#define XBcoeffa BcoeffaC
+#define XC0 C0C
+#define XC0i C0iC
+#define XCget CgetC
+#define XCcoeff CcoeffC
+#define XD0 D0C
+#define XD0i D0iC
+#define XDget DgetC
+#define XDcoeff DcoeffC
+#define XE0 E0C
+#define XE0sub E0subC
+#define XE0i E0iC
+#define XEget EgetC
+#define XEcoeff EcoeffC
+#define XEcoeffa EcoeffaC
+#define XEcoeffb EcoeffbC
+#define XEcheck EcheckC
+#define XltEgram ltEgramC
+#define XLUDecomp LUDecompC
+#define XLUBackSubst LUBackSubstC
+#define XDet ltDetC
+#define XInverse ltInverseC
+#define XDumpPara DumpParaC
+#define XDumpCoeff DumpCoeffC
+#define XLi2 Li2C
+#define XLi2sub Li2Csub
+#define Xfpij2 cfpij2
+#define Xffa0 ffca0
+#define Xffb0 ffcb0
+#define Xffb1 ffcb1
+#define Xffb2p ffcb2p
+#define Xffdb0 ffcdb0
+
+#define RC 2
+#define DVAR double complex
+#define QVAR double complex
+#define QREAL double precision
+#define QEXT(x) x
+
+#else
+
+#define XA0 A0
+#define XA0b A0b
+#define XA0sub A0sub
+#define XA00 A00
+#define XA00sub A00sub
+#define XB0 B0
+#define XB1 B1
+#define XB00 B00
+#define XB11 B11
+#define XB001 B001
+#define XB111 B111
+#define XDB0 DB0
+#define XDB1 DB1
+#define XDB00 DB00
+#define XDB11 DB11
+#define XB0i B0i
+#define XBget Bget
+#define XBcoeff Bcoeff
+#define XBcoeffa Bcoeffa
+#define XC0 C0
+#define XC0i C0i
+#define XCget Cget
+#define XCcoeff Ccoeff
+#define XD0 D0
+#define XD0i D0i
+#define XDget Dget
+#define XDcoeff Dcoeff
+#define XE0 E0
+#define XE0sub E0sub
+#define XE0i E0i
+#define XEget Eget
+#define XEcoeff Ecoeff
+#define XEcoeffa Ecoeffa
+#define XEcoeffb Ecoeffb
+#define XEcheck Echeck
+#define XltEgram ltEgram
+#define XLUDecomp LUDecomp
+#define XLUBackSubst LUBackSubst
+#define XDet ltDet
+#define XInverse ltInverse
+#define XDumpPara DumpPara
+#define XDumpCoeff DumpCoeff
+#define XLi2 Li2
+#define XLi2sub Li2sub
+#define Xfpij2 fpij2
+#define Xffa0 ffxa0
+#define Xffb0 ffxb0
+#define Xffb1 ffxb1
+#define Xffb2p ffxb2p
+#define Xffdb0 ffxdb0
+
+#define RC 1
+#define DVAR double precision
+#ifdef QUAD
+#define QVAR real*16
+#else
+#define QVAR double precision
+#define QEXT(x) x
+#endif
+#define QREAL QVAR
+
+#endif
 
 #define bb0 1
 #define bb1 2
@@ -17,6 +138,8 @@
 #define dbb1 8
 #define dbb00 9
 #define dbb11 10
+#define Pbb 3
+#define Nbb 10
 
 #define cc0 1
 #define cc1 2
@@ -40,6 +163,8 @@
 #define cc1122 20
 #define cc1222 21
 #define cc2222 22
+#define Pcc 6
+#define Ncc 22
 
 #define dd0 1
 #define dd1 2
@@ -121,6 +246,8 @@
 #define dd22333 78
 #define dd23333 79
 #define dd33333 80
+#define Pdd 10
+#define Ndd 80
 
 #define ee0 1
 #define ee1 2
@@ -208,66 +335,33 @@
 #define ee3344 84
 #define ee3444 85
 #define ee4444 86
+#define Pee 15
+#define Nee 86
 
-#define KeyA0 2**0
-#define KeyBget 2**2
-#define KeyC0 2**4
-#define KeyD0 2**6
-#define KeyE0 2**8
-#define KeyEget 2**10
-#define KeyCEget 2**12
-#define KeyAll 5461
+#define KeyA0 0
+#define KeyBget 2
+#define KeyC0 4
+#define KeyD0 6
+#define KeyE0 8
+#define KeyEget 10
+#define KeyEgetC 12
 
-#define DebugB 2**0
-#define DebugC 2**1
-#define DebugD 2**2
-#define DebugE 2**3
-#define DebugAll 15
+#define DebugB 0
+#define DebugC 1
+#define DebugD 2
+#define DebugE 3
 
-#define Bval(id,p) cache(p+id,1)
-#define BvalC(id,p) cache(p+id,2)
-#define Cval(id,p) cache(p+id,3)
-#define CvalC(id,p) cache(p+id,4)
-#define Dval(id,p) cache(p+id,5)
-#define DvalC(id,p) cache(p+id,6)
-#define Eval(id,p) cache(p+id,7)
-#define EvalC(id,p) cache(p+id,8)
+#define Bval(id,p) cache(p+id,RC)
+#define Cval(id,p) cache(p+id,RC+2)
+#define Dval(id,p) cache(p+id,RC+4)
+#define Eval(id,p) cache(p+id,RC+6)
+#define Nval(n,id,p) cache(p+id,RC+2*n-4)
 
-#define Ccache 0
-#define Dcache 0
+#define Sgn(i) (1 - 2*iand(i,1))
 
+#ifndef KIND
+#define KIND 1
 #endif
 
-	double complex cache(2,8)
-	common /ltvars/ cache
-
-	double complex A0, A0C, B0i, B0iC
-	double complex B0, B1, B00, B11, B001, B111
-	double complex B0C, B1C, B00C, B11C, B001C, B111C
-	double complex DB0, DB1, DB00, DB11
-	double complex DB0C, DB1C, DB00C, DB11C
-	double complex C0, C0C, C0i, C0iC
-	double complex D0, D0C, D0i, D0iC
-	double complex E0, E0C, E0i, E0iC
-	double complex Li2, Li2C
-	integer Bget, BgetC, Cget, CgetC, Dget, DgetC, Eget, EgetC
-	double precision getmudim, getdelta, getlambda, getmaxdev
-	integer getwarndigits, geterrdigits
-	integer getversionkey, getdebugkey
-	integer getcachelast
-
-	external A0, A0C, B0i, B0iC
-	external B0, B1, B00, B11, B001, B111
-	external B0C, B1C, B00C, B11C, B001C, B111C
-	external DB0, DB1, DB00, DB11
-	external DB0C, DB1C, DB00C, DB11C
-	external C0, C0C, C0i, C0iC
-	external D0, D0C, D0i, D0iC
-	external E0, E0C, E0i, E0iC
-	external Li2, Li2C
-	external Bget, BgetC, Cget, CgetC, Dget, DgetC, Eget, EgetC
-	external getmudim, getdelta, getlambda, getmaxdev
-	external getwarndigits, geterrdigits
-	external getversionkey, getdebugkey
-	external setcachelast, getcachelast
+*#define WARNINGS
 

@@ -1,84 +1,296 @@
+SUFFIX =
+BLD = build$(SUFFIX)
+
 LIBDIR = $(PREFIX)/lib
 INCLUDEDIR = $(PREFIX)/include
 BINDIR = $(PREFIX)/bin
 
-LT = libooptools.a
-LTCHECK = libooptools_check.a
-INCLUDE = include/looptools.h include/clooptools.h include/ltproto.h
-BIN = $(LTMMA) utils/ccf utils/F77
+LIB = $(BLD)/libooptools$(SUFFIX).a
+FE = $(BLD)/lt$(SUFFIX)
+MMA = $(BLD)/LoopTools
+FCC = $(BLD)/fcc
+CINCLUDE = $(BLD)/clooptools.h
+
+BIN = $(FE) $(MMA)
+INCLUDE = $(SRC)/include/looptools.h $(CINCLUDE)
 
 
-all: $(LT) $(LTCHECK) $(LTMMA)
+default: $(FE) $(INCLUDE) $(FCC)
 
-install: all
+all: default $(MMA)
+
+install: default
 	-mkdir $(PREFIX)
 	-mkdir $(LIBDIR) $(BINDIR) $(INCLUDEDIR)
-	cp -p $(LT) $(LTCHECK) $(LIBDIR)
+	cp -p $(LIB) $(LIBDIR)
 	cp -p $(INCLUDE) $(INCLUDEDIR)
-	-cp -p $(BIN) $(BINDIR)
+	strip $(FE)
+	cp -p $(FCC) $(FE) $(BINDIR)
+	test ! -f $(MMA) || { strip $(MMA) ; cp -p $(MMA) $(BINDIR); }
 
 
-LTCOMMON = lt/C0i.o lt/Cget.o lt/D0i.o lt/Dget.o \
-  lt/CA0.o lt/CB0.o lt/CB1.o lt/CB00.o lt/CB11.o \
-  lt/CDB0.o lt/CDB00.o lt/CDB1.o lt/CDB11.o \
-  lt/CC0.o lt/CD0.o lt/CC0i.o lt/CCget.o lt/CD0i.o lt/CDget.o \
-  lt/ini.o lt/cache.o
+OBJS = $(QOBJS) \
+  $(BLD)/A0.o $(BLD)/A0C.o \
+  $(BLD)/A00.o $(BLD)/A00C.o \
+  $(BLD)/ffxa0.o $(BLD)/ffca0.o \
+  $(BLD)/Bget.o $(BLD)/BgetC.o \
+  $(BLD)/Bcoeff.o $(BLD)/BcoeffC.o \
+  $(BLD)/Bcoeffa.o $(BLD)/BcoeffaC.o \
+  $(BLD)/Bcoeffb.o \
+  $(BLD)/ffxb0.o $(BLD)/ffcb0.o \
+  $(BLD)/ffxb1.o $(BLD)/ffcb1.o \
+  $(BLD)/ffxb2p.o $(BLD)/ffcb2p.o \
+  $(BLD)/ffxdb0.o $(BLD)/ffcdb0.o \
+  $(BLD)/ffxdb1.o \
+  $(BLD)/ffdel2.o $(BLD)/ffcel2.o \
+  $(BLD)/C0.o $(BLD)/C0C.o \
+  $(BLD)/Cget.o $(BLD)/CgetC.o \
+  $(BLD)/ffxc0.o $(BLD)/ffcc0.o \
+  $(BLD)/ffxc0i.o $(BLD)/ffxc0p0.o \
+  $(BLD)/ffxc0p.o $(BLD)/ffcc0p.o \
+  $(BLD)/ffdxc0.o $(BLD)/ffdcc0.o \
+  $(BLD)/ffdel3.o $(BLD)/ffcel3.o \
+  $(BLD)/D0.o $(BLD)/D0C.o \
+  $(BLD)/Dget.o $(BLD)/DgetC.o \
+  $(BLD)/ffxd0.o $(BLD)/ffcd0.o \
+  $(BLD)/ffxd0h.o $(BLD)/ffxd0i.o \
+  $(BLD)/ffxd0p.o $(BLD)/ffxd0m0.o \
+  $(BLD)/ffxdbd.o $(BLD)/ffcdbd.o \
+  $(BLD)/ffdel4.o $(BLD)/ffcel4.o \
+  $(BLD)/E0.o $(BLD)/E0C.o \
+  $(BLD)/Eget.o $(BLD)/EgetC.o \
+  $(BLD)/Ecoeffa.o $(BLD)/EcoeffaC.o \
+  $(BLD)/Ecoeffb.o $(BLD)/EcoeffbC.o \
+  $(BLD)/ffxe0.o \
+  $(BLD)/ffdel5.o \
+  $(BLD)/ini.o $(BLD)/auxCD.o \
+  $(BLD)/GaussPivot.o $(BLD)/GaussPivotC.o \
+  $(BLD)/Dump.o $(BLD)/DumpC.o \
+  $(BLD)/Li2.o $(BLD)/Li2C.o \
+  $(BLD)/cache.o $(BLD)/ffinit.o \
+  $(BLD)/ffxli2.o $(BLD)/ffcli2.o \
+  $(BLD)/ffxxyz.o $(BLD)/ffcxyz.o \
+  $(BLD)/ffcrr.o $(BLD)/ffcxr.o \
+  $(BLD)/fftran.o $(BLD)/ffabcd.o $(BLD)/ff2dl2.o \
+  $(BLD)/ffcxs3.o $(BLD)/ffcxs4.o \
+  $(BLD)/ffdcxs.o $(BLD)/ffbndc.o
 
-LTOBJS = lt/A0.o lt/B0.o lt/B1.o lt/B00.o lt/B11.o \
-  lt/DB0.o lt/DB00.o lt/DB1.o lt/DB11.o \
-  lt/C0.o lt/D0.o $(LTCOMMON)
+TS = $(BLD)/timestamp
 
-LTCHECKOBJS = ltcheck/auxB.o ltcheck/auxCD.o ltcheck/check.o \
-  ltcheck/A0check.o ltcheck/B0check.o ltcheck/B1check.o \
-  ltcheck/B00check.o ltcheck/B11check.o ltcheck/DB0check.o \
-  ltcheck/DB1check.o ltcheck/DB00check.o ltcheck/DB11check.o \
-  ltcheck/C0check.o ltcheck/D0check.o $(LTCOMMON)
+FFINC = $(SRC)/include/ff.h $(TS)
 
-FFOBJS = ff/ffinit.o ff/ffbndc.o ff/ffxli2.o ff/ffcli2.o \
-  ff/fftran.o ff/ffabcd.o ff/ff2dl2.o \
-  ff/ffcrr.o ff/ffcxr.o ff/ffcxs3.o ff/ffcxs4.o \
-  ff/ffxxyz.o ff/ffcxyz.o ff/ffdxc0.o ff/ffdcc0.o ff/ffdcxs.o \
-  ff/ffdel2.o ff/ffdel3.o ff/ffdel4.o \
-  ff/ffcel2.o ff/ffcel3.o ff/ffcel4.o \
-  ff/ffxa0.o ff/ffxb0.o ff/ffxb1.o ff/ffxb2p.o ff/ffxdb0.o ff/ffxdb1.o \
-  ff/ffxc0.o ff/ffxc0i.o ff/ffxc0p0.o ff/ffxc0p.o \
-  ff/ffxd0.o ff/ffxd0h.o ff/ffxd0i.o ff/ffxd0m0.o ff/ffxd0p.o ff/ffxdbd.o \
-  ff/ffca0.o ff/ffcb0.o ff/ffcb1.o ff/ffcb2.o ff/ffcb2p.o ff/ffcdb0.o \
-  ff/ffcc0.o ff/ffcc0p.o \
-  ff/ffcd0.o ff/ffcdbd.o
+LTINC = $(SRC)/include/defs.h $(SRC)/include/lt.h $(FFINC)
 
+XFC = $(FC) -I$(SRC)/include $(FFLAGS)
+CFC = $(XFC) $(DEF)COMPLEXPARA
 
+$(BLD)/A0.o: $(SRC)/A/A0.F $(LTINC)
+	$(XFC) -c -o $(BLD)/A0.o $(SRC)/A/A0.F
+$(BLD)/A0C.o: $(SRC)/A/A0.F $(LTINC)
+	$(CFC) -c -o $(BLD)/A0C.o $(SRC)/A/A0.F
+$(BLD)/A00.o: $(SRC)/A/A00.F $(LTINC)
+	$(XFC) -c -o $(BLD)/A00.o $(SRC)/A/A00.F
+$(BLD)/A00C.o: $(SRC)/A/A00.F $(LTINC)
+	$(CFC) -c -o $(BLD)/A00C.o $(SRC)/A/A00.F
+$(BLD)/ffxa0.o: $(SRC)/A/ffxa0.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffxa0.o $(SRC)/A/ffxa0.F
+$(BLD)/ffca0.o: $(SRC)/A/ffca0.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffca0.o $(SRC)/A/ffca0.F
 
-.f.o:
-	$(FC) -Iff $(FFLAGS) -c $< -o $*.o
+$(BLD)/Bget.o: $(SRC)/B/Bget.F $(LTINC)
+	$(XFC) -c -o $(BLD)/Bget.o $(SRC)/B/Bget.F
+$(BLD)/BgetC.o: $(SRC)/B/Bget.F $(LTINC)
+	$(CFC) -c -o $(BLD)/BgetC.o $(SRC)/B/Bget.F
+$(BLD)/Bcoeff.o: $(SRC)/B/Bcoeff.F $(LTINC)
+	$(XFC) -c -o $(BLD)/Bcoeff.o $(SRC)/B/Bcoeff.F
+$(BLD)/BcoeffC.o: $(SRC)/B/BcoeffC.F $(LTINC)
+	$(XFC) -c -o $(BLD)/BcoeffC.o $(SRC)/B/BcoeffC.F
+$(BLD)/Bcoeffa.o: $(SRC)/B/Bcoeffa.F $(LTINC)
+	$(XFC) -c -o $(BLD)/Bcoeffa.o $(SRC)/B/Bcoeffa.F
+$(BLD)/BcoeffaC.o: $(SRC)/B/Bcoeffa.F $(LTINC)
+	$(CFC) -c -o $(BLD)/BcoeffaC.o $(SRC)/B/Bcoeffa.F
+$(BLD)/Bcoeffb.o: $(SRC)/B/Bcoeffb.F $(LTINC)
+	$(XFC) -c -o $(BLD)/Bcoeffb.o $(SRC)/B/Bcoeffb.F
+$(BLD)/ffxb0.o: $(SRC)/B/ffxb0.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffxb0.o $(SRC)/B/ffxb0.F
+$(BLD)/ffcb0.o: $(SRC)/B/ffcb0.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffcb0.o $(SRC)/B/ffcb0.F
+$(BLD)/ffxb1.o: $(SRC)/B/ffxb1.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffxb1.o $(SRC)/B/ffxb1.F
+$(BLD)/ffcb1.o: $(SRC)/B/ffcb1.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffcb1.o $(SRC)/B/ffcb1.F
+$(BLD)/ffxb2p.o: $(SRC)/B/ffxb2p.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffxb2p.o $(SRC)/B/ffxb2p.F
+$(BLD)/ffcb2p.o: $(SRC)/B/ffcb2p.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffcb2p.o $(SRC)/B/ffcb2p.F
+$(BLD)/ffxdb0.o: $(SRC)/B/ffxdb0.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffxdb0.o $(SRC)/B/ffxdb0.F
+$(BLD)/ffcdb0.o: $(SRC)/B/ffcdb0.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffcdb0.o $(SRC)/B/ffcdb0.F
+$(BLD)/ffxdb1.o: $(SRC)/B/ffxdb1.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffxdb1.o $(SRC)/B/ffxdb1.F
+$(BLD)/ffdel2.o: $(SRC)/B/ffdel2.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffdel2.o $(SRC)/B/ffdel2.F
+$(BLD)/ffcel2.o: $(SRC)/B/ffcel2.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffcel2.o $(SRC)/B/ffcel2.F
 
-.F.o:
-	$(FFC) -Ilt -Iltcheck -Iff $(FFLAGS) -c $< -o $*.o
+$(BLD)/C0.o: $(SRC)/C/C0.F $(LTINC)
+	$(XFC) -c -o $(BLD)/C0.o $(SRC)/C/C0.F
+$(BLD)/C0C.o: $(SRC)/C/C0C.F $(LTINC)
+	$(XFC) -c -o $(BLD)/C0C.o $(SRC)/C/C0C.F
+$(BLD)/Cget.o: $(SRC)/C/Cget.F $(LTINC)
+	$(XFC) -c -o $(BLD)/Cget.o $(SRC)/C/Cget.F
+$(BLD)/CgetC.o: $(SRC)/C/Cget.F $(LTINC)
+	$(CFC) -c -o $(BLD)/CgetC.o $(SRC)/C/Cget.F
+$(BLD)/ffxc0.o: $(SRC)/C/ffxc0.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffxc0.o $(SRC)/C/ffxc0.F
+$(BLD)/ffcc0.o: $(SRC)/C/ffcc0.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffcc0.o $(SRC)/C/ffcc0.F
+$(BLD)/ffxc0i.o: $(SRC)/C/ffxc0i.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffxc0i.o $(SRC)/C/ffxc0i.F
+$(BLD)/ffxc0p.o: $(SRC)/C/ffxc0p.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffxc0p.o $(SRC)/C/ffxc0p.F
+$(BLD)/ffxc0p0.o: $(SRC)/C/ffxc0p0.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffxc0p0.o $(SRC)/C/ffxc0p0.F
+$(BLD)/ffcc0p.o: $(SRC)/C/ffcc0p.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffcc0p.o $(SRC)/C/ffcc0p.F
+$(BLD)/ffdxc0.o: $(SRC)/C/ffdxc0.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffdxc0.o $(SRC)/C/ffdxc0.F
+$(BLD)/ffdcc0.o: $(SRC)/C/ffdcc0.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffdcc0.o $(SRC)/C/ffdcc0.F
+$(BLD)/ffdel3.o: $(SRC)/C/ffdel3.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffdel3.o $(SRC)/C/ffdel3.F
+$(BLD)/ffcel3.o: $(SRC)/C/ffcel3.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffcel3.o $(SRC)/C/ffcel3.F
 
-.c.o:
-	$(CC) $(CFLAGS) -c $< -o $*.o
+$(BLD)/D0.o: $(SRC)/D/D0.F $(LTINC)
+	$(XFC) -c -o $(BLD)/D0.o $(SRC)/D/D0.F
+$(BLD)/D0C.o: $(SRC)/D/D0C.F $(LTINC)
+	$(XFC) -c -o $(BLD)/D0C.o $(SRC)/D/D0C.F
+$(BLD)/Dget.o: $(SRC)/D/Dget.F $(LTINC)
+	$(XFC) -c -o $(BLD)/Dget.o $(SRC)/D/Dget.F
+$(BLD)/DgetC.o: $(SRC)/D/Dget.F $(LTINC)
+	$(CFC) -c -o $(BLD)/DgetC.o $(SRC)/D/Dget.F
+$(BLD)/ffxd0.o: $(SRC)/D/ffxd0.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffxd0.o $(SRC)/D/ffxd0.F
+$(BLD)/ffcd0.o: $(SRC)/D/ffcd0.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffcd0.o $(SRC)/D/ffcd0.F
+$(BLD)/ffxd0h.o: $(SRC)/D/ffxd0h.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffxd0h.o $(SRC)/D/ffxd0h.F
+$(BLD)/ffxd0i.o: $(SRC)/D/ffxd0i.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffxd0i.o $(SRC)/D/ffxd0i.F
+$(BLD)/ffxd0p.o: $(SRC)/D/ffxd0p.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffxd0p.o $(SRC)/D/ffxd0p.F
+$(BLD)/ffxd0m0.o: $(SRC)/D/ffxd0m0.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffxd0m0.o $(SRC)/D/ffxd0m0.F
+$(BLD)/ffxdbd.o: $(SRC)/D/ffxdbd.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffxdbd.o $(SRC)/D/ffxdbd.F
+$(BLD)/ffcdbd.o: $(SRC)/D/ffcdbd.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffcdbd.o $(SRC)/D/ffcdbd.F
+$(BLD)/ffdel4.o: $(SRC)/D/ffdel4.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffdel4.o $(SRC)/D/ffdel4.F
+$(BLD)/ffcel4.o: $(SRC)/D/ffcel4.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffcel4.o $(SRC)/D/ffcel4.F
 
+$(BLD)/E0.o: $(SRC)/E/E0.F $(LTINC)
+	$(XFC) -c -o $(BLD)/E0.o $(SRC)/E/E0.F
+$(BLD)/E0C.o: $(SRC)/E/E0.F $(LTINC)
+	$(CFC) -c -o $(BLD)/E0C.o $(SRC)/E/E0.F
+$(BLD)/Eget.o: $(SRC)/E/Eget.F $(LTINC)
+	$(XFC) -c -o $(BLD)/Eget.o $(SRC)/E/Eget.F
+$(BLD)/EgetC.o: $(SRC)/E/Eget.F $(LTINC)
+	$(CFC) -c -o $(BLD)/EgetC.o $(SRC)/E/Eget.F
+$(BLD)/Ecoeffa.o: $(SRC)/E/Ecoeffa.F $(LTINC)
+	$(XFC) -c -o $(BLD)/Ecoeffa.o $(SRC)/E/Ecoeffa.F
+$(BLD)/EcoeffaC.o: $(SRC)/E/Ecoeffa.F $(LTINC)
+	$(CFC) -c -o $(BLD)/EcoeffaC.o $(SRC)/E/Ecoeffa.F
+$(BLD)/Ecoeffb.o: $(SRC)/E/Ecoeffb.F $(LTINC)
+	$(XFC) -c -o $(BLD)/Ecoeffb.o $(SRC)/E/Ecoeffb.F
+$(BLD)/EcoeffbC.o: $(SRC)/E/Ecoeffb.F $(LTINC)
+	$(CFC) -c -o $(BLD)/EcoeffbC.o $(SRC)/E/Ecoeffb.F
+$(BLD)/ffxe0.o: $(SRC)/E/ffxe0.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffxe0.o $(SRC)/E/ffxe0.F
+$(BLD)/ffdel5.o: $(SRC)/E/ffdel5.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffdel5.o $(SRC)/E/ffdel5.F
 
-$(LT): $(FFOBJS) $(LTOBJS)
-	ar cru $(LT) $(OTHEROBJS) $(LTOBJS) $(FFOBJS)
-	-ranlib $(LT)
+$(BLD)/ini.o: $(SRC)/util/ini.F $(LTINC)
+	$(XFC) -c -o $(BLD)/ini.o $(SRC)/util/ini.F
+$(BLD)/auxCD.o: $(SRC)/util/auxCD.F $(LTINC)
+	$(XFC) -c -o $(BLD)/auxCD.o $(SRC)/util/auxCD.F
+$(BLD)/GaussPivot.o: $(SRC)/util/GaussPivot.F $(LTINC)
+	$(XFC) -c -o $(BLD)/GaussPivot.o $(SRC)/util/GaussPivot.F
+$(BLD)/GaussPivotC.o: $(SRC)/util/GaussPivot.F $(LTINC)
+	$(CFC) -c -o $(BLD)/GaussPivotC.o $(SRC)/util/GaussPivot.F
+$(BLD)/Dump.o: $(SRC)/util/Dump.F $(LTINC)
+	$(XFC) -c -o $(BLD)/Dump.o $(SRC)/util/Dump.F
+$(BLD)/DumpC.o: $(SRC)/util/Dump.F $(LTINC)
+	$(CFC) -c -o $(BLD)/DumpC.o $(SRC)/util/Dump.F
+$(BLD)/Li2.o: $(SRC)/util/Li2.F $(SRC)/include/defs.h
+	$(XFC) -c -o $(BLD)/Li2.o $(SRC)/util/Li2.F
+$(BLD)/Li2C.o: $(SRC)/util/Li2.F $(SRC)/include/defs.h
+	$(CFC) -c -o $(BLD)/Li2C.o $(SRC)/util/Li2.F
+$(BLD)/cache.o: $(SRC)/util/cache.c $(LTINC)
+	$(CC) $(CFLAGS) -c -o $(BLD)/cache.o $(SRC)/util/cache.c
+$(BLD)/ffinit.o: $(SRC)/util/ffinit.F $(LTINC) $(SRC)/include/fferr.h $(SRC)/include/ffwarn.h
+	$(XFC) -c -o $(BLD)/ffinit.o $(SRC)/util/ffinit.F
+$(BLD)/ffxli2.o: $(SRC)/util/ffxli2.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffxli2.o $(SRC)/util/ffxli2.F
+$(BLD)/ffcli2.o: $(SRC)/util/ffcli2.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffcli2.o $(SRC)/util/ffcli2.F
+$(BLD)/ffxxyz.o: $(SRC)/util/ffxxyz.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffxxyz.o $(SRC)/util/ffxxyz.F
+$(BLD)/ffcxyz.o: $(SRC)/util/ffcxyz.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffcxyz.o $(SRC)/util/ffcxyz.F
+$(BLD)/ffcrr.o: $(SRC)/util/ffcrr.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffcrr.o $(SRC)/util/ffcrr.F
+$(BLD)/ffcxr.o: $(SRC)/util/ffcxr.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffcxr.o $(SRC)/util/ffcxr.F
+$(BLD)/fftran.o: $(SRC)/util/fftran.F $(FFINC)
+	$(XFC) -c -o $(BLD)/fftran.o $(SRC)/util/fftran.F
+$(BLD)/ffabcd.o: $(SRC)/util/ffabcd.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffabcd.o $(SRC)/util/ffabcd.F
+$(BLD)/ff2dl2.o: $(SRC)/util/ff2dl2.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ff2dl2.o $(SRC)/util/ff2dl2.F
+$(BLD)/ffcxs3.o: $(SRC)/util/ffcxs3.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffcxs3.o $(SRC)/util/ffcxs3.F
+$(BLD)/ffcxs4.o: $(SRC)/util/ffcxs4.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffcxs4.o $(SRC)/util/ffcxs4.F
+$(BLD)/ffdcxs.o: $(SRC)/util/ffdcxs.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffdcxs.o $(SRC)/util/ffdcxs.F
+$(BLD)/ffbndc.o: $(SRC)/util/ffbndc.F $(FFINC)
+	$(XFC) -c -o $(BLD)/ffbndc.o $(SRC)/util/ffbndc.F
+$(BLD)/qcomplex.o $(BLD)/qcomplex.mod: $(SRC)/util/qcomplex.f90 $(TS)
+	$(F90) -O -c -module $(BLD) -o $(BLD)/qcomplex.o $(SRC)/util/qcomplex.f90
 
-$(LTCHECK): $(FFOBJS) $(LTCHECKOBJS)
-	ar cru $(LTCHECK) $(OTHEROBJS) $(LTCHECKOBJS) $(FFOBJS)
-	-ranlib $(LT)
+$(BLD)/f77290: $(SRC)/tools/f77290.c $(TS)
+	$(CC) $(CFLAGS) -o $(BLD)/f77290 $(SRC)/tools/f77290.c
+$(BLD)/looptools.h90: $(SRC)/include/looptools.h $(BLD)/f77290
+	$(BLD)/f77290 $(SRC)/include/looptools.h $(BLD)/looptools.h90
 
-$(FFOBJS): ff/ff.h
+$(LIB): $(OBJS)
+	ar cru $(LIB) $?
+	-ranlib $(LIB)
 
-$(LTOBJS): ff/ff.h lt/lt.h
+$(FE): $(SRC)/frontend/lt.F $(LTINC) $(LIB)
+	$(XFC) -o $(FE) $(SRC)/frontend/lt.F $(LIB)
+	-rm -f lt.o
 
-$(LTCHECKOBJS): ff/ff.h ltcheck/ltcheck.h
+$(CINCLUDE): $(SRC)/include/clooptools.h.in $(SRC)/include/ftypes.h
+	sed "s:UNDERSCORE:$(UNDERSCORE):" $(SRC)/include/ftypes.h $(SRC)/include/clooptools.h.in > $(CINCLUDE)
 
+$(FCC): $(SRC)/tools/fcc.in
+	sed "s:^libs=.*:libs=\"$(LDFLAGS)\":" $(SRC)/tools/fcc.in > $(FCC)
+	chmod 755 $(FCC)
 
-LoopTools: mma/LoopTools.tm $(LT)
-	-CC=utils/ccf mcc mma/LoopTools.tm -o LoopTools -Iinclude $(CFLAGS) $(LT)
-	-strip LoopTools
+$(MMA): $(SRC)/frontend/LoopTools.tm $(SRC)/include/clooptools.h.in $(LIB) $(FCC)
+	cp $(SRC)/frontend/LoopTools.tm $(BLD)
+	CC=$(FCC) REALCC=$(CC) PATH=$(PATH):tools \
+	  mcc $(BLD)/LoopTools.tm -o $(MMA) $(CFLAGS) $(LIB)
 
+$(TS):
+	-mkdir $(BLD)
+	touch $(TS)
 
 clean:
-	rm -f $(LT) $(LTCHECK) $(LTMMA) $(LTOBJS) $(LTCHECKOBJS) $(FFOBJS)
+	rm -fr $(BLD)
 
