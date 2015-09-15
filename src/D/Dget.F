@@ -2,7 +2,7 @@
 * retrieve the four-point tensor coefficients
 * this file is part of LoopTools
 * improvements by M. Rauch
-* last modified 28 Feb 14 th
+* last modified 23 Mar 15 th
 
 #include "externals.h"
 #include "types.h"
@@ -26,12 +26,6 @@
 	P(4) = p4
 	P(5) = p1p2
 	P(6) = p2p3
-#ifdef COMPLEXPARA
-	if( abs(Im(P(1))) + abs(Im(P(2))) +
-     &      abs(Im(P(3))) + abs(Im(P(4))) +
-     &      abs(Im(P(5))) + abs(Im(P(6))) .gt. 0 )
-     &    print *, "Complex momenta not implemented"
-#endif
 
 	M(1) = m1
 	if( abs(M(1)) .lt. minmass ) M(1) = 0
@@ -64,6 +58,10 @@
 	DVAR para(1,Pdd+3)
 
 #ifdef COMPLEXPARA
+	if( abs(Im(p1)) + abs(Im(p2)) +
+     &      abs(Im(p3)) + abs(Im(p4)) +
+     &      abs(Im(p1p2)) + abs(Im(p2p3)) .gt. 0 )
+     &    print *, "Complex momenta not implemented"
 	if( abs(Im(m1)) + abs(Im(m2)) +
      &      abs(Im(m3)) + abs(Im(m4)) .eq. 0 ) then
 	  XDget = Dget(p1, p2, p3, p4, p1p2, p2p3,
@@ -92,6 +90,10 @@
 	DVAR para(1,Pdd+3)
 
 #ifdef COMPLEXPARA
+	if( abs(Im(p1)) + abs(Im(p2)) +
+     &      abs(Im(p3)) + abs(Im(p4)) +
+     &      abs(Im(p1p2)) + abs(Im(p2p3)) .gt. 0 )
+     &    print *, "Complex momenta not implemented"
 	if( abs(Im(m1)) + abs(Im(m2)) +
      &      abs(Im(m3)) + abs(Im(m4)) .eq. 0 ) then
 	  call Dput(res, p1, p2, p3, p4, p1p2, p2p3, m1, m2, m3, m4)
@@ -117,6 +119,10 @@
 	DVAR para(1,Pdd+3)
 
 #ifdef COMPLEXPARA
+	if( abs(Im(p1)) + abs(Im(p2)) +
+     &      abs(Im(p3)) + abs(Im(p4)) +
+     &      abs(Im(p1p2)) + abs(Im(p2p3)) .gt. 0 )
+     &    print *, "Complex momenta not implemented"
 	if( abs(Im(m1)) + abs(Im(m2)) +
      &      abs(Im(m3)) + abs(Im(m4)) .eq. 0 ) then
 	  call D0nocache(res, p1, p2, p3, p4, p1p2, p2p3,

@@ -703,8 +703,8 @@
 :Evaluate: PaVe[i__Integer, {p__}, {m__}] :=
 	ToExpression[#1 <> "0i"][
 	  ToExpression[#2 <> #2 <> ToString/@ Sort[{i}]], p, m ]&[
-	  FromCharacterCode[Length[m] + 64],
-	  FromCharacterCode[Length[m] + 96] ]
+	  FromCharacterCode[Length[{m}] + 64],
+	  FromCharacterCode[Length[{m}] + 96] ]
 
 :Evaluate:
 	DRResult[c0_, c1_, c2_] := c0 + c1 DR1eps + c2 DR1eps^2;
@@ -735,7 +735,7 @@
 	LoopTools.tm
 		provides the LoopTools functions in Mathematica
 		this file is part of LoopTools
-		last modified 2 Sep 14 th
+		last modified 8 May 15 th
 */
 
 

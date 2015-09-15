@@ -1,7 +1,7 @@
 * Bget.F
 * retrieve the two-point tensor coefficients
 * this file is part of LoopTools
-* last modified 28 Feb 14 th
+* last modified 23 Mar 15 th
 
 #include "externals.h"
 #include "types.h"
@@ -18,10 +18,6 @@
 #include "lt.h"
 
 	P(1) = p
-#ifdef COMPLEXPARA
-	if( abs(Im(P(1))) .gt. 0 )
-     &    print *, "Complex momenta not implemented"
-#endif
 
 	M(1) = m1
 	if( abs(M(1)) .lt. minmass ) M(1) = 0
@@ -48,6 +44,8 @@
 	DVAR para(1,Pbb)
 
 #ifdef COMPLEXPARA
+	if( abs(Im(p)) .gt. 0 )
+     &    print *, "Complex momenta not implemented"
 	if( abs(Im(m1)) + abs(Im(m2)) .eq. 0 ) then
 	  XBget = Bget(p, m1, m2) - offsetC
 	  return
@@ -72,6 +70,8 @@
 	DVAR para(1,Pbb)
 
 #ifdef COMPLEXPARA
+	if( abs(Im(p)) .gt. 0 )
+     &    print *, "Complex momenta not implemented"
 	if( abs(Im(m1)) + abs(Im(m2)) .eq. 0 ) then
 	  call Bput(res, p, m1, m2)
 	  return
@@ -96,6 +96,8 @@
 	DVAR para(1,Pbb)
 
 #ifdef COMPLEXPARA
+	if( abs(Im(p)) .gt. 0 )
+     &    print *, "Complex momenta not implemented"
 	if( abs(Im(m1)) + abs(Im(m2)) .eq. 0 ) then
 	  call Bputnocache(res, p, m1, m2)
 	  return

@@ -2,7 +2,7 @@
 * the three-point tensor coefficients
 * this file is part of LoopTools
 * improvements by M. Rauch
-* last modified 28 Feb 14 th
+* last modified 23 Mar 15 th
 
 #include "externals.h"
 #include "types.h"
@@ -21,10 +21,6 @@
 	P(1) = p1
 	P(2) = p2
 	P(3) = p1p2
-#ifdef COMPLEXPARA
-	if( abs(Im(P(1))) + abs(Im(P(2))) + abs(Im(P(3))) .gt. 0 )
-     &    print *, "Complex momenta not implemented"
-#endif
 
 	M(1) = m1
 	if( abs(M(1)) .lt. minmass ) M(1) = 0
@@ -53,6 +49,8 @@
 	DVAR para(1,Pcc)
 
 #ifdef COMPLEXPARA
+	if( abs(Im(p1)) + abs(Im(p2)) + abs(Im(p1p2)) .gt. 0 )
+     &    print *, "Complex momenta not implemented"
 	if( abs(Im(m1)) + abs(Im(m2)) + abs(Im(m3)) .eq. 0 ) then
 	  XCget = Cget(p1, p2, p1p2, m1, m2, m3) - offsetC
 	  return
@@ -77,6 +75,8 @@
 	DVAR para(1,Pcc)
 
 #ifdef COMPLEXPARA
+	if( abs(Im(p1)) + abs(Im(p2)) + abs(Im(p1p2)) .gt. 0 )
+     &    print *, "Complex momenta not implemented"
 	if( abs(Im(m1)) + abs(Im(m2)) + abs(Im(m3)) .eq. 0 ) then
 	  call Cput(res, p1, p2, p1p2, m1, m2, m3)
 	  return
@@ -99,6 +99,8 @@
 	DVAR para(1,Pcc)
 
 #ifdef COMPLEXPARA
+	if( abs(Im(p1)) + abs(Im(p2)) + abs(Im(p1p2)) .gt. 0 )
+     &    print *, "Complex momenta not implemented"
 	if( abs(Im(m1)) + abs(Im(m2)) + abs(Im(m3)) .eq. 0 ) then
 	  call C0nocache(res, p1, p2, p1p2, m1, m2, m3)
 	  return
