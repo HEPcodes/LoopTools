@@ -2,7 +2,7 @@
 * the three-point tensor coefficients
 * this file is part of LoopTools
 * improvements by M. Rauch
-* last modified 23 Mar 15 th
+* last modified 20 Jan 16 th
 
 #include "externals.h"
 #include "types.h"
@@ -187,12 +187,12 @@
 	QVAR Ginv(2,2)
 #define IN(i) in(:,i)
 #define SOLVE_SETUP XInverse(2, G,2, Ginv,2)
-#define SOLVE(b) XSolve(2, G,2, Ginv,2, b)
+#define SOLVER(b) XSolve(2, G,2, Ginv,2, b)
 #else
 	integer perm(2)
 #define IN(i) in(:,perm(i))
 #define SOLVE_SETUP XDecomp(2, G,2, perm)
-#define SOLVE(b) XSolve(2, G,2, b)
+#define SOLVER(b) XSolve(2, G,2, b)
 #endif
 #define OUT(i) in(:,i)
 
@@ -235,7 +235,7 @@
 
 	IN(1) = f1*C(CC0) - B23(BB0) + B13(BB0)
 	IN(2) = f2*C(CC0) - B23(BB0) + B12(BB0)
-	call SOLVE(in)
+	call SOLVER(in)
 	C(CC1) = OUT(1)
 	C(CC2) = OUT(2)
 
@@ -244,13 +244,13 @@
 
 	IN(1) = f1*C(CC1) + bsum - 2*C(CC00)
 	IN(2) = f2*C(CC1) + bsum + B12(BB1)
-	call SOLVE(in)
+	call SOLVER(in)
 	C(CC11) = OUT(1)
 	C(CC12) = OUT(2)
 
 	IN(1) = f1*C(CC2) - B23(BB1) + B13(BB1)
 	IN(2) = f2*C(CC2) - B23(BB1) - 2*C(CC00)
-	call SOLVE(in)
+	call SOLVER(in)
 	C(CC12) = .5D0*(C(CC12) + OUT(1))
 	C(CC22) = OUT(2)
 
@@ -262,13 +262,13 @@
 	bsum = bsum + b1sum
 	IN(1) = f1*C(CC11) - bsum - 4*C(CC001)
 	IN(2) = f2*C(CC11) - bsum + B12(BB11)
-	call SOLVE(in)
+	call SOLVER(in)
 	C(CC111) = OUT(1)
 	C(CC112) = OUT(2)
 
 	IN(1) = f1*C(CC22) - B23(BB11) + B13(BB11)
 	IN(2) = f2*C(CC22) - B23(BB11) - 4*C(CC002)
-	call SOLVE(in)
+	call SOLVER(in)
 	C(CC122) = OUT(1)
 	C(CC222) = OUT(2)
 
@@ -278,32 +278,32 @@
 
 	IN(1) = f1*C(CC001) + b00sum - 2*C(CC0000)
 	IN(2) = f2*C(CC001) + b00sum + B12(BB001)
-	call SOLVE(in)
+	call SOLVER(in)
 	C(CC0011) = OUT(1)
 	C(CC0012) = OUT(2)
 
 	IN(1) = f1*C(CC002) - B23(BB001) + B13(BB001)
 	IN(2) = f2*C(CC002) - B23(BB001) - 2*C(CC0000)
-	call SOLVE(in)
+	call SOLVER(in)
 	C(CC0012) = .5D0*(C(CC0012) + OUT(1))
 	C(CC0022) = OUT(2)
 
 	bsum = bsum + b1sum + b11sum
 	IN(1) = f1*C(CC111) + bsum - 6*C(CC0011)
 	IN(2) = f2*C(CC111) + bsum + B12(BB111)
-	call SOLVE(in)
+	call SOLVER(in)
 	C(CC1111) = OUT(1)
 	C(CC1112) = OUT(2)
 
 	IN(1) = f1*C(CC222) - B23(BB111) + B13(BB111)
 	IN(2) = f2*C(CC222) - B23(BB111) - 6*C(CC0022)
-	call SOLVE(in)
+	call SOLVER(in)
 	C(CC1222) = OUT(1)
 	C(CC2222) = OUT(2)
 
 	IN(1) = f1*C(CC122) + b11sum - 2*C(CC0022)
 	IN(2) = f2*C(CC122) + b11sum - 4*C(CC0012)
-	call SOLVE(in)
+	call SOLVER(in)
 	C(CC1122) = OUT(1)
 	C(CC1222) = .5D0*(C(CC1222) + OUT(2))
 

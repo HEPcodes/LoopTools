@@ -79,7 +79,7 @@
 	    endif
 	  enddo
 
-          perm(invperm(pj)) = j
+	  perm(invperm(pj)) = j
 
 * exchange rows
 	  if( pj .ne. j ) then

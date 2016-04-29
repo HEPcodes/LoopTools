@@ -2,7 +2,7 @@
 * the five-point tensor coefficients via Passarino-Veltman decomposition
 * this file is part of LoopTools
 * written by M. Rauch
-* last modified 21 Feb 14 th
+* last modified 20 Jan 16 th
 
 #include "externals.h"
 #include "types.h"
@@ -39,12 +39,12 @@
 
 #ifdef SOLVE_EIGEN
 #define SOLVE_SETUP XInverse(4, G,4, Ginv,4)
-#define SOLVE(b) XSolve(4, G,4, Ginv,4, b)
+#define SOLVER(b) XSolve(4, G,4, Ginv,4, b)
 #else
 	integer perm(4)
 #define IN(i) in(perm(i))
 #define SOLVE_SETUP XInverse(4, G,4, Ginv,4, perm)
-#define SOLVE(b) XSolve(4, G,4, b)
+#define SOLVER(b) XSolve(4, G,4, b)
 #endif
 
 	serial = serial + 1
@@ -146,7 +146,7 @@
 	IN(2) = f2*E(ee0) - D2345(dd0) + D1245(dd0)
 	IN(3) = f3*E(ee0) - D2345(dd0) + D1235(dd0)
 	IN(4) = f4*E(ee0) - D2345(dd0) + D1234(dd0)
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee1) = in(1)
 	E(ee2) = in(2)
 	E(ee3) = in(3)
@@ -158,7 +158,7 @@
 	IN(2) = f2*E(ee1) + d0sum + D1245(dd1)
 	IN(3) = f3*E(ee1) + d0sum + D1235(dd1)
 	IN(4) = f4*E(ee1) + d0sum + D1234(dd1)
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee11) = in(1)
 	E(ee12) = in(2)
 	E(ee13) = in(3)
@@ -168,7 +168,7 @@
 	IN(2) = f2*E(ee2) - D2345(dd1)
 	IN(3) = f3*E(ee2) - D2345(dd1) + D1235(dd2)
 	IN(4) = f4*E(ee2) - D2345(dd1) + D1234(dd2)
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee12) = .5D0*(E(ee12) + in(1))
 	E(ee22) = in(2)
 	E(ee23) = in(3)
@@ -178,7 +178,7 @@
 	IN(2) = f2*E(ee3) - D2345(dd2) + D1245(dd2)
 	IN(3) = f3*E(ee3) - D2345(dd2)
 	IN(4) = f4*E(ee3) - D2345(dd2) + D1234(dd3)
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee13) = .5D0*(E(ee13) + in(1))
 	E(ee23) = .5D0*(E(ee23) + in(2))
 	E(ee33) = in(3)
@@ -188,7 +188,7 @@
 	IN(2) = f2*E(ee4) - D2345(dd3) + D1245(dd3)
 	IN(3) = f3*E(ee4) - D2345(dd3) + D1235(dd3)
 	IN(4) = f4*E(ee4) - D2345(dd3)
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee14) = .5D0*(E(ee14) + in(1))
 	E(ee24) = .5D0*(E(ee24) + in(2))
 	E(ee34) = .5D0*(E(ee34) + in(3))
@@ -208,7 +208,7 @@
      &    2*Ginv(1,1)*(D2345(dd00) - D1235(dd00))
 	IN(4) = f4*E(ee11) - d0sum + D1234(dd11) -
      &    2*Ginv(1,1)*(D2345(dd00) - D1234(dd00))
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee111) = in(1)
 	E(ee112) = in(2)
 	E(ee113) = in(3)
@@ -222,7 +222,7 @@
      &    2*Ginv(2,2)*(D2345(dd00) - D1235(dd00))
 	IN(4) = f4*E(ee22) - D2345(dd11) + D1234(dd22) -
      &    2*Ginv(2,2)*(D2345(dd00) - D1234(dd00))
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee122) = in(1)
 	E(ee222) = in(2)
 	E(ee223) = in(3)
@@ -236,7 +236,7 @@
      &    2*Ginv(3,3)*(D2345(dd00) - D1235(dd00))
 	IN(4) = f4*E(ee33) - D2345(dd22) + D1234(dd33) -
      &    2*Ginv(3,3)*(D2345(dd00) - D1234(dd00))
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee133) = in(1)
 	E(ee233) = in(2)
 	E(ee333) = in(3)
@@ -250,7 +250,7 @@
      &    2*Ginv(4,4)*(D2345(dd00) - D1235(dd00))
 	IN(4) = f4*E(ee44) - D2345(dd33) -
      &    2*Ginv(4,4)*(D2345(dd00) - D1234(dd00))
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee144) = in(1)
 	E(ee244) = in(2)
 	E(ee344) = in(3)
@@ -264,7 +264,7 @@
      &    2*Ginv(1,2)*(D2345(dd00) - D1235(dd00))
 	IN(4) = f4*E(ee12) + d1sum + D1234(dd12) -
      &    2*Ginv(1,2)*(D2345(dd00) - D1234(dd00))
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee112) = .5D0*(E(ee112) + in(1))
 	E(ee122) = .5D0*(E(ee122) + in(2))
 	E(ee123) = in(3)
@@ -278,7 +278,7 @@
      &    2*Ginv(3,4)*(D2345(dd00) - D1235(dd00))
 	IN(4) = f4*E(ee34) - D2345(dd23) -
      &    2*Ginv(3,4)*(D2345(dd00) - D1234(dd00))
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee134) = in(1)
 	E(ee234) = in(2)
 	E(ee334) = .5D0*(E(ee334) + in(3))
@@ -305,7 +305,7 @@
      &    6*Ginv(1,1)*(d00sum + D1235(dd001))
 	IN(4) = f4*E(ee111) + d0sum + D1234(dd111) +
      &    6*Ginv(1,1)*(d00sum + D1234(dd001))
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee1111) = in(1)
 	E(ee1112) = in(2)
 	E(ee1113) = in(3)
@@ -319,7 +319,7 @@
      &    6*Ginv(2,2)*(D2345(dd001) - D1235(dd002))
 	IN(4) = f4*E(ee222) - D2345(dd111) + D1234(dd222) -
      &    6*Ginv(2,2)*(D2345(dd001) - D1234(dd002))
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee1222) = in(1)
 	E(ee2222) = in(2)
 	E(ee2223) = in(3)
@@ -333,7 +333,7 @@
      &    6*Ginv(3,3)*D2345(dd002)
 	IN(4) = f4*E(ee333) - D2345(dd222) + D1234(dd333) -
      &    6*Ginv(3,3)*(D2345(dd002) - D1234(dd003))
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee1333) = in(1)
 	E(ee2333) = in(2)
 	E(ee3333) = in(3)
@@ -347,7 +347,7 @@
      &    6*Ginv(4,4)*(D2345(dd003) - D1235(dd003))
 	IN(4) = f4*E(ee444) - D2345(dd333) -
      &    6*Ginv(4,4)*D2345(dd003)
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee1444) = in(1)
 	E(ee2444) = in(2)
 	E(ee3444) = in(3)
@@ -366,7 +366,7 @@
 	IN(4) = f4*E(ee112) - d1sum + D1234(dd112) -
      &    2*Ginv(1,1)*(D2345(dd001) - D1234(dd002)) +
      &    4*Ginv(1,2)*(d00sum + D1234(dd001))
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee1112) = .5D0*(E(ee1112) + in(1))
 	E(ee1122) = in(2)
 	E(ee1123) = in(3)
@@ -384,7 +384,7 @@
 	IN(4) = f4*E(ee223) - D2345(dd112) + D1234(dd223) -
      &    2*Ginv(2,2)*(D2345(dd002) - D1234(dd003)) -
      &    4*Ginv(2,3)*(D2345(dd001) - D1234(dd002))
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee1223) = in(1)
 	E(ee2223) = .5D0*(E(ee2223) + in(2))
 	E(ee2233) = in(3)
@@ -402,7 +402,7 @@
 	IN(4) = f4*E(ee334) - D2345(dd223) -
      &    2*Ginv(3,3)*D2345(dd003) -
      &    4*Ginv(3,4)*(D2345(dd002) - D1234(dd003))
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee1334) = in(1)
 	E(ee2334) = in(2)
 	E(ee3334) = .5D0*(E(ee3334) + in(3))
@@ -420,7 +420,7 @@
 	IN(4) = f4*E(ee144) + d33sum -
      &    4*Ginv(1,4)*D2345(dd003) +
      &    2*Ginv(4,4)*(d00sum + D1234(dd001))
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee1144) = in(1)
 	E(ee1244) = in(2)
 	E(ee1344) = in(3)
@@ -439,7 +439,7 @@
 	IN(4) = f4*E(ee113) - d2sum + D1234(dd113) -
      &    2*Ginv(1,1)*(D2345(dd002) - D1234(dd003)) +
      &    4*Ginv(1,3)*(d00sum + D1234(dd001))
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee1113) = .5D0*(E(ee1113) + in(1))
 	E(ee1123) = .5D0*(E(ee1123) + in(2))
 	E(ee1133) = in(3)
@@ -457,7 +457,7 @@
 	IN(4) = f4*E(ee224) - D2345(dd113) -
      &    2*Ginv(2,2)*D2345(dd003) -
      &    4*Ginv(2,4)*(D2345(dd001) - D1234(dd002))
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee1224) = in(1)
 	E(ee2224) = .5D0*(E(ee2224) + in(2))
 	E(ee2234) = E(ee2234) + in(3)
@@ -479,7 +479,7 @@
      &    2*Ginv(2,3)*D2345(dd003) -
      &    2*Ginv(3,4)*(D2345(dd001) - D1234(dd002)) -
      &    2*Ginv(2,4)*(D2345(dd002) - D1234(dd003))
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee1234) = in(1)
 	E(ee2234) = 1/3D0*(E(ee2234) + in(2))
 	E(ee2334) = .5D0*(E(ee2334) + in(3))
@@ -497,7 +497,7 @@
 	IN(4) = f4*E(ee133) + d22sum + D1234(dd133) -
      &    4*Ginv(1,3)*(D2345(dd002) - D1234(dd003)) +
      &    2*Ginv(3,3)*(d00sum + D1234(dd001))
-	call SOLVE(in)
+	call SOLVER(in)
 	E(ee1133) = .5D0*(E(ee1133) + in(1))
 	E(ee1233) = in(2)
 	E(ee1333) = .5D0*(E(ee1333) + in(3))
