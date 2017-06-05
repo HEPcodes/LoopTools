@@ -1,7 +1,7 @@
 #! /bin/sh
 # configure script for LoopTools
 # note: has nothing to do with GNU autoconf
-# last modified 20 Jan 16 th
+# last modified 28 Sep 16 th
 
 
 exec 2> ${LOGFILE:-/dev/null} 3>&1
@@ -188,35 +188,47 @@ CONF_DLLTOOL=`findprog dlltool $DLLTOOL dlltool`
 
 CONF_DEF="-D"
 
-case "`$CONF_FC --version -c 2>&1`" in
-*G95*)
-  CONF_FFLAGS="$FFLAGS -O0 -g -ffixed-line-length-132 -freal-loops $CONF_M $CONF_STATIC ${CONF_DEBUG:+-Wall}" ;;
-*GNU*)
-  CONF_FFLAGS="$FFLAGS ${CONF_DEBUG:--O3 -g} -ffixed-line-length-none $CONF_M $CONF_STATIC ${CONF_DEBUG:+-Wall}"
-  case "$CONF_FC" in
-  *gfortran*)
-	CONF_FFLAGS="$CONF_FFLAGS $CONF_ARCH_F ${CONF_DEBUG:+-Wtabs -ffpe-trap=invalid,overflow,zero} -fno-range-check ${CONF_STATIC_EXT:+-static-libgfortran -static-libgcc}" ;;
-  esac ;;
+set -- `$CONF_FC --version -c | sed '/^$/d;s/(.*)//;q' 2>&1`
+case "$1,$2,$3" in
+GNU,Fortran,[123].*)
+  CONF_SIMD=0
+  CONF_FFLAGS="\
+${FFLAGS-${CONF_DEBUG:--O1} ${CONF_DEBUG:+-Wall}} \
+$CONF_ARCH_F $CONF_M -g -ffixed-line-length-none -fno-range-check \
+$CONF_STATIC"
+  ;;
+GNU,Fortran,4.*)
+  CONF_SIMD=0
+  CONF_FFLAGS="\
+${FFLAGS-${CONF_DEBUG:--O3} ${CONF_DEBUG:+-Wall -Wno-unused-dummy-argument -Wtabs -ffpe-trap=invalid,overflow,zero} $CONF_ARCH} \
+$CONF_ARCH_F $CONF_M -g -ffixed-line-length-none -fno-range-check ${CONF_QUAD:+-fdefault-real-8} $CONF_AS \
+$CONF_STATIC ${CONF_STATIC_EXT:+-static-libgfortran -static-libgcc}"
+  ;;
+GNU,Fortran,*)
+  CONF_SIMD=0
+  CONF_FFLAGS="\
+${FFLAGS-${CONF_DEBUG:--O3} ${CONF_DEBUG:+-Wall -Wno-unused-dummy-argument -Wno-tabs -ffpe-trap=invalid,overflow,zero} $CONF_ARCH} \
+$CONF_ARCH_F $CONF_M -g -ffixed-line-length-none -fno-range-check ${CONF_QUAD:+-fdefault-real-8} $CONF_AS \
+$CONF_STATIC ${CONF_STATIC_EXT:+-static-libgfortran -static-libgcc}"
+  ;;
+pgf*)
+  CONF_ARCH_F=${CONF_ARCH_F:+-Mvect=simd}
+  CONF_CPPLIBS=-pgc++libs
+  CONF_FFLAGS="\
+${FFLAGS-${CONF_DEBUG:--O3} ${CONF_DEBUG:+-Minform=inform -Ktrap=fp} ${CONF_ARCH:+-Mvect=simd}} \
+$CONF_ARCH_F $CONF_M -g -Mextend -g77libs \
+${CONF_STATIC:+-Bstatic}"
+  ;;
+ifort*)
+  CONF_FFLAGS="\
+${FFLAGS-${CONF_DEBUG:--O3} $CONF_ARCH} \
+$CONF_ARCH_F $CONF_M -debug -extend_source -warn truncated_source -warn nouncalled -assume bscc \
+${CONF_QUAD:+-r16 -DDBLE=QEXT -DDIMAG=QIMAG -DDCONJG=QCONJG -DDCMPLX=QCMPLX} \
+$CONF_STATIC ${CONF_STATIC_EXT:+-static-intel}"
+  ;;
 *)
-  CONF_FFLAGS="${FFLAGS-default}"
-  test "$CONF_FFLAGS" = default && case "$CONF_FC$CONF_MACH" in
-  *pgf*)
-        CONF_ARCH_F=${CONF_ARCH_F:+-Mvect=simd}
-	CONF_FFLAGS="${CONF_DEBUG:--O3 -g} $CONF_ARCH_F ${CONF_DEBUG:+-Ktrap=fp} -Mextend -Minform=inform -g77libs ${CONF_STATIC:+-Bstatic} $CONF_M" ;;
-  *ifort*)
-	CONF_FFLAGS="${CONF_DEBUG:--O3 -debug} $CONF_ARCH_F -extend_source -warn truncated_source $CONF_STATIC ${CONF_STATIC_EXT:+-static-intel} $CONF_M" ;;
-  *alpha)
-	CONF_FFLAGS="${CONF_DEBUG:--O3 -g3} ${CONF_DEBUG:+-fpe0} -extend_source -warn truncated_source ${CONF_STATIC:+-non_shared}" ;;
-  *sun* | *sparc*)
-	CONF_FFLAGS="${CONF_DEBUG:--O3 -g} ${CONF_DEBUG:+-ftrap=common} -e ${CONF_STATIC:+-Bstatic}" ;;
-  *hp*)
-	CONF_FFLAGS="${CONF_DEBUG:--O2 -g} ${CONF_DEBUG:++FPVZO} +es +U77 ${CONF_STATIC:+-Wl,-noshared}" ;;
-  *xlf*)
-	CONF_FFLAGS="${CONF_DEBUG:--O2 -g} ${CONF_DEBUG:+-qflttrap=enable:invalid:overflow:zerodivide} -qfixed=132 -qmaxmem=-1 -qextname"
-	CONF_DEF="-WF,-D" ;;
-  *)
-	CONF_FFLAGS="${CONF_DEBUG:--O -g}" ;;
-  esac ;;
+  CONF_FFLAGS="${CONF_DEBUG:--O} -g"
+  ;;
 esac
 
 
@@ -390,6 +402,9 @@ eval ${LOGFILE:+cat $test.tm 1>&2}
 CONF_MCC=${MCC:-mcc}
 CONF_MCFLAGS="-st ${CONF_BITS:+-b$CONF_BITS}"
 
+# this is a workaround for a bug in mcc 11.0:
+ln -s `dirname $0` =.
+
 for CONF_STDCPP in "" -stdlib=libstdc++ ; do
   NM="$CONF_NM" DLLTOOL="$CONF_DLLTOOL" \
   CC="$CONF_SRC/tools/fcc.in" REALCC="$CONF_CC $CONF_CFLAGS" \
@@ -398,6 +413,8 @@ for CONF_STDCPP in "" -stdlib=libstdc++ ; do
     "$CONF_MCC" $CONF_MCFLAGS -o $test$CONF_EXE $test.tm $CONF_MCLIBS 1>&2
   test -x $test$CONF_EXE && break
 done
+
+rm -f =.
 
 if test -x $test$CONF_EXE ; then
   echo "yes" 1>&3

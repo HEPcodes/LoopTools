@@ -2,7 +2,7 @@
 	clooptools.h
 		the C/C++ header file with all definitions for LoopTools
 		this file is part of LoopTools
-		last modified 2 Sep 14 th
+		last modified 10 Sep 16 th
 */
 
 
@@ -777,7 +777,7 @@ static inline ComplexType Li2omx(XARGS(_lt_Cr_))
 {
   _lt_Frd_(XARGS);
   COMPLEX res;
-  FORTRAN(li2sub)(&res, XARGS(_lt_Frp_));
+  FORTRAN(li2omxsub)(&res, XARGS(_lt_Frp_));
   return ToComplex(res);
 }
 
@@ -785,7 +785,7 @@ static inline ComplexType Li2omxC(XARGS(_lt_Cc_))
 {
   _lt_Fcd_(XARGS);
   COMPLEX res;
-  FORTRAN(li2csub)(&res, XARGS(_lt_Fcp_));
+  FORTRAN(li2omxcsub)(&res, XARGS(_lt_Fcp_));
   return ToComplex(res);
 }
 

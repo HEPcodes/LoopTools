@@ -258,6 +258,7 @@ fcc: fcc.in
 	ln -s fcc f++
 
 LoopTools$(EXE): LoopTools.tm clooptools.h fortranflush.o $(LIB) fcc
+	test -d =. || ln -s . =.
 	NM="$(NM)" DLLTOOL="$(DLLTOOL)" \
 	CC="./fcc" REALCC="$(CC) $(CFLAGS)" \
 	CXX="./f++" REALCXX="$(CXX) $(CXXFLAGS)" \
