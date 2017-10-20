@@ -2,7 +2,7 @@
 	clooptools.h
 		the C/C++ header file with all definitions for LoopTools
 		this file is part of LoopTools
-		last modified 10 Sep 16 th
+		last modified 3 Jul 17 th
 */
 
 
@@ -32,7 +32,7 @@
 #define _lt_Fc_(v) CCOMPLEX *v
 #define _lt_Id_(v) v
 
-#if QUAD
+#if QUAD == 2
 #define _lt_CFr_(v) v##_ = ToREAL(v)
 #define _lt_CFc_(v) v##_ = {ToREAL(Re(v)), ToREAL(Im(v))}
 #define _lt_Frp_(v) &v##_
@@ -801,7 +801,8 @@ static inline ComplexType Li2omxC(XARGS(_lt_Cc_))
   FORTRAN(ltregul).v = ToREAL(v)
 
 #define _lt_setx_(v) \
-  if( fabs(ToReal(FORTRAN(ltregul).v) - v) > ToReal(FORTRAN(ltregul).diffeps) ) \
+  if( fabs((double)(ToReal(FORTRAN(ltregul).v) - v)) > \
+      (double)ToReal(FORTRAN(ltregul).diffeps) ) \
     clearcache(); \
   FORTRAN(ltregul).v = ToREAL(v)
 

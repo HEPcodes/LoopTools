@@ -109,9 +109,6 @@
 	DR1eps::usage = "DR1eps represents 1/eps where D = 4 - 2 eps."
 
 :Evaluate:
-	LTwrite[s_] := WriteString[$Output, s]
-
-:Evaluate:
 	LTids = Thread[# -> 3 Range[Length[#]] - 2]&/@ {
 	  {aa0, aa00},
 	  {bb0, bb1, bb00, bb11, bb001, bb111,
@@ -170,6 +167,8 @@
 	E0 = E0i[ee0, ##]&
 
 :Evaluate: Begin["`Private`"]
+
+:Evaluate: LoopTools`LTwrite[s_] := WriteString[$Output, s]
 
 :Begin:
 :Function:	mA0i
@@ -700,7 +699,7 @@
 	{{bb0, bb1, bb00, bb11, bb001},
 	 {dbb0, dbb1, dbb00, dbb11, dbb001}} ]
 
-:Evaluate: PaVe[i__Integer, {p__}, {m__}] :=
+:Evaluate: PaVe[i__Integer, {p___}, {m__}] :=
 	ToExpression[#1 <> "0i"][
 	  ToExpression[#2 <> #2 <> ToString/@ Sort[{i}]], p, m ]&[
 	  FromCharacterCode[Length[{m}] + 64],
@@ -735,7 +734,7 @@
 	LoopTools.tm
 		provides the LoopTools functions in Mathematica
 		this file is part of LoopTools
-		last modified 8 May 15 th
+		last modified 3 Jul 17 th
 */
 
 
@@ -755,6 +754,10 @@
 #define MLCONST
 #endif
 
+#if QUAD
+#undef QUAD
+#define QUAD 2
+#endif
 #include "clooptools.h"
 
 typedef unsigned char byte;
@@ -813,7 +816,7 @@ static void *MLstdout(void *pfd)
     if( len > 0 && buf[len-1] == 0 ) {
       if( len > 1 ) {
         MLPutFunction(stdlink, "EvaluatePacket", 1);
-        MLPutFunction(stdlink, "LTwrite", 1);
+        MLPutFunction(stdlink, "LoopTools`LTwrite", 1);
         MLPutByteString(stdlink, buf, len - 1);
         MLEndPacket(stdlink);
         MLNextPacket(stdlink);

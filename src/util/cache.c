@@ -3,7 +3,7 @@
 		caching of tensor coefficients in
 		dynamically allocated memory
 		this file is part of LoopTools
-		last modified 28 Feb 14 th
+		last modified 3 Jul 17 th
 */
 
 
@@ -175,8 +175,8 @@ static void *Lookup(cRealType *para, double *base,
 	/* The "RealType para[2]" bit in Node is effectively an extra
 	   Complex for alignment so that node can be reached with
 	   an integer index into base */
-    assert( node = malloc(sizeof(Node) +
-      npara*sizeof(RealType) + nval*sizeof(ComplexType)) );
+    assert( (node = malloc(sizeof(Node) +
+      npara*sizeof(RealType) + nval*sizeof(ComplexType))) );
     node = (Node *)((char *)node +
       (PtrDiff(base, &node->para[npara]) & (sizeof(ComplexType) - 1)));
     node->succ = NULL;

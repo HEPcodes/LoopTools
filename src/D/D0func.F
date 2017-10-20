@@ -1,7 +1,7 @@
 * D0func.F
 * the scalar four-point function
 * this file is part of LoopTools
-* last modified 1 Sep 14 th
+* last modified 5 Nov 16 th
 
 #include "externals.h"
 #include "types.h"
@@ -1385,7 +1385,7 @@ c#define k2r(k) (.5D0*k*(1 + sqrt(ToComplex((1 - 2/k)*(1 + 2/k)))))
 	r34 = k2r(k34)
 	r14 = k2r(k14)
 	r13 = 1/k2r(k13)
-	r24 = 1/k2r(k24)
+1	r24 = 1/k2r(k24)
 
 	do j = 1, 6
 	  if( Im(rij(j)) .eq. 0 ) then
@@ -1409,6 +1409,10 @@ c#define k2r(k) (.5D0*k*(1 + sqrt(ToComplex((1 - 2/k)*(1 + 2/k)))))
 	ix(2,4) = Im(.5D0/a*(b + disc))
 
 	disc = sqrt(b**2 - 4*a*c)
+	if( abs(disc) .lt. diffeps ) then
+	  k24 = k24 - diffeps
+	  goto 1
+	endif
 	x(1,4) = .5D0/a*(b - disc)
 	x(2,4) = .5D0/a*(b + disc)
 	if( abs(x(1,4)) .gt. abs(x(2,4)) ) then

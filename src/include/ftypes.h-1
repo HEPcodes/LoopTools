@@ -7,7 +7,7 @@
 #define FORTRAN(s) s##_
 #endif
 
-#if QUAD == 2
+#if QUAD
 
 #define RealType long double
 
@@ -56,16 +56,6 @@ static inline void ToREALArray(REAL *out, const RealType *in, const int n) {
   for( i = 0; i < n; ++i ) out[i] = ToREAL(in[i]);
 }
 
-#elif QUAD == 1
-
-#include <quadmath.h>
-
-#define RealType __float128
-typedef __float128 REAL;
-
-#define ToReal(r) (RealType)(r)
-#define ToREAL(r) (REAL)(r)
-
 #else
 
 #define RealType double
@@ -100,14 +90,10 @@ typedef std::complex<RealType> ComplexType;
 typedef RealType complex ComplexType;
 #define ToComplex(c) (ToReal((c).re) + I*ToReal((c).im))
 #define ToComplex2(r,i) (r + I*(i))
-#if QUAD == 2
+#if QUAD
 #define Re(x) creall(x)
 #define Im(x) cimagl(x)
 #define Conjugate(x) conjl(x)
-#elif QUAD == 1
-#define Re(x) crealq(x)
-#define Im(x) cimagq(x)
-#define Conjugate(x) conjq(x)
 #else
 #define Re(x) creal(x)
 #define Im(x) cimag(x)

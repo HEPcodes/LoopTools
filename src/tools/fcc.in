@@ -12,9 +12,6 @@ fldflags=
 cc="${REALCC:-cc}"
 cxx="${REALCXX:-c++}"
 test `basename $0 .in` = f++ && cc="$cxx"
-case `$cxx --version 2>&1` in
-*clang*) cxx="$cxx -stdlib=libstdc++" ;;
-esac
 
 while test $# -gt 0 ; do
   case "$1" in

@@ -86,7 +86,7 @@
 *
 *	local variables
 *
-	integer i,initeq,jsign,init,ithres,initir,n1,n2,nffet1
+	integer i,initeq,init,ithres,initir,n1,n2,nffet1
 	logical lreal
 	RealType ax,ffbnd,ffbndc,
      +		xprceq,bdeq01,bdeq05,bdeq11,bdeq17,bdeq25,
@@ -440,7 +440,7 @@
 *	    repaired 19-nov-1993, see b2.frm
 *
 	    s1 = cm1*cm2*xlogmm/cm1m2**3
-	    s2 = (cm1+cm2)/(2*cm1m2**2)
+	    s2 = (cm1 + cm2)/(2*cm1m2**2)
 	    s = s1 + s2
 	    if ( absc(s) .lt. xloss**2*absc(s2) ) then
 *
@@ -482,32 +482,22 @@
 	else
 	    s2a = cm2 + cdm1p
 	endif
-	s2 = s2a + slam
-	if ( absc(s2) .gt. xloss*absc(slam) ) then
-*	    looks fine
-	    jsign = 1
-	else
-	    s2 = s2a - slam
-	    jsign = -1
-	endif
-	s2 = s2/sqrt(4*cm1*cm2)
+	if ( absc(s2a + slam) .lt. xloss*absc(slam) ) slam = -slam
+	s2a = s2a + slam
+	s2 = s2a**2/(4*cm1*cm2)
+
 	if ( absc(s2) .lt. xclogm ) then
 	    call fferr(9,ier)
 	    s2 = 0
-	elseif ( absc(s2-1) .lt. xloss ) then
+	else if ( absc(s2-1) .lt. xloss ) then
 	    ier = ier + 50
 	    print *,'ffcdb0: untested: s2 better in first try'
-	    if ( jsign.eq.1 ) then
-		s2 = -slam*(s2a+slam)/(2*cm1*cm2)
-		s2 = -diff/(2*slam*cp)*zfflo1(s2,ier)
-	    else
-		s2 = +slam*(s2a-slam)/(2*cm1*cm2)
-		s2 = +diff/(2*slam*cp)*zfflo1(s2,ier)
-	    endif
+	    s2 = 2*zfflo1(-slam*s2a/(2*cm1*cm2),ier)
 	else
-	    s2 = -diff/(2*slam*cp)*2*log(s2)
-	    if ( jsign .eq. -1 ) s2 = -s2
+	    s2 = log(s2)
 	endif
+	s2 = -diff/(2*slam*cp)*s2
+
 	s1 = -cm1m2*xlogmm/(2*cp)
 	cdb0p = s1+s2-1
 *--#]	first try: 

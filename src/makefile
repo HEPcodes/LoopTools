@@ -252,7 +252,9 @@ clooptools.h: clooptools.h.in ftypes.h
 	sed "s:NOUNDERSCORE:$(NOUNDERSCORE):" ftypes.h clooptools.h.in > clooptools.h
 
 fcc: fcc.in
-	sed -e 's|^fldflags=.*|fldflags="$(LDFLAGS)"|' fcc.in > fcc
+	sed -e 's|^fldflags=.*|fldflags="$(LDFLAGS)"|' \
+	    -e 's|^cc=.*|cc="$${REALCC:-$(CC)}"|' \
+	    -e 's|^cxx=.*|cxx="$${REALCXX:-$(CXX)}"|' fcc.in > fcc
 	chmod 755 fcc
 	rm -f f++
 	ln -s fcc f++

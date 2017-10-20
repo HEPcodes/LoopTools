@@ -30,11 +30,14 @@
 *
 *	local variables
 *
-	integer init,ithres,i,j,nschsa
+	integer init,ithres,i,j,nschsa,nab
 	logical lreal
 	ComplexType cmamb,cmap,cmbp,cm,c,cb0p,cqi(3),cqiqj(3,3)
 	RealType absc,xp,xma,xmb,sprec,smax
 	save init
+
+	integer nffeta
+	external nffeta
 *
 *	common blocks
 *
@@ -122,6 +125,7 @@
 	nschem = 7
 	call ffcb0p(cb0p,cp,cma,cmb,cmap,cmbp,cmamb,ier)
 	nschem = nschsa
+	nab = 0
 	if ( cma .eq. 0 ) then
 	    if ( cmb .eq. 0 ) then
 	    	cm = 1
@@ -132,10 +136,11 @@
 	    cm = cma**2
 	else
 	    cm = cma*cmb
+	    nab = nffeta(cma, cmb, ier)
 	endif
 	if ( mudim .ne. 0 ) cm = cm/Re(mudim)**2
 	if ( absc(cm) .gt. xclogm ) then
-	    cb0 = Re(delta) - cb0p - log(cm)/2
+	    cb0 = Re(delta) - cb0p - log(cm)/2 + .5D0*c2ipi*nab
 	    smax = max(abs(delta),absc(cb0p),absc(log(cm))/2)
 	else
 	    call fferr(3,ier)
