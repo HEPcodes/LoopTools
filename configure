@@ -1,7 +1,7 @@
 #! /bin/sh
 # configure script for LoopTools
 # note: has nothing to do with GNU autoconf
-# last modified 29 Sep 16 th
+# last modified 9 Nov 17 th
 
 
 exec 2> ${LOGFILE:-/dev/null} 3>&1
@@ -97,12 +97,13 @@ CONF_STATIC=
 CONF_STATIC_EXT=
 CONF_DEBUG=
 CONF_BITS=
-  # Mma 5.1's mcc needs -lpthread for static linking
-CONF_MCLIBS=-lpthread
+CONF_MCLIBS=
 CONF_ARCH_F="-march=native"
 CONF_LDFLAGS=
 CONF_EXE=
 case "$CONF_OS" in
+  # Mma 5.1's mcc needs -lpthread for static linking
+Linux)	CONF_MCLIBS="-lpthread -lrt" ;;
 Darwin)	CONF_LDFLAGS=-Wl,-no_compact_unwind
 	CONF_AS=-Wa,-q ;;
 CYG*)	CONF_EXE=.exe ;;

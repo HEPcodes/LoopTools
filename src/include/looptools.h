@@ -2,7 +2,7 @@
 looptools.h
 the header file for Fortran with all definitions for LoopTools
 this file is part of LoopTools
-last modified 27 Feb 14 th
+last modified 8 Nov 17 th
 #endif
 
 
@@ -267,7 +267,7 @@ last modified 27 Feb 14 th
 	ComplexType cache(2,ncaches)
 	common /ltvars/ cache
 
-	ComplexType A0, A0C, A00, A00C, B0i, B0iC
+	ComplexType A0i, A0, A0C, A00, A00C, B0i, B0iC
 	ComplexType B0, B1, B00, B11, B001, B111
 	ComplexType B0C, B1C, B00C, B11C, B001C, B111C
 	ComplexType DB0, DB1, DB00, DB11, DB001
@@ -284,7 +284,7 @@ last modified 27 Feb 14 th
 	integer getversionkey, getdebugkey
 	integer getcachelast
 
-	external A0, A0C, A00, A00C, B0i, B0iC
+	external A0i, A0, A0C, A00, A00C, B0i, B0iC
 	external B0, B1, B00, B11, B001, B111
 	external B0C, B1C, B00C, B11C, B001C, B111C
 	external DB0, DB1, DB00, DB11, DB001
