@@ -44,10 +44,14 @@ install: lib frontend
 	cp -p $(BLD)/$(LIB) $(LIBDIR)
 	cp -p $(INCLUDE$(QUADSUFFIX)) $(INCLUDEDIR)
 	strip $(BLD)/$(FE)
-	cp -p $(BLD)/fcc $(BLD)/$(FE) $(BINDIR)
+	cp -p $(BLD)/fcc $(BLD)/$(FE) $(RUNTIME) $(BINDIR)
 	rm -f $(BINDIR)/f++
 	ln -s fcc $(BINDIR)/f++
-	test ! -f $(BLD)/$(MFE) || { strip $(BLD)/$(MFE) ; cp -p $(BLD)/$(MFE) $(BINDIR); }
+	test ! -f $(BLD)/$(MFE) || { \
+	  ldd $(BLD)/$(MFE) | awk '/\/usr\/bin\/cyg/ { system("cp -p " $$3 " $(BINDIR)/"); }' ; \
+	  strip $(BLD)/$(MFE) ; \
+	  cp -p $(BLD)/$(MFE) $(BINDIR); \
+	}
 
 force: $(BLD)/timestamp
 

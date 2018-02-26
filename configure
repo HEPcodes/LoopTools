@@ -1,7 +1,7 @@
 #! /bin/sh
 # configure script for LoopTools
 # note: has nothing to do with GNU autoconf
-# last modified 9 Nov 17 th
+# last modified 21 Feb 18 th
 
 
 exec 2> ${LOGFILE:-/dev/null} 3>&1
@@ -99,6 +99,7 @@ CONF_DEBUG=
 CONF_BITS=
 CONF_MCLIBS=
 CONF_ARCH_F="-march=native"
+CONF_RUNTIME=
 CONF_LDFLAGS=
 CONF_EXE=
 case "$CONF_OS" in
@@ -106,7 +107,9 @@ case "$CONF_OS" in
 Linux)	CONF_MCLIBS="-lpthread -lrt" ;;
 Darwin)	CONF_LDFLAGS=-Wl,-no_compact_unwind
 	CONF_AS=-Wa,-q ;;
-CYG*)	CONF_EXE=.exe ;;
+CYG*)	CONF_EXE=.exe
+#	CONF_STATIC_EXT=1
+	CONF_RUNTIME=/usr/bin/cygwin1.dll ;;
 esac
 
 for arg in "$@" ; do
@@ -123,7 +126,7 @@ for arg in "$@" ; do
 # so we make only libgcc static.  For a static libg2c do:
 # sudo chmod 000 /usr/local/lib/libg2c.dylib
 	Darwin | CYG*)
-		CONF_STATIC_EXT=$CONF_STATIC
+		CONF_STATIC_EXT=1
 		CONF_STATIC= ;;
 	esac ;;
   --debug)
@@ -461,6 +464,8 @@ ML = $CONF_ML
 MCC = $CONF_MCC
 MCFLAGS = $CONF_MCFLAGS
 MCLIBS = $CONF_MCLIBS
+
+RUNTIME = $CONF_RUNTIME
 
 LDFLAGS = $CONF_LDFLAGS $CONF_M
 
