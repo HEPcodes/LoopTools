@@ -1,7 +1,7 @@
 * Aget.F
 * retrieve the one-point tensor coefficients
 * this file is part of LoopTools
-* last modified 25 Jul 14 th
+* last modified 7 Apr 18 th
 
 #include "externals.h"
 #include "types.h"
@@ -12,14 +12,14 @@
 
 	memindex function XAget(m)
 	implicit none
-	DVAR m
+	ArgType m
 
 #include "lt.h"
 
 	memindex cacheindex
 	external cacheindex, XAcoeff
 
-	DVAR para(1,Paa)
+	ArgType para(1,Paa)
 
 	M(1) = m
 	if( abs(M(1)) .lt. minmass ) M(1) = 0
@@ -32,13 +32,13 @@
 	subroutine XAput(res, m)
 	implicit none
 	ComplexType res(*)
-	DVAR m
+	ArgType m
 
 #include "lt.h"
 
 	external XAcoeff
 
-	DVAR para(1,Paa)
+	ArgType para(1,Paa)
 
 	M(1) = m
 	if( abs(M(1)) .lt. minmass ) M(1) = 0
@@ -51,11 +51,11 @@
 	subroutine XAputnocache(res, m)
 	implicit none
 	ComplexType res(*)
-	DVAR m
+	ArgType m
 
 #include "lt.h"
 
-	DVAR para(1,Paa)
+	ArgType para(1,Paa)
 
 	M(1) = m
 	if( abs(M(1)) .lt. minmass ) M(1) = 0
@@ -68,7 +68,7 @@
 	ComplexType function XA0i(i, m)
 	implicit none
 	integer i
-	DVAR m
+	ArgType m
 
 #include "lt.h"
 
@@ -85,7 +85,7 @@
 
 	ComplexType function XA0(m)
 	implicit none
-	DVAR m
+	ArgType m
 
 #include "lt.h"
 
@@ -99,7 +99,7 @@
 
 	ComplexType function XA00(m)
 	implicit none
-	DVAR m
+	ArgType m
 
 #include "lt.h"
 
@@ -114,11 +114,11 @@
 	subroutine XAcoeff(A, para)
 	implicit none
 	ComplexType A(*)
-	DVAR para(1,*)
+	ArgType para(1,*)
 
 #include "lt.h"
 
-	DVAR m
+	ArgType m
 	ComplexType res(0:1)
 	integer key, ier
 	logical dump

@@ -1,7 +1,7 @@
 * Bcoeff.F
 * invoke the two-point tensor coefficients
 * this file is part of LoopTools
-* last modified 1 Sep 14 th
+* last modified 7 Apr 18 th
 
 #include "externals.h"
 #include "types.h"
@@ -107,7 +107,7 @@
 	implicit none
 	ComplexType Ba(*), Bb(*)
 	integer ier(*)
-	DVAR para(1,*)
+	ArgType para(1,*)
 
 #include "lt.h"
 #include "ltnames.h"

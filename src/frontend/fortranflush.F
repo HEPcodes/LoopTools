@@ -1,12 +1,10 @@
 * fortranflush.F
-* C-callable function to flush the Fortran stdout (unit 6)
+* flush Fortran stdout from C
 * this file is part of LoopTools
-* last modified 6 Oct 09 th
+* last modified 7 Apr 18 th
 
 
-	subroutine fortranflush()
-	implicit none
-
+	subroutine fortranflush
 	call flush(6)
 	end
 

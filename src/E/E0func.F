@@ -2,7 +2,7 @@
 * the scalar four-point function
 * this file is part of LoopTools
 * written by M. Rauch
-* last modified 21 Feb 14 th
+* last modified 9 Apr 18 th
 
 #include "externals.h"
 #include "types.h"
@@ -75,22 +75,18 @@
      &    res, para, D2345, D1345, D1245, D1235, D1234, dvalid)
 	implicit none
 	ComplexType res(0:2)
-	DVAR para(1,*)
+	ArgType para(1,*)
 	ComplexType D2345(*), D1345(*), D1245(*), D1235(*), D1234(*)
 	integer dvalid
 
 #include "lt.h"
 
-	DVAR p1, p2, p3, p4, p5
-	DVAR p1p2, p2p3, p3p4, p4p5, p5p1
-	DVAR m1, m2, m3, m4, m5
+	ArgType p1, p2, p3, p4, p5
+	ArgType p1p2, p2p3, p3p4, p4p5, p5p1
+	ArgType m1, m2, m3, m4, m5
 
-	QVAR Y(5,5), Yi(5,5), eta(5), detY
-	integer i, j
-
-	QVAR Yflat(25), Yiflat(25)
-	equivalence (Y, Yflat)
-	equivalence (Yi, Yiflat)
+	ArgQuad Y(5,5), Yi(5,5), eta(5), detY
+	integer i
 
 	m1 = M(1)
 	m2 = M(2)
@@ -155,12 +151,8 @@
 	Y(5,4) = Y(4,5)
 
 	do i = 1, 5
-	  do j = 1, 25
-	    Yiflat(j) = Yflat(j)
-	  enddo
-	  do j = 1, 5
-	    Yi(j,i) = 1
-	  enddo
+	  Yi = Y
+	  Yi(:,i) = 1
 	  call XDet(5, Yi,5, eta(i))
 	enddo
 

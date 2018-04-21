@@ -1,7 +1,7 @@
 * Bget.F
 * retrieve the two-point tensor coefficients
 * this file is part of LoopTools
-* last modified 23 Mar 15 th
+* last modified 7 Apr 18 th
 
 #include "externals.h"
 #include "types.h"
@@ -12,8 +12,8 @@
 
 	subroutine XBpara(para, p, m1, m2)
 	implicit none
-	DVAR para(1,*)
-	DVAR p, m1, m2
+	ArgType para(1,*)
+	ArgType p, m1, m2
 
 #include "lt.h"
 
@@ -29,7 +29,7 @@
 
 	memindex function XBget(p, m1, m2)
 	implicit none
-	DVAR p, m1, m2
+	ArgType p, m1, m2
 
 #include "lt.h"
 
@@ -41,7 +41,7 @@
 	external Bget
 #endif
 
-	DVAR para(1,Pbb)
+	ArgType para(1,Pbb)
 
 #ifdef COMPLEXPARA
 	if( abs(Im(p)) .gt. 0 )
@@ -61,13 +61,13 @@
 	subroutine XBput(res, p, m1, m2)
 	implicit none
 	ComplexType res(*)
-	DVAR p, m1, m2
+	ArgType p, m1, m2
 
 #include "lt.h"
 
 	external XBcoeff
 
-	DVAR para(1,Pbb)
+	ArgType para(1,Pbb)
 
 #ifdef COMPLEXPARA
 	if( abs(Im(p)) .gt. 0 )
@@ -87,13 +87,13 @@
 	subroutine XBputnocache(res, p, m1, m2)
 	implicit none
 	ComplexType res(*)
-	DVAR p, m1, m2
+	ArgType p, m1, m2
 
 #include "lt.h"
 
 	external XBcoeff
 
-	DVAR para(1,Pbb)
+	ArgType para(1,Pbb)
 
 #ifdef COMPLEXPARA
 	if( abs(Im(p)) .gt. 0 )
@@ -113,7 +113,7 @@
 	ComplexType function XB0i(i, p, m1, m2)
 	implicit none
 	integer i
-	DVAR p, m1, m2
+	ArgType p, m1, m2
 
 #include "lt.h"
 
@@ -130,7 +130,7 @@
 
 	ComplexType function XB0(p, m1, m2)
 	implicit none
-	DVAR p, m1, m2
+	ArgType p, m1, m2
 
 #include "lt.h"
 
@@ -144,7 +144,7 @@
 
 	ComplexType function XB1(p, m1, m2)
 	implicit none
-	DVAR p, m1, m2
+	ArgType p, m1, m2
 
 #include "lt.h"
 
@@ -158,7 +158,7 @@
 
 	ComplexType function XB00(p, m1, m2)
 	implicit none
-	DVAR p, m1, m2
+	ArgType p, m1, m2
 
 #include "lt.h"
 
@@ -172,7 +172,7 @@
 
 	ComplexType function XB11(p, m1, m2)
 	implicit none
-	DVAR p, m1, m2
+	ArgType p, m1, m2
 
 #include "lt.h"
 
@@ -186,7 +186,7 @@
 
 	ComplexType function XB001(p, m1, m2)
 	implicit none
-	DVAR p, m1, m2
+	ArgType p, m1, m2
 
 #include "lt.h"
 
@@ -200,7 +200,7 @@
 
 	ComplexType function XB111(p, m1, m2)
 	implicit none
-	DVAR p, m1, m2
+	ArgType p, m1, m2
 
 #include "lt.h"
 
@@ -214,7 +214,7 @@
 
 	ComplexType function XDB0(p, m1, m2)
 	implicit none
-	DVAR p, m1, m2
+	ArgType p, m1, m2
 
 #include "lt.h"
 
@@ -228,7 +228,7 @@
 
 	ComplexType function XDB1(p, m1, m2)
 	implicit none
-	DVAR p, m1, m2
+	ArgType p, m1, m2
 
 #include "lt.h"
 
@@ -242,7 +242,7 @@
 
 	ComplexType function XDB00(p, m1, m2)
 	implicit none
-	DVAR p, m1, m2
+	ArgType p, m1, m2
 
 #include "lt.h"
 
@@ -256,7 +256,7 @@
 
 	ComplexType function XDB11(p, m1, m2)
 	implicit none
-	DVAR p, m1, m2
+	ArgType p, m1, m2
 
 #include "lt.h"
 
@@ -270,7 +270,7 @@
 
 	ComplexType function XDB001(p, m1, m2)
 	implicit none
-	DVAR p, m1, m2
+	ArgType p, m1, m2
 
 #include "lt.h"
 

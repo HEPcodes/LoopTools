@@ -1,7 +1,7 @@
 * Dump.F
 * dumps the parameters and coefficients on screen
 * this file is part of LoopTools
-* last modified 30 Jan 14 th
+* last modified 7 Apr 18 th
 
 #include "externals.h"
 #include "types.h"
@@ -12,7 +12,7 @@
 	subroutine XDumpPara(npoint, para, origin)
 	implicit none
 	integer npoint
-	DVAR para(1,*)
+	ArgType para(1,*)
 	character*(*) origin
 
 #include "lt.h"

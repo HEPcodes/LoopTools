@@ -142,11 +142,11 @@
 
 \hfill\hbox{\underline{%
 \vrule width 0pt height 0pt depth 2ex%
-\Huge \LT~2.12~~~User's Guide}}
+\Huge \LT~2.15~~~User's Guide}}
 
 \vspace*{1ex}
 
-\hfill\hbox{July 31, 2014~~~~~Thomas Hahn}
+\hfill\hbox{April 19, 2018~~~~~Thomas Hahn}
 
 \clearpage
 
@@ -972,7 +972,7 @@ The defaults are 62 for double precision (a double precision number has
 (a quadruple precision number has 128 bits of which 112 are the mantissa).
 
 
-\subsection{Quadruple Precision}
+\subsection{Extended Precision}
 
 For most calculations, double precision is quite sufficient to yield
 satisfyingly accurate results.  In some cases, however, cancellations
@@ -981,27 +981,27 @@ mantissa of a double precision number has only about 15 decimal digits,
 the result may thus be correct only to very few digits.
 
 Quadruple precision (16-byte real and 32-byte complex variables) has a
-mantissa of approximately 33 decimal digits and can cope with even
+mantissa of approximately 33 decimal digits and can cope much more
 severe cancellations.  Quadruple precision does slow down the 
 calculation, though, and is also not available on all platforms.
 
-The procedure to build the quadruple-precision version is as follows.
-Configure as usual, then run make as
+To build the quadruple-precision version, configure with the \Code{--quad}
+option, \ie
 \begin{verbatim}
-   make -f makefile.quad-<tag>
-   make -f makefile.quad-<tag> install
+   ./configure --quad
 \end{verbatim}
-where makefile is one of the following:
-\begin{center}
-\begin{tabular}{lll}
-gfortran & 4.6+, all platforms & \Code{makefile.quad-gfortran} \\
-f90 & HP Tru64 Unix & \Code{makefile.quad-alpha} \\
-ifort & Linux, Mac OS & \Code{makefile.quad-ifort} \\
-xlf & IBM RS6000, Mac OS (PPC) & \Code{makefile.quad-xlf}
-\end{tabular}
-\end{center}
 The resulting libraries and executables carry the suffix \Code{-quad},
 \eg \Code{libooptools-quad.a}.
+
+As an intermediate solution -- more precise than double but faster than
+quadruple precision -- the \Code{--real10} flag may be added:
+\begin{verbatim}
+   ./configure --quad --real10
+\end{verbatim}
+This uses \Code{REAL*10} for extended precision, which is implemented in 
+hardware on the x86 platform, though presently only available in gfortran 4.6+.
+For other compilers the extended precision type silently reverts to
+\Code{REAL*16}.
 
 
 \subsection{Versions and Debugging}

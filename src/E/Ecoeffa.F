@@ -2,7 +2,7 @@
 * the five-point tensor coefficients
 * this file is part of LoopTools
 * written by M. Rauch
-* last modified 8 May 14 th
+* last modified 9 Apr 18 th
 
 #include "externals.h"
 #include "types.h"
@@ -15,55 +15,51 @@
 	implicit none
 	ComplexType E(*)
 	ComplexType D2345(*), D1345(*), D1245(*), D1235(*), D1234(*)
-	DVAR para(1,*)
+	ArgType para(1,*)
 
 #include "lt.h"
 
-	DVAR p1, p2, p3, p4, p5
-	DVAR p1p2, p2p3, p3p4, p4p5, p5p1
-	DVAR m1, m2, m3, m4, m5
-	QVAR Y(5,5), Yi(5,5), Z(4,4), Zij(3,3)
-	QVAR eta(5), zeta(4,4), detY, detZ
+	ArgType p1, p2, p3, p4, p5
+	ArgType p1p2, p2p3, p3p4, p4p5, p5p1
+	ArgType m1, m2, m3, m4, m5
+	ArgQuad Y(5,5), Yi(5,5), Z(4,4), Zij(3,3)
+	ArgQuad eta(5), zeta(4,4), detY, detZ
 	RealType del, del4
 	integer i, j, k, l, finite
 	logical dump
 
-	QVAR Yflat(25), Yiflat(25)
-	equivalence (Y, Yflat)
-	equivalence (Yi, Yiflat)
-
-	ComplexType help1(0:2), help2(0:2), help3(0:2), help4(0:2)
-	ComplexType dabbr41(0:2), dabbr48(0:2), dabbr65(0:2)
-	ComplexType dabbr60(0:2), dabbr55(0:2), dabbr50(0:2)
-	ComplexType dabbr49(0:2), dabbr45(0:2), dabbr42(0:2)
-	ComplexType dabbr10(0:2), dabbr84(0:2), dabbr91(0:2)
-	ComplexType dabbr81(0:2), dabbr52(0:2), dabbr88(0:2)
-	ComplexType dabbr77(0:2), dabbr90(0:2), dabbr46(0:2)
-	ComplexType dabbr87(0:2), dabbr74(0:2), dabbr80(0:2)
-	ComplexType dabbr71(0:2), dabbr83(0:2), dabbr76(0:2)
-	ComplexType dabbr79(0:2), dabbr43(0:2), dabbr70(0:2)
-	ComplexType dabbr73(0:2), dabbr35(0:2), dabbr37(0:2)
-	ComplexType dabbr39(0:2), dabbr27(0:2), dabbr31(0:2)
-	ComplexType dabbr24(0:2), dabbr20(0:2), dabbr16(0:2)
-	ComplexType dabbr30(0:2), dabbr13(0:2), dabbr23(0:2)
-	ComplexType dabbr26(0:2), dabbr5(0:2), dabbr7(0:2)
-	ComplexType dabbr9(0:2), dabbr33(0:2), dabbr92(0:2)
-	ComplexType dabbr89(0:2), dabbr86(0:2), dabbr85(0:2)
-	ComplexType dabbr82(0:2), dabbr78(0:2), dabbr75(0:2)
-	ComplexType dabbr72(0:2), dabbr69(0:2), dabbr68(0:2)
-	ComplexType dabbr38(0:2), dabbr36(0:2), dabbr34(0:2)
-	ComplexType dabbr32(0:2), dabbr29(0:2), dabbr28(0:2)
-	ComplexType dabbr25(0:2), dabbr22(0:2), dabbr21(0:2)
-	ComplexType dabbr3(0:2), dabbr8(0:2), dabbr6(0:2)
-	ComplexType dabbr4(0:2), dabbr1(0:2), dabbr61(0:2)
-	ComplexType dabbr66(0:2), dabbr57(0:2), dabbr47(0:2)
-	ComplexType dabbr51(0:2), dabbr64(0:2), dabbr44(0:2)
-	ComplexType dabbr56(0:2), dabbr59(0:2), dabbr14(0:2)
-	ComplexType dabbr17(0:2), dabbr19(0:2), dabbr67(0:2)
-	ComplexType dabbr63(0:2), dabbr62(0:2), dabbr58(0:2)
-	ComplexType dabbr54(0:2), dabbr53(0:2), dabbr11(0:2)
-	ComplexType dabbr18(0:2), dabbr15(0:2), dabbr12(0:2)
-	ComplexType dabbr2(0:2), dabbr40(0:2)
+	ComplexQuad help1(0:2), help2(0:2), help3(0:2), help4(0:2)
+	ComplexQuad dabbr41(0:2), dabbr48(0:2), dabbr65(0:2)
+	ComplexQuad dabbr60(0:2), dabbr55(0:2), dabbr50(0:2)
+	ComplexQuad dabbr49(0:2), dabbr45(0:2), dabbr42(0:2)
+	ComplexQuad dabbr10(0:2), dabbr84(0:2), dabbr91(0:2)
+	ComplexQuad dabbr81(0:2), dabbr52(0:2), dabbr88(0:2)
+	ComplexQuad dabbr77(0:2), dabbr90(0:2), dabbr46(0:2)
+	ComplexQuad dabbr87(0:2), dabbr74(0:2), dabbr80(0:2)
+	ComplexQuad dabbr71(0:2), dabbr83(0:2), dabbr76(0:2)
+	ComplexQuad dabbr79(0:2), dabbr43(0:2), dabbr70(0:2)
+	ComplexQuad dabbr73(0:2), dabbr35(0:2), dabbr37(0:2)
+	ComplexQuad dabbr39(0:2), dabbr27(0:2), dabbr31(0:2)
+	ComplexQuad dabbr24(0:2), dabbr20(0:2), dabbr16(0:2)
+	ComplexQuad dabbr30(0:2), dabbr13(0:2), dabbr23(0:2)
+	ComplexQuad dabbr26(0:2), dabbr5(0:2), dabbr7(0:2)
+	ComplexQuad dabbr9(0:2), dabbr33(0:2), dabbr92(0:2)
+	ComplexQuad dabbr89(0:2), dabbr86(0:2), dabbr85(0:2)
+	ComplexQuad dabbr82(0:2), dabbr78(0:2), dabbr75(0:2)
+	ComplexQuad dabbr72(0:2), dabbr69(0:2), dabbr68(0:2)
+	ComplexQuad dabbr38(0:2), dabbr36(0:2), dabbr34(0:2)
+	ComplexQuad dabbr32(0:2), dabbr29(0:2), dabbr28(0:2)
+	ComplexQuad dabbr25(0:2), dabbr22(0:2), dabbr21(0:2)
+	ComplexQuad dabbr3(0:2), dabbr8(0:2), dabbr6(0:2)
+	ComplexQuad dabbr4(0:2), dabbr1(0:2), dabbr61(0:2)
+	ComplexQuad dabbr66(0:2), dabbr57(0:2), dabbr47(0:2)
+	ComplexQuad dabbr51(0:2), dabbr64(0:2), dabbr44(0:2)
+	ComplexQuad dabbr56(0:2), dabbr59(0:2), dabbr14(0:2)
+	ComplexQuad dabbr17(0:2), dabbr19(0:2), dabbr67(0:2)
+	ComplexQuad dabbr63(0:2), dabbr62(0:2), dabbr58(0:2)
+	ComplexQuad dabbr54(0:2), dabbr53(0:2), dabbr11(0:2)
+	ComplexQuad dabbr18(0:2), dabbr15(0:2), dabbr12(0:2)
+	ComplexQuad dabbr2(0:2), dabbr40(0:2)
 
 	serial = serial + 1
 	dump = ibits(debugkey, DebugE, 1) .ne. 0 .and.
@@ -144,21 +140,15 @@
 
 * calculate the Y(i), their determinants, and eta(i)
 	do i = 1, 5
-	  do j = 1, 25
-	    Yiflat(j) = Yflat(j)
-	  enddo
-	  do j = 1, 5
-	    Yi(j,i) = 1
-	  enddo
+	  Yi = Y
+	  Yi(:,i) = 1
 	  call XDet(5, Yi,5, eta(i))
 	enddo
 
 * Y is no longer needed, now calculate its determinant and
 * add the missing factor 1/detY to eta
 	call XDet(5, Y,5, detY)
-	do i = 1, 5
-	  eta(i) = eta(i)/detY
-	enddo
+	eta = eta/detY
 
 	Z(1,1) = 2*p1
 	Z(2,2) = 2*p1p2
@@ -193,12 +183,8 @@
 	do i = 1, 4
 	  do j = i, 4
 * generate the submatrix Z_ij
-	    do l = 1, 3
-	      do k = 1, 3
-	        Zij(k,l) = Z(k + ibits(not(k - i), 3, 1),
-     &                       l + ibits(not(l - j), 3, 1))
-	      enddo
-	    enddo
+	    forall(l = 1:3, k = 1:3)
+     &        Zij(k,l) = Z(k+merge(1,0,k.ge.i),l+merge(1,0,l.ge.j))
 	    call XDet(3, Zij,3, detZ)
 	    zeta(i,j) = Sgn(i + j)*detZ/detY
 	    zeta(j,i) = zeta(i,j)

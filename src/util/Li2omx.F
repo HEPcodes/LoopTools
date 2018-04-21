@@ -1,7 +1,7 @@
 * Li2omx.F
 * the dilogarithm function of 1 - x
 * this file is part of LoopTools
-* last modified 1 Aug 12 th
+* last modified 7 Apr 18 th
 
 #include "externals.h"
 #include "types.h"
@@ -10,7 +10,7 @@
 
 	ComplexType function XLi2omx(x)
 	implicit none
-	DVAR x
+	ArgType x
 
 	ComplexType spence
 	external spence
@@ -24,7 +24,7 @@
 	subroutine XLi2omxsub(res, x)
 	implicit none
 	ComplexType res
-	DVAR x
+	ArgType x
 
 	ComplexType spence
 	external spence

@@ -3,7 +3,7 @@
 		caching of tensor coefficients in
 		dynamically allocated memory
 		this file is part of LoopTools
-		last modified 9 Nov 17 th
+		last modified 14 Apr 18 th
 */
 
 
@@ -24,11 +24,7 @@
 #define ltcache_ ltcache
 #endif
 
-#ifndef KIND
-#define KIND 1
-#endif
-
-#if KIND == 2
+#if QUAD
 #define MSB (1-BIGENDIAN)
 #else
 #define MSB 0
@@ -39,7 +35,7 @@ typedef long long dblint;
 
 typedef unsigned long long udblint;
 
-typedef struct { dblint part[KIND]; } RealType;
+typedef struct { dblint part[QUAD+1]; } RealType;
 
 typedef const RealType cRealType;
 
@@ -96,7 +92,7 @@ static dblint CmpPara(cRealType *para1, cRealType *para2,
 }
 
 
-#if KIND == 2
+#if QUAD
 
 static dblint CmpParaLo(cRealType *para1, cRealType *para2,
   int n, const dblint mask)
@@ -142,7 +138,7 @@ static void *Lookup(cRealType *para, double *base,
 
   {
     dblint mask = -(1ULL << IDim(64 - ltcache_.cmpbits));
-#if KIND == 2
+#if QUAD
     dblint (*cmp)(cRealType *, cRealType *, int, const dblint) = CmpPara;
     if( ltcache_.cmpbits >= 64 ) {
       mask = -(1ULL << IDim(128 - ltcache_.cmpbits));

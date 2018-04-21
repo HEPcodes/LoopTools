@@ -1,7 +1,7 @@
 * Li2.F
 * the dilogarithm function
 * this file is part of LoopTools
-* last modified 13 Apr 06 th
+* last modified 7 Apr 18 th
 
 #include "externals.h"
 #include "types.h"
@@ -10,7 +10,7 @@
 
 	ComplexType function XLi2(x)
 	implicit none
-	DVAR x
+	ArgType x
 
 	RealType pi12
 	parameter (pi12 = .822467033424113218236207583323D0)
@@ -33,7 +33,7 @@
 	subroutine XLi2sub(res, x)
 	implicit none
 	ComplexType res
-	DVAR x
+	ArgType x
 
 	ComplexType XLi2
 	external XLi2

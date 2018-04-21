@@ -16,10 +16,10 @@ ARGS = $(PARALLEL) \
   EXE="$(EXE)" \
   DEF="$(DEF)" \
   NOUNDERSCORE="$(NOUNDERSCORE)" \
-  XFC="$(FC$(QUADSUFFIX)) $(FFLAGS) $(FFLAGS-quad) -I." \
+  XFC="$(FC) $(FFLAGS) -I." \
   F90="$(F90)" \
   CC="$(CC)" \
-  CFLAGS="$(CFLAGS) $(CFLAGS-quad)" \
+  CFLAGS="$(CFLAGS)" \
   CXX="$(CXX)" \
   CXXFLAGS="$(CXXFLAGS)" \
   ML="$(ML)" \
@@ -31,8 +31,7 @@ ARGS = $(PARALLEL) \
   NM="$(NM)" \
   DLLTOOL="$(DLLTOOL)" \
   LDFLAGS="$(LDFLAGS)" \
-  LIBPATH="$(LIBPATH)" \
-  OBJS-quad="$(OBJS-quad)"
+  LIBPATH="$(LIBPATH)"
 
 
 default all lib frontend mma: force
@@ -42,7 +41,7 @@ install: lib frontend
 	-mkdir $(PREFIX)
 	-mkdir $(LIBDIR) $(BINDIR) $(INCLUDEDIR)
 	cp -p $(BLD)/$(LIB) $(LIBDIR)
-	cp -p $(INCLUDE$(QUADSUFFIX)) $(INCLUDEDIR)
+	cp -p $(INCLUDE) $(INCLUDEDIR)
 	strip $(BLD)/$(FE)
 	cp -p $(BLD)/fcc $(BLD)/$(FE) $(BINDIR)
 	rm -f $(BINDIR)/f++

@@ -1,10 +1,14 @@
 * defs.h
 * internal definitions for the LoopTools routines
 * this file is part of LoopTools
-* last modified 28 Feb 14 th
+* last modified 14 Apr 18 th
 
 
 #ifdef COMPLEXPARA
+
+#define RC 2
+#define ArgType ComplexType
+#define ArgQuad ComplexQuad
 
 #define XAget AgetC
 #define XAput AputC
@@ -80,15 +84,11 @@
 #define Xffb2p ffcb2p
 #define Xffdb0 ffcdb0
 
-#define RC 2
-#define DVAR ComplexType
-#define QVAR ComplexType
-#define QREAL RealType
-#define QPREC(x) x
-#define QCC(x) Conjugate(x)
-#define QRE(x) Re(x)
-
 #else
+
+#define RC 1
+#define ArgType RealType
+#define ArgQuad RealQuad
 
 #define XAget Aget
 #define XAput Aput
@@ -163,19 +163,6 @@
 #define Xffb1 ffxb1
 #define Xffb2p ffxb2p
 #define Xffdb0 ffxdb0
-
-#define RC 1
-#define DVAR RealType
-#if QUAD
-#define QVAR real*16
-#define QPREC(x) QEXT(x)
-#else
-#define QVAR RealType
-#define QPREC(x) x
-#endif
-#define QREAL QVAR
-#define QCC(x) x
-#define QRE(x) x
 
 #endif
 
@@ -636,10 +623,6 @@
 #define lnrat(x,y) log((x-cIeps)/(y-cIeps))
 
 #define MAXDIM 8
-
-#ifndef KIND
-#define KIND 1
-#endif
 
 *#define WARNINGS
 

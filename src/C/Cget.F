@@ -2,7 +2,7 @@
 * the three-point tensor coefficients
 * this file is part of LoopTools
 * improvements by M. Rauch
-* last modified 20 Jan 16 th
+* last modified 9 Apr 18 th
 
 #include "externals.h"
 #include "types.h"
@@ -13,8 +13,8 @@
 
 	subroutine XCpara(para, p1, p2, p1p2, m1, m2, m3)
 	implicit none
-	DVAR para(1,*)
-	DVAR p1, p2, p1p2, m1, m2, m3
+	ArgType para(1,*)
+	ArgType p1, p2, p1p2, m1, m2, m3
 
 #include "lt.h"
 
@@ -34,7 +34,7 @@
 
 	memindex function XCget(p1, p2, p1p2, m1, m2, m3)
 	implicit none
-	DVAR p1, p2, p1p2, m1, m2, m3
+	ArgType p1, p2, p1p2, m1, m2, m3
 
 #include "lt.h"
 
@@ -46,7 +46,7 @@
 	external Cget
 #endif
 
-	DVAR para(1,Pcc)
+	ArgType para(1,Pcc)
 
 #ifdef COMPLEXPARA
 	if( abs(Im(p1)) + abs(Im(p2)) + abs(Im(p1p2)) .gt. 0 )
@@ -66,13 +66,13 @@
 	subroutine XCput(res, p1, p2, p1p2, m1, m2, m3)
 	implicit none
 	ComplexType res(*)
-	DVAR p1, p2, p1p2, m1, m2, m3
+	ArgType p1, p2, p1p2, m1, m2, m3
 
 #include "lt.h"
 
 	external XCcoefx
 
-	DVAR para(1,Pcc)
+	ArgType para(1,Pcc)
 
 #ifdef COMPLEXPARA
 	if( abs(Im(p1)) + abs(Im(p2)) + abs(Im(p1p2)) .gt. 0 )
@@ -92,11 +92,11 @@
 	subroutine XC0nocache(res, p1, p2, p1p2, m1, m2, m3)
 	implicit none
 	ComplexType res(*)
-	DVAR p1, p2, p1p2, m1, m2, m3
+	ArgType p1, p2, p1p2, m1, m2, m3
 
 #include "lt.h"
 
-	DVAR para(1,Pcc)
+	ArgType para(1,Pcc)
 
 #ifdef COMPLEXPARA
 	if( abs(Im(p1)) + abs(Im(p2)) + abs(Im(p1p2)) .gt. 0 )
@@ -116,7 +116,7 @@
 	ComplexType function XC0i(i, p1, p2, p1p2, m1, m2, m3)
 	implicit none
 	integer i
-	DVAR p1, p2, p1p2, m1, m2, m3
+	ArgType p1, p2, p1p2, m1, m2, m3
 
 #include "lt.h"
 
@@ -133,7 +133,7 @@
 
 	ComplexType function XC0(p1, p2, p1p2, m1, m2, m3)
 	implicit none
-	DVAR p1, p2, p1p2, m1, m2, m3
+	ArgType p1, p2, p1p2, m1, m2, m3
 
 #include "lt.h"
 
@@ -148,7 +148,7 @@
 	subroutine XCcoefx(C, para)
 	implicit none
 	ComplexType C(*)
-	DVAR para(1,*)
+	ArgType para(1,*)
 
 #include "lt.h"
 
@@ -169,32 +169,25 @@
 	subroutine XCcoeff(C, para, B12, B23, B13)
 	implicit none
 	ComplexType C(*), B12(*), B23(*), B13(*)
-	DVAR para(1,*)
+	ArgType para(1,*)
 
 #include "lt.h"
 
 	memindex XBget
 	external XBget
 
-	DVAR p1, p2, p1p2, m1, m2, m3
-	DVAR f1, f2
-	QVAR G(2,2)
-	ComplexType bsum(0:2), b1sum(0:2), b00sum(0:2), b11sum(0:2)
-	ComplexType in(0:2,2)
+	ArgType p1, p2, p1p2, m1, m2, m3
+	ArgType f1, f2
+	ArgQuad G(2,2)
+	ComplexQuad bsum(0:2), b1sum(0:2), b00sum(0:2), b11sum(0:2)
+	ComplexQuad in(0:2,2)
 	logical dump
 
-#ifdef SOLVE_EIGEN
-	QVAR Ginv(2,2)
-#define IN(i) in(:,i)
-#define SOLVE_SETUP XInverse(2, G,2, Ginv,2)
-#define SOLVER(b) XSolve(2, G,2, Ginv,2, b)
-#else
 	integer perm(2)
 #define IN(i) in(:,perm(i))
+#define OUT(i) in(:,i)
 #define SOLVE_SETUP XDecomp(2, G,2, perm)
 #define SOLVER(b) XSolve(2, G,2, b)
-#endif
-#define OUT(i) in(:,i)
 
 	integer finite(0:2)
 	data finite /1, 0, 0/

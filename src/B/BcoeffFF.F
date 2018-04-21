@@ -1,7 +1,7 @@
 * BcoeffFF.F
 * the two-point tensor coefficients from FF
 * this file is part of LoopTools
-* last modified 1 Sep 14 th
+* last modified 8 Apr 18 th
 
 #include "externals.h"
 #include "types.h"
@@ -13,16 +13,16 @@
 	subroutine XBcoeffFF(B, para, ier)
 	implicit none
 	ComplexType B(*)
-	DVAR para(1,*)
+	ArgType para(1,*)
 	integer ier(*)
 
 #include "lt.h"
 
-	DVAR p, m1, m2, dm
+	ArgType p, m1, m2, dm
 	ComplexType a0(2), b2(2), pdb0
 	integer i
 #ifdef COMPLEXPARA
-	DVAR m1dm
+	ArgType m1dm
 	ComplexType dmp, d2mp
 #endif
 

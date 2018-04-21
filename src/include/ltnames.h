@@ -1,5 +1,5 @@
 	character*6 paraname(Pee,1:5)
-	common /ltparanames/ paraname
+	common /paranames/ paraname
 
 	character*10 coeffname(Nee,1:5)
-	common /ltcoeffnames/ coeffname
+	common /coeffnames/ coeffname

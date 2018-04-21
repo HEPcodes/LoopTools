@@ -187,9 +187,9 @@ ini.o: ini.F $(LTINC)
 	$(XFC) -c -o ini.o ini.F
 auxCD.o: auxCD.F $(LTINC)
 	$(XFC) -c -o auxCD.o auxCD.F
-solve.o: solve.F solve-LU.F solve-Eigen.F $(LTINC)
+solve.o: solve.F $(LTINC)
 	$(XFC) -c -o solve.o solve.F
-solveC.o: solve.F solve-LU.F solve-Eigen.F $(LTINC)
+solveC.o: solve.F $(LTINC)
 	$(CFC) -c -o solveC.o solve.F
 Dump.o: Dump.F $(LTINC)
 	$(XFC) -c -o Dump.o Dump.F
