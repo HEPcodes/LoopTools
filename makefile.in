@@ -44,7 +44,7 @@ install: lib frontend
 	cp -p $(BLD)/$(LIB) $(LIBDIR)
 	cp -p $(INCLUDE$(QUADSUFFIX)) $(INCLUDEDIR)
 	strip $(BLD)/$(FE)
-	cp -p $(BLD)/fcc $(BLD)/$(FE) $(RUNTIME) $(BINDIR)
+	cp -p $(BLD)/fcc $(BLD)/$(FE) $(BINDIR)
 	rm -f $(BINDIR)/f++
 	ln -s fcc $(BINDIR)/f++
 	test ! -f $(BLD)/$(MFE) || { \
