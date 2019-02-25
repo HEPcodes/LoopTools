@@ -1,7 +1,7 @@
 * D0func.F
 * the scalar four-point function
 * this file is part of LoopTools
-* last modified 5 Nov 16 th
+* last modified 7 Dec 18 th
 
 #include "externals.h"
 #include "types.h"
@@ -10,31 +10,31 @@
 #include "defs.h"
 
 
-	subroutine D0func(res, para)
+	subroutine D0func(res, res00, para)
 	implicit none
-	ComplexType res(0:2)
+	ComplexType res(0:2), res00(0:2)
 	RealType para(1,*)
 
 #include "lt.h"
 
 	external D0softDR, D0collDR, D0soft, D0coll
 
-	res(0) = 0
-	res(1) = 0
-	res(2) = 0
+	res = 0
+	res00 = 0
+	res00(0) = -999
 
 	if( lambda .le. 0 ) then
-	  call DDispatch(res, para, D0softDR, D0collDR)
+	  call DDispatch(res, res00, para, D0softDR, D0collDR)
 	else
-	  call DDispatch(res, para, D0soft, D0coll)
+	  call DDispatch(res, res00, para, D0soft, D0coll)
 	endif
 	end
 
 ************************************************************************
 
-	subroutine DDispatch(res, para, soft, coll)
+	subroutine DDispatch(res, res00, para, soft, coll)
 	implicit none
-	ComplexType res(0:2)
+	ComplexType res(0:2), res00(0:2)
 	RealType para(1,*)
 	external soft, coll
 
@@ -94,6 +94,13 @@
 	  return
 	endif
 
+	if( abs(P(1)) + abs(P(2)) + abs(P(3)) + abs(P(4)) +
+     &      abs(P(5)) + abs(P(6)) .lt. zeroeps ) then
+	  if( DEBUGLEVEL .gt. 0 ) print '("D0z")'
+	  call D0z(res, res00, para)
+	  return
+	endif
+
 	key = ibits(versionkey, KeyD0, 2)
 
 	if( key .ne. 1 ) then
@@ -131,16 +138,16 @@
 	if( abs(Mx(4)) .lt. zeroeps ) z = z + 4
 	s = mperm(z)
 	if( s .ne. p1234 ) perm =
-     &    pj(perm, pj(s, 1))*8**9 +
-     &    pj(perm, pj(s, 2))*8**8 +
-     &    pj(perm, pj(s, 3))*8**7 +
-     &    pj(perm, pj(s, 4))*8**6 +
-     &    pj(perm, pj(s, 5))*8**5 +
-     &    pj(perm, pj(s, 6))*8**4 +
-     &    mj(perm, mj(s, 1))*8**3 +
-     &    mj(perm, mj(s, 2))*8**2 +
-     &    mj(perm, mj(s, 3))*8**1 +
-     &    mj(perm, mj(s, 4))*8**0
+     &    pj(perm,pj(s,1))*8**9 +
+     &    pj(perm,pj(s,2))*8**8 +
+     &    pj(perm,pj(s,3))*8**7 +
+     &    pj(perm,pj(s,4))*8**6 +
+     &    pj(perm,pj(s,5))*8**5 +
+     &    pj(perm,pj(s,6))*8**4 +
+     &    mj(perm,mj(s,1))*8**3 +
+     &    mj(perm,mj(s,2))*8**2 +
+     &    mj(perm,mj(s,3))*8**1 +
+     &    mj(perm,mj(s,4))*8**0
 
 	goto (2, 2, 3, 2, 3, 3, 4) z
 
@@ -1304,7 +1311,7 @@ c#define k2r(k) (.5D0*k*(1 + sqrt(ToComplex((1 - 2/k)*(1 + 2/k)))))
 	RealType kij(6), irij(6), ix(2,4)
 	ComplexType rij(6), x(2,4), l(2,4), q13, q24
 	ComplexType a, b, c, d, disc, ki, etas
-	integer j
+	integer j, try
 
 	RealType k12, k13, k14, k23, k24, k34
 	RealType ir12, ir13, ir14, ir23, ir24, ir34
@@ -1385,34 +1392,34 @@ c#define k2r(k) (.5D0*k*(1 + sqrt(ToComplex((1 - 2/k)*(1 + 2/k)))))
 	r34 = k2r(k34)
 	r14 = k2r(k14)
 	r13 = 1/k2r(k13)
-1	r24 = 1/k2r(k24)
+	do try = 1, 10
+	  r24 = 1/k2r(k24)
 
-	do j = 1, 6
-	  if( Im(rij(j)) .eq. 0 ) then
-	    ki = kij(j) - cIeps
-	    irij(j) = sign(1D0, abs(rij(j)) - 1)*
-     &        Im(k2r(ki))
-	  else
-	    irij(j) = 0
-	  endif
-	enddo
+	  do j = 1, 6
+	    if( Im(rij(j)) .eq. 0 ) then
+	      ki = kij(j) - cIeps
+	      irij(j) = sign(1D0, abs(rij(j)) - 1)*
+     &          Im(k2r(ki))
+	    else
+	      irij(j) = 0
+	    endif
+	  enddo
 
-	ir1324 = sign(1D0, Re(r24))*ir13 -
-     &           sign(1D0, Re(r13))*ir24
+	  ir1324 = sign(1D0, Re(r24))*ir13 -
+     &             sign(1D0, Re(r13))*ir24
 
-	a = k34/r24 - k23 + (k12 - k14/r24)*r13
-	b = (1/r13 - r13)*(1/r24 - r24) + k12*k34 - k14*k23
-	c = k34*r24 - k23 + (k12 - k14*r24)/r13
-	d = k23 + (r24*k14 - k12)*r13 - r24*k34
-	disc = sqrt(b**2 - 4*a*(c + d*cIeps))
-	ix(1,4) = Im(.5D0/a*(b - disc))
-	ix(2,4) = Im(.5D0/a*(b + disc))
+	  a = k34/r24 - k23 + (k12 - k14/r24)*r13
+	  b = (1/r13 - r13)*(1/r24 - r24) + k12*k34 - k14*k23
+	  c = k34*r24 - k23 + (k12 - k14*r24)/r13
+	  d = k23 + (r24*k14 - k12)*r13 - r24*k34
+	  disc = sqrt(b**2 - 4*a*(c + d*cIeps))
+	  ix(1,4) = Im(.5D0/a*(b - disc))
+	  ix(2,4) = Im(.5D0/a*(b + disc))
 
-	disc = sqrt(b**2 - 4*a*c)
-	if( abs(disc) .lt. diffeps ) then
+	  disc = sqrt(b**2 - 4*a*c)
+	  if( abs(disc) .gt. diffeps ) exit
 	  k24 = k24 - diffeps
-	  goto 1
-	endif
+	enddo
 	x(1,4) = .5D0/a*(b - disc)
 	x(2,4) = .5D0/a*(b + disc)
 	if( abs(x(1,4)) .gt. abs(x(2,4)) ) then

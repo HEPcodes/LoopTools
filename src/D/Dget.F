@@ -2,7 +2,7 @@
 * retrieve the four-point tensor coefficients
 * this file is part of LoopTools
 * improvements by M. Rauch
-* last modified 9 Apr 18 th
+* last modified 16 Oct 18 th
 
 #include "externals.h"
 #include "types.h"
@@ -117,6 +117,7 @@
 #include "lt.h"
 
 	ArgType para(1,Pdd+3)
+	ComplexType res00(0:2)
 
 #ifdef COMPLEXPARA
 	if( abs(Im(p1)) + abs(Im(p2)) +
@@ -132,7 +133,7 @@
 #endif
 
 	call XDpara(para, p1, p2, p3, p4, p1p2, p2p3, m1, m2, m3, m4)
-	call XD0func(res, para)
+	call XD0func(res, res00, para)
 	end
 
 ************************************************************************
@@ -273,7 +274,7 @@
 	c12sum = C234(CC12) + C234(CC112) + C234(CC122)
 	c22sum = C234(CC22) + C234(CC122) + C234(CC222)
 
-	call XD0func(D(DD0), para)
+	call XD0func(D(DD0), D(DD00), para)
 
 	IN(1) = f1*D(DD0) - C234(CC0) + C134(CC0)
 	IN(2) = f2*D(DD0) - C234(CC0) + C124(CC0)
@@ -283,8 +284,8 @@
 	D(DD2) = OUT(2)
 	D(DD3) = OUT(3)
 
-	D(DD00) = m1*D(DD0) - .5D0*
-     &    (D(DD1)*f1 + D(DD2)*f2 + D(DD3)*f3 - C234(CC0))
+	if( Re(D(dd00)) .eq. -999 ) D(DD00) = m1*D(DD0) -
+     &    .5D0*(D(DD1)*f1 + D(DD2)*f2 + D(DD3)*f3 - C234(CC0))
 
 	IN(1) = f1*D(DD1) + c0sum - 2*D(DD00)
 	IN(2) = f2*D(DD1) + c0sum + C124(CC1)

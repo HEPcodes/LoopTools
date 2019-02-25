@@ -47,7 +47,7 @@ install: lib frontend
 	rm -f $(BINDIR)/f++
 	ln -s fcc $(BINDIR)/f++
 	test ! -f $(BLD)/$(MFE) || { \
-	  ldd $(BLD)/$(MFE) | awk '/\/usr\/bin\/cyg/ { system("cp -p " $$3 " $(BINDIR)/"); }' ; \
+	  test -z "$(EXE)" || ldd $(BLD)/$(MFE) | awk '/\/usr\/bin\/cyg/ { system("cp -p " $$3 " $(BINDIR)/"); }' ; \
 	  strip $(BLD)/$(MFE) ; \
 	  cp -p $(BLD)/$(MFE) $(BINDIR); \
 	}

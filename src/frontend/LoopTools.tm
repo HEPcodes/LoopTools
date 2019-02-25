@@ -167,7 +167,7 @@
 	E0 = E0i[ee0, ##]&
 
 :Evaluate:
-	{LTini, LTexi, LTwrite = WriteString[$Output, #]&}
+	{LTini, LTexi, If[!ValueQ[LTwrite], LTwrite = WriteString[$Output, #]&]}
 
 :Evaluate: Begin["`Private`"]
 
@@ -756,7 +756,7 @@
 	LoopTools.tm
 		provides the LoopTools functions in Mathematica
 		this file is part of LoopTools
-		last modified 19 Apr 18 th
+		last modified 25 May 18 th
 */
 
 

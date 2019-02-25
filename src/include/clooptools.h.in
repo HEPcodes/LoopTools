@@ -2,53 +2,12 @@
 	clooptools.h
 		the C/C++ header file with all definitions for LoopTools
 		this file is part of LoopTools
-		last modified 14 Apr 17 th
+		last modified 13 Aug 18 th
 */
 
 
 #ifndef CLOOPTOOLS_H
 #define CLOOPTOOLS_H
-
-#define AARGS(t) t(m)
-
-#define BARGS(t) t(p), t(m1), t(m2)
-
-#define CARGS(t) t(p1), t(p2), t(p1p2), t(m1), t(m2), t(m3)
-
-#define DARGS(t) t(p1), t(p2), t(p3), t(p4), t(p1p2), t(p2p3), \
-  t(m1), t(m2), t(m3), t(m4)
-
-#define EARGS(t) t(p1), t(p2), t(p3), t(p4), t(p5), \
-  t(p1p2), t(p2p3), t(p3p4), t(p4p5), t(p5p1), \
-  t(m1), t(m2), t(m3), t(m4), t(m5)
-
-#define XARGS(t) t(x)
-
-#define _lt_Cr_(v) cRealType v
-#define _lt_Cc_(v) cComplexType v
-#define _lt_Fr_(v) CREAL *v
-#define _lt_Fc_(v) CCOMPLEX *v
-#define _lt_Id_(v) v
-
-#if QUAD && CQUADSIZE != QUADSIZE
-#define _lt_CFr_(v) v##_ = ToREAL(v)
-#define _lt_CFc_(v) v##_ = {ToREAL(Re(v)), ToREAL(Im(v))}
-#define _lt_Frp_(v) &v##_
-#define _lt_Fcp_(v) &v##_
-#define _lt_Fap_(v) v##_
-#define _lt_Frd_(f) CREAL f(_lt_CFr_);
-#define _lt_Fcd_(f) CCOMPLEX f(_lt_CFc_);
-#define _lt_Fad_(v,n) COMPLEX v##_[n];
-#define _lt_Fax_(v,n) ToRealArray((RealType *)v, (REAL *)v##_, 2*n);
-#else
-#define _lt_Frp_(v) &v
-#define _lt_Fcp_(v) (CCOMPLEX *)&v
-#define _lt_Fap_(v) (COMPLEX *)v
-#define _lt_Frd_(f)
-#define _lt_Fcd_(f)
-#define _lt_Fad_(v,n)
-#define _lt_Fax_(v,n)
-#endif
 
 #define aa0 0
 #define aa00 3
@@ -289,81 +248,6 @@ typedef long long int memindex;
 extern "C" {
 #endif
 
-extern memindex FORTRAN(aget)(AARGS(_lt_Fr_));
-extern memindex FORTRAN(agetc)(AARGS(_lt_Fc_));
-extern void FORTRAN(aput)(COMPLEX *res, AARGS(_lt_Fr_));
-extern void FORTRAN(aputc)(COMPLEX *res, AARGS(_lt_Fc_));
-extern void FORTRAN(aputnocache)(COMPLEX *res, AARGS(_lt_Fr_));
-extern void FORTRAN(aputnocachec)(COMPLEX *res, AARGS(_lt_Fc_));
-
-extern memindex FORTRAN(bget)(BARGS(_lt_Fr_));
-extern memindex FORTRAN(bgetc)(BARGS(_lt_Fc_));
-extern void FORTRAN(bput)(COMPLEX *res, BARGS(_lt_Fr_));
-extern void FORTRAN(bputc)(COMPLEX *res, BARGS(_lt_Fc_));
-extern void FORTRAN(bputnocache)(COMPLEX *res, BARGS(_lt_Fr_));
-extern void FORTRAN(bputnocachec)(COMPLEX *res, BARGS(_lt_Fc_));
-
-extern memindex FORTRAN(cget)(CARGS(_lt_Fr_));
-extern memindex FORTRAN(cgetc)(CARGS(_lt_Fc_));
-extern void FORTRAN(cput)(COMPLEX *res, CARGS(_lt_Fr_));
-extern void FORTRAN(cputc)(COMPLEX *res, CARGS(_lt_Fc_));
-extern void FORTRAN(c0nocache)(COMPLEX *res, CARGS(_lt_Fr_));
-extern void FORTRAN(c0nocachec)(COMPLEX *res, CARGS(_lt_Fc_));
-
-extern memindex FORTRAN(dget)(DARGS(_lt_Fr_));
-extern memindex FORTRAN(dgetc)(DARGS(_lt_Fc_));
-extern void FORTRAN(dput)(COMPLEX *res, DARGS(_lt_Fr_));
-extern void FORTRAN(dputc)(COMPLEX *res, DARGS(_lt_Fc_));
-extern void FORTRAN(d0nocache)(COMPLEX *res, DARGS(_lt_Fr_));
-extern void FORTRAN(d0nocachec)(COMPLEX *res, DARGS(_lt_Fc_));
-
-extern memindex FORTRAN(eget)(EARGS(_lt_Fr_));
-extern memindex FORTRAN(egetc)(EARGS(_lt_Fc_));
-extern void FORTRAN(eput)(COMPLEX *res, EARGS(_lt_Fr_));
-extern void FORTRAN(eputc)(COMPLEX *res, EARGS(_lt_Fc_));
-extern void FORTRAN(e0nocache)(COMPLEX *res, EARGS(_lt_Fr_));
-extern void FORTRAN(e0nocachec)(COMPLEX *res, EARGS(_lt_Fc_));
-
-extern void FORTRAN(li2sub)(COMPLEX *res, XARGS(_lt_Fr_));
-extern void FORTRAN(li2csub)(COMPLEX *res, XARGS(_lt_Fc_));
-
-extern void FORTRAN(li2omxsub)(COMPLEX *res, XARGS(_lt_Fr_));
-extern void FORTRAN(li2omxcsub)(COMPLEX *res, XARGS(_lt_Fc_));
-
-extern void FORTRAN(ltini)(void);
-extern void FORTRAN(ltexi)(void);
-
-extern void FORTRAN(clearcache)(void);
-extern void FORTRAN(markcache)(void);
-extern void FORTRAN(restorecache)(void);
-
-#define _lt_set_(f) FORTRAN(set##f)
-#define _lt_get_(f) FORTRAN(get##f)
-
-#define _lt_extreal_(f) \
-  extern void _lt_set_(f)(CREAL *); \
-  extern REAL _lt_get_(f)(void);
-_lt_extreal_(mudim)
-_lt_extreal_(delta)
-_lt_extreal_(uvdiv)
-_lt_extreal_(lambda)
-_lt_extreal_(minmass)
-_lt_extreal_(maxdev)
-_lt_extreal_(diffeps)
-_lt_extreal_(zeroeps)
-
-#define _lt_extint_(f) \
-  extern void _lt_set_(f)(CINTEGER *); \
-  extern INTEGER _lt_get_(f)(void);
-_lt_extint_(warndigits)
-_lt_extint_(errdigits)
-_lt_extint_(versionkey)
-_lt_extint_(debugkey)
-_lt_extint_(cmpbits)
-
-extern INTEGER _lt_get_(epsi)(void);
-extern void _lt_set_(debugrange)(CINTEGER *, CINTEGER *);
-
 #define CACHEPTR(n,i) &FORTRAN(ltvars).cache[n][i]
 
 #define EPSINDEX(i) i+FORTRAN(ltvars).epsi
@@ -377,25 +261,52 @@ extern struct {		/* MUST match common block ltvars in lt.h! */
   INTEGER debugkey, debugfrom, debugto;
 } FORTRAN(ltvars);
 
-#ifdef __cplusplus
-}
+#define _lt_Cr_(v) cRealType v
+#define _lt_Cc_(v) cComplexType v
+#define _lt_Fr_(v) CREAL *v
+#define _lt_Fc_(v) CCOMPLEX *v
+#define _lt_Id_(v) v
+
+#if QUAD && CQUADSIZE != QUADSIZE
+#define _lt_CFr_(v) v##_ = ToREAL(v)
+#define _lt_CFc_(v) v##_ = {ToREAL(Re(v)), ToREAL(Im(v))}
+#define _lt_Frp_(v) &v##_
+#define _lt_Fcp_(v) &v##_
+#define _lt_Fap_(v) v##_
+#define _lt_Frd_(f) CREAL f(_lt_CFr_);
+#define _lt_Fcd_(f) CCOMPLEX f(_lt_CFc_);
+#define _lt_Fad_(v,n) COMPLEX v##_[n];
+#define _lt_Fax_(v,n) ToRealArray((RealType *)v, (REAL *)v##_, 2*n);
+#else
+#define _lt_Frp_(v) &v
+#define _lt_Fcp_(v) (CCOMPLEX *)&v
+#define _lt_Fap_(v) (COMPLEX *)v
+#define _lt_Frd_(f)
+#define _lt_Fcd_(f)
+#define _lt_Fad_(v,n)
+#define _lt_Fax_(v,n)
 #endif
 
 /****************************************************************/
 
+#define AARGS(t) t(m)
+
 static inline memindex Aget(AARGS(_lt_Cr_)) {
   _lt_Frd_(AARGS)
+  extern memindex FORTRAN(aget)(AARGS(_lt_Fr_));
   return FORTRAN(aget)(AARGS(_lt_Frp_));
 }
 
 static inline memindex AgetC(AARGS(_lt_Cc_)) {
   _lt_Fcd_(AARGS)
+  extern memindex FORTRAN(agetc)(AARGS(_lt_Fc_));
   return FORTRAN(agetc)(AARGS(_lt_Fcp_));
 }
 
 static inline void Aput(ComplexType *res, AARGS(_lt_Cr_)) {
   _lt_Frd_(AARGS)
   _lt_Fad_(res, Naa)
+  extern void FORTRAN(aput)(COMPLEX *res, AARGS(_lt_Fr_));
   FORTRAN(aput)(_lt_Fap_(res), AARGS(_lt_Frp_));
   _lt_Fax_(res, Naa)
 }
@@ -403,6 +314,7 @@ static inline void Aput(ComplexType *res, AARGS(_lt_Cr_)) {
 static inline void AputC(ComplexType *res, AARGS(_lt_Cc_)) {
   _lt_Fcd_(AARGS)
   _lt_Fad_(res, Naa)
+  extern void FORTRAN(aputc)(COMPLEX *res, AARGS(_lt_Fc_));
   FORTRAN(aputc)(_lt_Fap_(res), AARGS(_lt_Fcp_));
   _lt_Fax_(res, Naa)
 }
@@ -410,6 +322,7 @@ static inline void AputC(ComplexType *res, AARGS(_lt_Cc_)) {
 static inline void Aputnocache(ComplexType *res, AARGS(_lt_Cr_)) {
   _lt_Frd_(AARGS)
   _lt_Fad_(res, Naa)
+  extern void FORTRAN(aputnocache)(COMPLEX *res, AARGS(_lt_Fr_));
   FORTRAN(aputnocache)(_lt_Fap_(res), AARGS(_lt_Frp_));
   _lt_Fax_(res, Naa)
 }
@@ -417,6 +330,7 @@ static inline void Aputnocache(ComplexType *res, AARGS(_lt_Cr_)) {
 static inline void AputnocacheC(ComplexType *res, AARGS(_lt_Cc_)) {
   _lt_Fcd_(AARGS)
   _lt_Fad_(res, Naa)
+  extern void FORTRAN(aputnocachec)(COMPLEX *res, AARGS(_lt_Fc_));
   FORTRAN(aputnocachec)(_lt_Fap_(res), AARGS(_lt_Fcp_));
   _lt_Fax_(res, Naa)
 }
@@ -451,19 +365,24 @@ static inline ComplexType A00C(AARGS(_lt_Cc_))
 
 /****************************************************************/
 
+#define BARGS(t) t(p), t(m1), t(m2)
+
 static inline memindex Bget(BARGS(_lt_Cr_)) {
   _lt_Frd_(BARGS)
+  extern memindex FORTRAN(bget)(BARGS(_lt_Fr_));
   return FORTRAN(bget)(BARGS(_lt_Frp_));
 }
 
 static inline memindex BgetC(BARGS(_lt_Cc_)) {
   _lt_Fcd_(BARGS)
+  extern memindex FORTRAN(bgetc)(BARGS(_lt_Fc_));
   return FORTRAN(bgetc)(BARGS(_lt_Fcp_));
 }
 
 static inline void Bput(ComplexType *res, BARGS(_lt_Cr_)) {
   _lt_Frd_(BARGS)
   _lt_Fad_(res, Nbb)
+  extern void FORTRAN(bput)(COMPLEX *res, BARGS(_lt_Fr_));
   FORTRAN(bput)(_lt_Fap_(res), BARGS(_lt_Frp_));
   _lt_Fax_(res, Nbb)
 }
@@ -471,6 +390,7 @@ static inline void Bput(ComplexType *res, BARGS(_lt_Cr_)) {
 static inline void BputC(ComplexType *res, BARGS(_lt_Cc_)) {
   _lt_Fcd_(BARGS)
   _lt_Fad_(res, Nbb)
+  extern void FORTRAN(bputc)(COMPLEX *res, BARGS(_lt_Fc_));
   FORTRAN(bputc)(_lt_Fap_(res), BARGS(_lt_Fcp_));
   _lt_Fax_(res, Nbb)
 }
@@ -478,6 +398,7 @@ static inline void BputC(ComplexType *res, BARGS(_lt_Cc_)) {
 static inline void Bputnocache(ComplexType *res, BARGS(_lt_Cr_)) {
   _lt_Frd_(BARGS)
   _lt_Fad_(res, Nbb)
+  extern void FORTRAN(bputnocache)(COMPLEX *res, BARGS(_lt_Fr_));
   FORTRAN(bputnocache)(_lt_Fap_(res), BARGS(_lt_Frp_));
   _lt_Fax_(res, Nbb)
 }
@@ -485,6 +406,7 @@ static inline void Bputnocache(ComplexType *res, BARGS(_lt_Cr_)) {
 static inline void BputnocacheC(ComplexType *res, BARGS(_lt_Cc_)) {
   _lt_Fcd_(BARGS)
   _lt_Fad_(res, Nbb)
+  extern void FORTRAN(bputnocachec)(COMPLEX *res, BARGS(_lt_Fc_));
   FORTRAN(bputnocachec)(_lt_Fap_(res), BARGS(_lt_Fcp_));
   _lt_Fax_(res, Nbb)
 }
@@ -551,19 +473,24 @@ static inline ComplexType DB11C(BARGS(_lt_Cc_))
 
 /****************************************************************/
 
+#define CARGS(t) t(p1), t(p2), t(p1p2), t(m1), t(m2), t(m3)
+
 static inline memindex Cget(CARGS(_lt_Cr_)) {
   _lt_Frd_(CARGS)
+  extern memindex FORTRAN(cget)(CARGS(_lt_Fr_));
   return FORTRAN(cget)(CARGS(_lt_Frp_));
 }
 
 static inline memindex CgetC(CARGS(_lt_Cc_)) {
   _lt_Fcd_(CARGS)
+  extern memindex FORTRAN(cgetc)(CARGS(_lt_Fc_));
   return FORTRAN(cgetc)(CARGS(_lt_Fcp_));
 }
 
 static inline void Cput(ComplexType *res, CARGS(_lt_Cr_)) {
   _lt_Frd_(CARGS)
   _lt_Fad_(res, Ncc)
+  extern void FORTRAN(cput)(COMPLEX *res, CARGS(_lt_Fr_));
   FORTRAN(cput)(_lt_Fap_(res), CARGS(_lt_Frp_));
   _lt_Fax_(res, Ncc)
 }
@@ -571,6 +498,7 @@ static inline void Cput(ComplexType *res, CARGS(_lt_Cr_)) {
 static inline void CputC(ComplexType *res, CARGS(_lt_Cc_)) {
   _lt_Fcd_(CARGS)
   _lt_Fad_(res, Ncc)
+  extern void FORTRAN(cputc)(COMPLEX *res, CARGS(_lt_Fc_));
   FORTRAN(cputc)(_lt_Fap_(res), CARGS(_lt_Fcp_));
   _lt_Fax_(res, Ncc)
 }
@@ -578,6 +506,7 @@ static inline void CputC(ComplexType *res, CARGS(_lt_Cc_)) {
 static inline void C0nocache(ComplexType *res, CARGS(_lt_Cr_)) {
   _lt_Frd_(CARGS)
   _lt_Fad_(res, 3)
+  extern void FORTRAN(c0nocache)(COMPLEX *res, CARGS(_lt_Fr_));
   FORTRAN(c0nocache)(_lt_Fap_(res), CARGS(_lt_Frp_));
   _lt_Fax_(res, 3)
 }
@@ -585,6 +514,7 @@ static inline void C0nocache(ComplexType *res, CARGS(_lt_Cr_)) {
 static inline void C0nocacheC(ComplexType *res, CARGS(_lt_Cc_)) {
   _lt_Fcd_(CARGS)
   _lt_Fad_(res, 3)
+  extern void FORTRAN(c0nocachec)(COMPLEX *res, CARGS(_lt_Fc_));
   FORTRAN(c0nocachec)(_lt_Fap_(res), CARGS(_lt_Fcp_));
   _lt_Fax_(res, 3)
 }
@@ -615,19 +545,25 @@ static inline ComplexType C0C(CARGS(_lt_Cc_))
 
 /****************************************************************/
 
+#define DARGS(t) t(p1), t(p2), t(p3), t(p4), t(p1p2), t(p2p3), \
+  t(m1), t(m2), t(m3), t(m4)
+
 static inline memindex Dget(DARGS(_lt_Cr_)) {
   _lt_Frd_(DARGS)
+  extern memindex FORTRAN(dget)(DARGS(_lt_Fr_));
   return FORTRAN(dget)(DARGS(_lt_Frp_));
 }
 
 static inline memindex DgetC(DARGS(_lt_Cc_)) {
   _lt_Fcd_(DARGS)
+  extern memindex FORTRAN(dgetc)(DARGS(_lt_Fc_));
   return FORTRAN(dgetc)(DARGS(_lt_Fcp_));
 }
 
 static inline void Dput(ComplexType *res, DARGS(_lt_Cr_)) {
   _lt_Frd_(DARGS)
   _lt_Fad_(res, Ndd)
+  extern void FORTRAN(dput)(COMPLEX *res, DARGS(_lt_Fr_));
   FORTRAN(dput)(_lt_Fap_(res), DARGS(_lt_Frp_));
   _lt_Fax_(res, Ndd)
 }
@@ -635,6 +571,7 @@ static inline void Dput(ComplexType *res, DARGS(_lt_Cr_)) {
 static inline void DputC(ComplexType *res, DARGS(_lt_Cc_)) {
   _lt_Fcd_(DARGS)
   _lt_Fad_(res, Ndd)
+  extern void FORTRAN(dputc)(COMPLEX *res, DARGS(_lt_Fc_));
   FORTRAN(dputc)(_lt_Fap_(res), DARGS(_lt_Fcp_));
   _lt_Fax_(res, Ndd)
 }
@@ -642,6 +579,7 @@ static inline void DputC(ComplexType *res, DARGS(_lt_Cc_)) {
 static inline void D0nocache(ComplexType *res, DARGS(_lt_Cr_)) {
   _lt_Frd_(DARGS)
   _lt_Fad_(res, 3)
+  extern void FORTRAN(d0nocache)(COMPLEX *res, DARGS(_lt_Fr_));
   FORTRAN(d0nocache)(_lt_Fap_(res), DARGS(_lt_Frp_));
   _lt_Fax_(res, 3)
 }
@@ -649,6 +587,7 @@ static inline void D0nocache(ComplexType *res, DARGS(_lt_Cr_)) {
 static inline void D0nocacheC(ComplexType *res, DARGS(_lt_Cc_)) {
   _lt_Fcd_(DARGS)
   _lt_Fad_(res, 3)
+  extern void FORTRAN(d0nocachec)(COMPLEX *res, DARGS(_lt_Fc_));
   FORTRAN(d0nocachec)(_lt_Fap_(res), DARGS(_lt_Fcp_));
   _lt_Fax_(res, 3)
 }
@@ -679,19 +618,26 @@ static inline ComplexType D0C(DARGS(_lt_Cc_))
 
 /****************************************************************/
 
+#define EARGS(t) t(p1), t(p2), t(p3), t(p4), t(p5), \
+  t(p1p2), t(p2p3), t(p3p4), t(p4p5), t(p5p1), \
+  t(m1), t(m2), t(m3), t(m4), t(m5)
+
 static inline memindex Eget(EARGS(_lt_Cr_)) {
   _lt_Frd_(EARGS)
+  extern memindex FORTRAN(eget)(EARGS(_lt_Fr_));
   return FORTRAN(eget)(EARGS(_lt_Frp_));
 }
 
 static inline memindex EgetC(EARGS(_lt_Cc_)) {
   _lt_Fcd_(EARGS)
+  extern memindex FORTRAN(egetc)(EARGS(_lt_Fc_));
   return FORTRAN(egetc)(EARGS(_lt_Fcp_));
 }
 
 static inline void Eput(ComplexType *res, EARGS(_lt_Cr_)) {
   _lt_Frd_(EARGS)
   _lt_Fad_(res, Nee)
+  extern void FORTRAN(eput)(COMPLEX *res, EARGS(_lt_Fr_));
   FORTRAN(eput)(_lt_Fap_(res), EARGS(_lt_Frp_));
   _lt_Fax_(res, Nee)
 }
@@ -699,6 +645,7 @@ static inline void Eput(ComplexType *res, EARGS(_lt_Cr_)) {
 static inline void EputC(ComplexType *res, EARGS(_lt_Cc_)) {
   _lt_Fcd_(EARGS)
   _lt_Fad_(res, Nee)
+  extern void FORTRAN(eputc)(COMPLEX *res, EARGS(_lt_Fc_));
   FORTRAN(eputc)(_lt_Fap_(res), EARGS(_lt_Fcp_));
   _lt_Fax_(res, Nee)
 }
@@ -706,6 +653,7 @@ static inline void EputC(ComplexType *res, EARGS(_lt_Cc_)) {
 static inline void E0nocache(ComplexType *res, EARGS(_lt_Cr_)) {
   _lt_Frd_(EARGS)
   _lt_Fad_(res, 3)
+  extern void FORTRAN(e0nocache)(COMPLEX *res, EARGS(_lt_Fr_));
   FORTRAN(e0nocache)(_lt_Fap_(res), EARGS(_lt_Frp_));
   _lt_Fax_(res, 3)
 }
@@ -713,6 +661,7 @@ static inline void E0nocache(ComplexType *res, EARGS(_lt_Cr_)) {
 static inline void E0nocacheC(ComplexType *res, EARGS(_lt_Cc_)) {
   _lt_Fcd_(EARGS)
   _lt_Fad_(res, 3)
+  extern void FORTRAN(e0nocachec)(COMPLEX *res, EARGS(_lt_Fc_));
   FORTRAN(e0nocachec)(_lt_Fap_(res), EARGS(_lt_Fcp_));
   _lt_Fax_(res, 3)
 }
@@ -743,9 +692,12 @@ static inline ComplexType E0C(EARGS(_lt_Cc_))
 
 /****************************************************************/
 
+#define XARGS(t) t(x)
+
 static inline ComplexType Li2(XARGS(_lt_Cr_)) {
   _lt_Frd_(XARGS)
   COMPLEX res;
+  extern void FORTRAN(li2sub)(COMPLEX *res, XARGS(_lt_Fr_));
   FORTRAN(li2sub)(&res, XARGS(_lt_Frp_));
   return ToComplex(res);
 }
@@ -753,6 +705,7 @@ static inline ComplexType Li2(XARGS(_lt_Cr_)) {
 static inline ComplexType Li2C(XARGS(_lt_Cc_)) {
   _lt_Fcd_(XARGS)
   COMPLEX res;
+  extern void FORTRAN(li2csub)(COMPLEX *res, XARGS(_lt_Fc_));
   FORTRAN(li2csub)(&res, XARGS(_lt_Fcp_));
   return ToComplex(res);
 }
@@ -760,6 +713,7 @@ static inline ComplexType Li2C(XARGS(_lt_Cc_)) {
 static inline ComplexType Li2omx(XARGS(_lt_Cr_)) {
   _lt_Frd_(XARGS)
   COMPLEX res;
+  extern void FORTRAN(li2omxsub)(COMPLEX *res, XARGS(_lt_Fr_));
   FORTRAN(li2omxsub)(&res, XARGS(_lt_Frp_));
   return ToComplex(res);
 }
@@ -767,66 +721,128 @@ static inline ComplexType Li2omx(XARGS(_lt_Cr_)) {
 static inline ComplexType Li2omxC(XARGS(_lt_Cc_)) {
   _lt_Fcd_(XARGS)
   COMPLEX res;
+  extern void FORTRAN(li2omxcsub)(COMPLEX *res, XARGS(_lt_Fc_));
   FORTRAN(li2omxcsub)(&res, XARGS(_lt_Fcp_));
   return ToComplex(res);
 }
 
 /****************************************************************/
 
+#define _lt_setreal_(f) static inline void Set##f(XARGS(_lt_Cr_)) { \
+  _lt_Frd_(XARGS) \
+  extern void FORTRAN(set##f)(CREAL *); \
+  FORTRAN(set##f)(XARGS(_lt_Frp_)); \
+} 
+#define _lt_getreal_(f) static inline RealType Get##f() { \
+  extern REAL FORTRAN(get##f)(void); \
+  return ToReal(FORTRAN(get##f)()); \
+}
+
+_lt_setreal_(mudim)
+#define setmudim Setmudim
+_lt_getreal_(mudim)
+#define getmudim Getmudim
+
+_lt_setreal_(delta)
+#define setdelta Setdelta
+_lt_getreal_(delta)
+#define getdelta Getdelta
+
+_lt_setreal_(uvdiv)
+#define setuvdiv Setuvdiv
+_lt_getreal_(uvdiv)
+#define getuvdiv Getuvdiv
+
+_lt_setreal_(lambda)
+#define setlambda Setlambda
+_lt_getreal_(lambda)
+#define getlambda Getlambda
+
+_lt_setreal_(minmass)
+#define setminmass Setminmass
+_lt_getreal_(minmass)
+#define getminmass Getminmass
+
+_lt_setreal_(maxdev)
+#define setmaxdev Setmaxdev
+_lt_getreal_(maxdev)
+#define getmaxdev Getmaxdev
+
+_lt_setreal_(diffeps)
+#define setdiffeps Setdiffeps
+_lt_getreal_(diffeps)
+#define getdiffeps Getdiffeps
+
+_lt_setreal_(zeroeps)
+#define setzeroeps Setzeroeps
+_lt_getreal_(zeroeps)
+#define getzeroeps Getzeroeps
+
+#define _lt_setint_(f) static inline void Set##f(const int x) { \
+  extern void FORTRAN(set##f)(CINTEGER *); \
+  FORTRAN(set##f)(&x); \
+}
+#define _lt_getint_(f) static inline int Get##f() { \
+  extern INTEGER FORTRAN(get##f)(void); \
+  return FORTRAN(get##f)(); \
+}
+
+_lt_setint_(warndigits)
+#define setwarndigits Setwarndigits
+_lt_getint_(warndigits)
+#define getwarndigits Getwarndigits
+
+_lt_setint_(errdigits)
+#define seterrdigits Seterrdigits
+_lt_getint_(errdigits)
+#define geterrdigits Geterrdigits
+
+_lt_setint_(versionkey)
+#define setversionkey Setversionkey
+_lt_getint_(versionkey)
+#define getversionkey Getversionkey
+
+_lt_setint_(debugkey)
+#define setdebugkey Setdebugkey
+_lt_getint_(debugkey)
+#define getdebugkey Getdebugkey
+
+_lt_setint_(cmpbits)
+#define setcmpbits Setcmpbits
+_lt_getint_(cmpbits)
+#define getcmpbits Getcmpbits
+
+_lt_getint_(epsi)
+#define getepsi Getepsi
+
+static inline void Setdebugrange(const int f, const int t) {
+  extern void FORTRAN(setdebugrange)(CINTEGER *, CINTEGER *);
+  FORTRAN(setdebugrange)(&f, &t);
+}
+#define setdebugrange Setdebugrange
+
+/****************************************************************/
+
+extern void FORTRAN(clearcache)(void);
+extern void FORTRAN(markcache)(void);
+extern void FORTRAN(restorecache)(void);
+
+extern void FORTRAN(ltini)(void);
+extern void FORTRAN(ltexi)(void);
+
+#if !NOUNDERSCORE
 #define clearcache FORTRAN(clearcache)
 #define markcache FORTRAN(markcache)
 #define restorecache FORTRAN(restorecache)
 #define ltini FORTRAN(ltini)
 #define ltexi FORTRAN(ltexi)
+#endif
 
 /****************************************************************/
 
-#define _lt_setreal_(f,x) _lt_set_(f)((REAL[]){ToREAL(x)})
-#define _lt_getreal_(f) ToReal(_lt_get_(f)())
-#define _lt_setint_(f,i) _lt_set_(f)((int[]){i})
-#define _lt_getint_(f) _lt_get_(f)()
-
-#define setmudim(x) _lt_setreal_(mudim,x)
-#define getmudim() _lt_getreal_(mudim)
-
-#define setdelta(x) _lt_setreal_(delta,x)
-#define getdelta() _lt_getreal_(delta)
-
-#define setuvdiv(x) _lt_setreal_(uvdiv,x)
-#define getuvdiv() _lt_getreal_(uvdiv)
-
-#define setlambda(x) _lt_setreal_(lambda,x)
-#define getlambda() _lt_getreal_(lambda)
-#define getepsi() _lt_getint_(epsi)
-
-#define setminmass(x) _lt_setreal_(minmass,x)
-#define getminmass() _lt_getreal_(minmass)
-
-#define setmaxdev(x) _lt_setreal_(maxdev,x)
-#define getmaxdev() _lt_getreal_(maxdev)
-
-#define setdiffeps(x) _lt_setreal_(diffeps,x)
-#define getdiffeps() _lt_getreal_(diffeps)
-
-#define setzeroeps(x) _lt_setreal_(zeroeps,x)
-#define getzeroeps() _lt_getreal_(zeroeps)
-
-#define setwarndigits(i) _lt_setint_(warndigits,i)
-#define getwarndigits() _lt_getint_(warndigits)
-
-#define seterrdigits(i) _lt_setint_(errdigits,i)
-#define geterrdigits() _lt_getint_(errdigits)
-
-#define setversionkey(i) _lt_setint_(versionkey,i)
-#define getversionkey() _lt_getint_(versionkey)
-
-#define setdebugkey(i) _lt_setint_(debugkey,i)
-#define getdebugkey() _lt_getint_(debugkey)
-
-#define setdebugrange(f,t) _lt_set_(debugrange)((int[]){f}, (int[]){t})
-
-#define setcmpbits(i) _lt_setint_(cmpbits,i)
-#define getcmpbits() _lt_getint_(cmpbits)
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 
