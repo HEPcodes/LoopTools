@@ -105,12 +105,6 @@
 	GetZeroEps::usage = "GetZeroEps[] returns the tolerance used in testing numbers for zero."
 
 :Evaluate:
-	LTini::usage = "LTini[] (re-)initializes LoopTools.";
-	LTexi::usage = "LTexi[] gives a summary of all errors and warnings since the last LTini[].";
-	LTnop::usage = "LTnop[] does nothing.";
-	LTwrite::usage = "LTwrite[s] is the function LoopTools calls for printing s."
-
-:Evaluate:
 	DRResult::usage = "DRResult[c0, c1, c2] arranges the coefficients of DR1eps into the final returned to the user.";
 	DR1eps::usage = "DR1eps represents 1/eps where D = 4 - 2 eps."
 
@@ -173,7 +167,7 @@
 	E0 = E0i[ee0, ##]&
 
 :Evaluate:
-	If[!ValueQ[LTwrite], LTwrite = WriteString[$Output, #]&]
+	{LTini, LTexi, If[!ValueQ[LTwrite], LTwrite = WriteString[$Output, #]&]}
 
 :Evaluate: Begin["`Private`"]
 
@@ -751,7 +745,7 @@
 	ltdefs[off_, h_] := StringJoin@@ MapThread[{ h[off]@@@ #,
 	  "#define ", #2, " ", ToString[3 Length[#]], "\n\n" }&,
 	  {LTids, {"Naa", "Nbb", "Ncc", "Ndd", "Nee"}}];
-	ltwritedefs[] := {
+	ltwrite[] := {
 	  WriteString["for_looptools.h", ltdefs[0, ltdef1]];
 	  WriteString["for_clooptools.h.in", ltdefs[-1, ltdef1]];
 	  WriteString["for_defs.h", ltdefs[0, ltdef2]] }
@@ -761,7 +755,7 @@
 :Evaluate: EndPackage[]
 
 :Evaluate:
-	($Post := (LTnop[]; OwnValues[$Post] = #; $Post /. $Post -> Identity))& @
+	($Post := (LTnop[]; OwnValues[$Post] = #; Identity))& @
 	  OwnValues[$Post];
 	($Epilog := (LTexi[]; OwnValues[$Epilog] = #; $Epilog))& @
 	  OwnValues[$Epilog];
@@ -770,7 +764,7 @@
 	LoopTools.tm
 		provides the LoopTools functions in Mathematica
 		this file is part of LoopTools
-		last modified 20 Dec 19 th
+		last modified 9 Dec 19 th
 */
 
 
@@ -816,7 +810,7 @@ static inline void MLPutREALList(MLINK mlp, CREAL *s, long n) {
 static int stdoutorig = -1, stdoutpipe[2] = {2, 2}, stdoutthr = 0;
 static byte *stdoutbuf = NULL;
 
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
 static FILE *deb;
 #define DEB(...) fprintf(deb, __VA_ARGS__)
@@ -876,7 +870,6 @@ static inline void mlNextPacket(MLINK mlp) {
 static inline void mlPutStdout(MLINK mlp) {
   long len;
   extern void FORTRAN(fortranflush)();
-char buf[1024];
 
   FORTRAN(fortranflush)();
   fflush(stdout);
@@ -1302,6 +1295,16 @@ static void __attribute__((constructor(4711))) make_sure_stdout_is_open() {
   if( fcntl(1, F_GETFD) == -1 ) openstdout();
 }
 
+static int refuse_to_be_a_frontend(MLINK);
+
+/******************************************************************/
+
+void mlMessageHandler(MLINK mlp, int msg, int arg) {
+  DEB("MessageHandler msg=%d arg=%d\n", msg, arg);
+  if( msg == MLTerminateMessage ) exit(0);
+  if( msg == MLAbortMessage ) MLAbort = 1;
+}
+
 /******************************************************************/
 
 int main(int argc, char **argv) {
@@ -1327,6 +1330,45 @@ int main(int argc, char **argv) {
       pthread_create(&stdouttid, NULL, capturestdout, stdoutpipe) == 0;
   }
 
+#if 1
+  if( !stdenv ) stdenv = MLInitialize(NULL);
+  stdlink = MLOpenArgcArgv(stdenv, argc, argv, &mlerr);
+  assert( stdlink && (mlerr == MLEOK) );
+DEB("stdlink=%p mlerr=%d\n", stdlink, mlerr);
+
+ if( stdyielder ) {
+mlerr = MLSetYieldFunction(stdlink, stdyielder);
+assert( mlerr == MLEOK );
+}
+
+  stdhandler = mlMessageHandler;
+  if( stdhandler ) {
+mlerr = MLSetMessageHandler(stdlink, stdhandler);
+assert( mlerr == MLEOK );
+//if( mlerr != MLEOK ) {
+//  DEB("error %d %s\n", mlerr, MLErrorString(stdenv, mlerr));
+//  exit(1);
+//}
+}
+
+  if( (mlerr=MLInstall(stdlink)) ) {
+DEB("mlerr=%d\n", mlerr);
+    CaptureStdout();
+    ltini();
+    mlPutStdout(stdlink);
+
+    while( MLAnswer(stdlink) == RESUMEPKT ) {
+      if( !refuse_to_be_a_frontend(stdlink) ) break;
+    }
+
+    CaptureStdout();
+    ltexi();
+    mlPutStdout(stdlink);
+  }
+
+  MLClose(stdlink);
+  MLDeinitialize(stdenv);
+#else
   CaptureStdout();
   ltini();
   ReleaseStdout();
@@ -1334,6 +1376,7 @@ int main(int argc, char **argv) {
   DEB("begin MLMain\n");
   mlerr = MLMain(argc, argv);
   DEB("end MLMain\n");
+#endif
 
   if( stdoutthr ) {
     close(stdoutpipe[1]);

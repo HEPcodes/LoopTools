@@ -105,12 +105,6 @@
 	GetZeroEps::usage = "GetZeroEps[] returns the tolerance used in testing numbers for zero."
 
 :Evaluate:
-	LTini::usage = "LTini[] (re-)initializes LoopTools.";
-	LTexi::usage = "LTexi[] gives a summary of all errors and warnings since the last LTini[].";
-	LTnop::usage = "LTnop[] does nothing.";
-	LTwrite::usage = "LTwrite[s] is the function LoopTools calls for printing s."
-
-:Evaluate:
 	DRResult::usage = "DRResult[c0, c1, c2] arranges the coefficients of DR1eps into the final returned to the user.";
 	DR1eps::usage = "DR1eps represents 1/eps where D = 4 - 2 eps."
 
@@ -173,7 +167,7 @@
 	E0 = E0i[ee0, ##]&
 
 :Evaluate:
-	If[!ValueQ[LTwrite], LTwrite = WriteString[$Output, #]&]
+	{LTini, LTexi, If[!ValueQ[LTwrite], LTwrite = WriteString[$Output, #]&]}
 
 :Evaluate: Begin["`Private`"]
 
@@ -711,14 +705,6 @@
 :ReturnType:	Manual
 :End:
 
-:Begin:
-:Function:	mltnop
-:Pattern:	LTnop[]
-:Arguments:	{}
-:ArgumentTypes:	{}
-:ReturnType:	Manual
-:End:
-
 :Evaluate: r = Head[# + 1.] === Real &
 
 :Evaluate: c = Head[# + 1. I] === Complex &
@@ -751,7 +737,7 @@
 	ltdefs[off_, h_] := StringJoin@@ MapThread[{ h[off]@@@ #,
 	  "#define ", #2, " ", ToString[3 Length[#]], "\n\n" }&,
 	  {LTids, {"Naa", "Nbb", "Ncc", "Ndd", "Nee"}}];
-	ltwritedefs[] := {
+	ltwrite[] := {
 	  WriteString["for_looptools.h", ltdefs[0, ltdef1]];
 	  WriteString["for_clooptools.h.in", ltdefs[-1, ltdef1]];
 	  WriteString["for_defs.h", ltdefs[0, ltdef2]] }
@@ -761,7 +747,7 @@
 :Evaluate: EndPackage[]
 
 :Evaluate:
-	($Post := (LTnop[]; OwnValues[$Post] = #; $Post /. $Post -> Identity))& @
+	($Post := (LTini[]; OwnValues[$Post] = #; Identity))& @
 	  OwnValues[$Post];
 	($Epilog := (LTexi[]; OwnValues[$Epilog] = #; $Epilog))& @
 	  OwnValues[$Epilog];
@@ -770,7 +756,7 @@
 	LoopTools.tm
 		provides the LoopTools functions in Mathematica
 		this file is part of LoopTools
-		last modified 20 Dec 19 th
+		last modified 6 Dec 19 th
 */
 
 
@@ -816,7 +802,7 @@ static inline void MLPutREALList(MLINK mlp, CREAL *s, long n) {
 static int stdoutorig = -1, stdoutpipe[2] = {2, 2}, stdoutthr = 0;
 static byte *stdoutbuf = NULL;
 
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
 static FILE *deb;
 #define DEB(...) fprintf(deb, __VA_ARGS__)
@@ -876,7 +862,6 @@ static inline void mlNextPacket(MLINK mlp) {
 static inline void mlPutStdout(MLINK mlp) {
   long len;
   extern void FORTRAN(fortranflush)();
-char buf[1024];
 
   FORTRAN(fortranflush)();
   fflush(stdout);
@@ -886,7 +871,7 @@ char buf[1024];
     read(1, &len, sizeof len);
     if( len > 1 ) {
       DEB("MLPutStdout <<\n");
-      mlPutFunction(mlp, "EvaluatePacket", 1);
+      mlPutFunction(stdlink, "EvaluatePacket", 1);
       mlPutFunction(mlp, "LoopTools`LTwrite", 1);
       mlPutByteString(mlp, stdoutbuf, len - 1);
       mlNextPacket(stdlink);
@@ -1284,12 +1269,6 @@ static void mltexi(void) {
   ReturnVoid();
 }
 
-static void mltnop(void) {
-  CaptureStdout();
-  mlPutStdout(stdlink);
-  ReturnVoid();
-}
-
 /******************************************************************/
 
 static inline void openstdout() {
@@ -1305,7 +1284,7 @@ static void __attribute__((constructor(4711))) make_sure_stdout_is_open() {
 /******************************************************************/
 
 int main(int argc, char **argv) {
-  int mlerr;
+  int ret;
   pthread_t stdouttid;
   void *thr_ret;
 
@@ -1332,7 +1311,7 @@ int main(int argc, char **argv) {
   ReleaseStdout();
 
   DEB("begin MLMain\n");
-  mlerr = MLMain(argc, argv);
+  ret = MLMain(argc, argv);
   DEB("end MLMain\n");
 
   if( stdoutthr ) {
@@ -1340,6 +1319,6 @@ int main(int argc, char **argv) {
     pthread_join(stdouttid, &thr_ret);
   }
 
-  return mlerr;
+  return ret;
 }
 

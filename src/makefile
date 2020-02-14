@@ -247,7 +247,7 @@ $(LIB): $(OBJS)
 
 
 $(FE): lt.F $(LTINC) $(LIB)
-	$(XFC) -o $(FE) lt.F $(LIB) -lpthread
+	$(XFC) -o $(FE) lt.F $(LIB) $(LDFLAGS)
 	-rm -f lt.o
 
 clooptools.h: clooptools.h.in ftypes.h

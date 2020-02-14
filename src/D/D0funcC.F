@@ -1,7 +1,7 @@
 * D0funcC.F
 * the scalar four-point function with complex masses
 * this file is part of LoopTools
-* last modified 15 Oct 18 th
+* last modified 16 Dec 19 th
 
 #include "externals.h"
 #include "types.h"
@@ -947,7 +947,7 @@ c	PRINT '(8F14.2)', Mc(1), Mc(2), Mc(3), Mc(4)
 
 	if( case .eq. 1 ) then
 	  dilogs = cLi2omrat2(q4, s, m3, m4) +
-     &             cLi2omrat2(q4, s, -1D0, -1D0)
+     &             cLi2omrat2(q4, s, minus1, minus1)
 	else if( case .eq. 2 ) then
 	  dilogs = cLi2omrat2(q4, s, x43(1), x43(3)) +
      &             cLi2omrat2(q4, s, x43(2), x43(4))

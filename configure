@@ -1,7 +1,7 @@
 #! /bin/bash
 # configure script for LoopTools
 # note: has nothing to do with GNU autoconf
-# last modified 5 Dec 18 th
+# last modified 1 Jan 20 th
 
 
 exec 2> ${LOGFILE:-/dev/null} 3>&1
@@ -152,31 +152,27 @@ GNU,Fortran,[123].*)
   eval setflags FFLAGS "\
 ${FFLAGS-${CONF_DEBUG:--O1} ${CONF_DEBUG:+-Wall}} \
 $CONF_ARCH $CONF_AS $CONF_BITS -ffixed-line-length-none -fno-range-check \
-$CONF_STATIC \
-$CONF_LDFLAGS"
+$CONF_STATIC"
   ;;
 GNU,Fortran,4.*)
   eval setflags FFLAGS "\
 ${FFLAGS-${CONF_DEBUG:--O3} ${CONF_DEBUG:+-Wall -Wno-unused-dummy-argument -Wtabs -ffpe-trap=invalid,overflow,zero}} \
 $CONF_ARCH $CONF_AS $CONF_BITS -ffixed-line-length-none -fno-range-check \
 ${CONF_QUAD:+-freal-8-real-$CONF_QUADSIZE} \
-${CONF_STATIC:-$CONF_STATIC_GFORTRAN} ${CONF_STATIC_EXT:+-static-libgfortran -static-libgcc} \
-$CONF_LDFLAGS"
+${CONF_STATIC:-$CONF_STATIC_GFORTRAN} ${CONF_STATIC_EXT:+-static-libgfortran -static-libgcc}"
   ;;
 GNU,Fortran,*)
   eval setflags FFLAGS "\
 ${FFLAGS-${CONF_DEBUG:--O3} ${CONF_DEBUG:+-Wall -Wno-unused-dummy-argument -Wno-tabs -Wno-conversion -ffpe-trap=invalid,overflow,zero}} \
 $CONF_ARCH $CONF_AS $CONF_BITS -ffixed-line-length-none -fno-range-check \
 ${CONF_QUAD:+-freal-8-real-$CONF_QUADSIZE} \
-${CONF_STATIC:-$CONF_STATIC_GFORTRAN} ${CONF_STATIC_EXT:+-static-libgfortran -static-libgcc} \
-$CONF_LDFLAGS"
+${CONF_STATIC:-$CONF_STATIC_GFORTRAN} ${CONF_STATIC_EXT:+-static-libgfortran -static-libgcc}"
   ;;
 pgf*)
   eval setflags FFLAGS "\
 ${FFLAGS-${CONF_DEBUG:--O3} ${CONF_DEBUG:+-Minform=inform -Ktrap=fp}} \
 ${CONF_ARCH:+-Mvect=simd} $CONF_BITS -Mextend -g77libs \
-${CONF_STATIC:+-Bstatic} ${CONF_STATIC_EXT:+-Bstatic_pgi} \
-$CONF_LDFLAGS"
+${CONF_STATIC:+-Bstatic} ${CONF_STATIC_EXT:+-Bstatic_pgi}"
   ;;
 ifort*)
   CONF_QUADSIZE=16
@@ -184,13 +180,11 @@ ifort*)
 ${FFLAGS-${CONF_DEBUG:--O3}} \
 $CONF_ARCH $CONF_BITS -debug -extend_source -warn truncated_source -warn nouncalled -assume bscc \
 ${CONF_QUAD:+-r16 -DDBLE=QEXT -DDIMAG=QIMAG -DDCONJG=QCONJG -DDCMPLX=QCMPLX} \
-$CONF_STATIC ${CONF_STATIC_EXT:+-static-intel} \
-$CONF_LDFLAGS"
+$CONF_STATIC ${CONF_STATIC_EXT:+-static-intel}"
   ;;
 *)
   eval setflags FFLAGS "\
-${FFLAGS-${CONF_DEBUG:--O}} \
-$CONF_LDFLAGS"
+${FFLAGS-${CONF_DEBUG:--O}}"
   ;;
 esac
 
@@ -256,9 +250,9 @@ int uscore_ = 95;
 int uscore = 59;
 _EOF_
 
-for CONF_BITS in ${CONF_BITS:--m64 -m32} ; do
+for CONF_BITS in ${CONF_BITS:--m64 -m32} "" ; do
   eval $CONF_CC$CONF_CFLAGS $CONF_BITS -c $test-c.c 1>&2 || continue
-  eval $CONF_FC$CONF_FFLAGS -o $test$CONF_EXE $test.f $test-c.o 1>&2 && break
+  eval $CONF_FC$CONF_FFLAGS -o $test$CONF_EXE $test.f $test-c.o $CONF_LDFLAGS 1>&2 && break
 done
 
 ./$test$CONF_EXE

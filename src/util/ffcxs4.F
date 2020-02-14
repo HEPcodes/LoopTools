@@ -194,11 +194,11 @@ c
 	if ( Im(cpi(ip)) .eq. 0 ) then
 	    call ffgeta(nz,cz,cdyz,
      +		cpi(ip),cpiDpj(ii,ip),iepz,isoort,ier)
-	    do 120 i=1,2
-		do 110 j=1,2
+	    do i=1,2
+		do j=1,2
 		    cdyw(i,j) = cdwy(j,i)
-  110		continue
-  120	    continue
+	        enddo
+	    enddo
 	    call ffgeta(nw,cw,cdyw,
      +		cp2p,cpiDpj(ii,ip),iepw,isoort(3),ier)
 	else
@@ -320,8 +320,9 @@ c
      +		.TRUE.,d2yzz,zp,zp1,.FALSE.,x00,iepsz,ier)
 	    call ffcxr(cs3(11),ipi12(2),y,y1,w,w1,-dwy,
      +		.TRUE.,d2yww,wp,wp1,.FALSE.,x00,iepsw,ier)
-	    do 10 i=11,20
-   10		cs3(i) = -cs3(i)
+	    do i=11,20
+	      cs3(i) = -cs3(i)
+	    enddo
 	    ipi12(2) = -ipi12(2)
 *  #] normal case: 
 *  #[ only cancellations in w, not in y:
@@ -385,7 +386,8 @@ c
 	    call ffcxr(cs3( 9),ipi12(2),yy,yy1,zz,zz1,dyyzz,.FALSE.,
      +			0D0,0D0,0D0,.FALSE.,x00,ieps,ier)
 	    do 30 i=9,16
-   30		cs3(i) = -cs3(i)
+	      cs3(i) = -cs3(i)
+   30	    continue
 	    ipi12(2) = -ipi12(2)
 *	    the extra logarithms ...
 	    if ( 1 .lt. xloss*abs(w) ) then
@@ -427,8 +429,9 @@ c
      +		     .TRUE.,d2yzz,zp,zp1,.FALSE.,x00,iepsz,ier)
 		call ffcxr(cs3(11),ipi12(2),y,y1,w,w1,-dwy,
      +		     .TRUE.,d2yww,wp,wp1,.FALSE.,x00,iepsw,ier)
-		do 110 i=11,20
-  110		    cs3(i) = -cs3(i)
+		do i=11,20
+  	          cs3(i) = -cs3(i)
+	        enddo
 	    else
 		call fferr(22,ier)
 		return
@@ -438,8 +441,9 @@ c
      +			0D0,0D0,0D0,.FALSE.,x00,iepsz,ier)
 	    call ffcxr(cs3(11),ipi12(2),y,y1,w,w1,-dwy,.FALSE.,
      +			0D0,0D0,0D0,.FALSE.,x00,iepsw,ier)
-	    do 40 i=11,20
-   40		cs3(i) = -cs3(i)
+	    do i=11,20
+	      cs3(i) = -cs3(i)
+	    enddo
 	    ipi12(2) = -ipi12(2)
 	endif
 *  #] Taylor expansion: 
@@ -723,8 +727,9 @@ c
 	    cdyyzz = cw*cw1/cdwz
 	    call ffcrr(cs3(8),ipi12(2),cyy,cyy1,czz,czz1,cdyyzz,
      +		.FALSE.,czero,czero,czero,isoort,0,ier)
-	    do 30 i=8,14
-   30		cs3(i) = -cs3(i)
+	    do i=8,14
+	      cs3(i) = -cs3(i)
+	    enddo
 	    ipi12(2) = -ipi12(2)
 *	    the extra logarithms ...
 	    if ( 1 .lt. xloss*absc(cw) ) then
@@ -765,8 +770,9 @@ c
      +			cd2yzz,czp,czp1,isoort,iepsz,ier)
 		call ffcrr(cs3(8),ipi12(2),cy,cy1,cw,cw1,-cdwy,.TRUE.,
      +			cd2yww,cwp,cwp1,isoort,iepsw,ier)
-		do 110 i=8,14
-  110			cs3(i) = -cs3(i)
+		do i=8,14
+	          cs3(i) = -cs3(i)
+	        enddo
 		ipi12(2) = -ipi12(2)
 	    else
 		call fferr(20,ier)
