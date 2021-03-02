@@ -168,6 +168,7 @@
 	DB1 = B0i[dbb1, ##]&;
 	DB00 = B0i[dbb00, ##]&;
 	DB11 = B0i[dbb11, ##]&;
+	DB001 = B0i[dbb001, ##]&;
 	C0 = C0i[cc0, ##]&;
 	D0 = D0i[dd0, ##]&;
 	E0 = E0i[ee0, ##]&
@@ -770,7 +771,7 @@
 	LoopTools.tm
 		provides the LoopTools functions in Mathematica
 		this file is part of LoopTools
-		last modified 20 Dec 19 th
+		last modified 28 Aug 20 th
 */
 
 

@@ -60,8 +60,8 @@
 	  szb = Im(cza)
 	  if( szb .eq. 0 ) szb = sza
 
-	  ffS2 = ffS2 +
-     &      c2ipi*nffet1(cb, ToComplex(0D0, -szb), ToComplex(0D0, sc), ier)
+	  ffS2 = ffS2 + c2ipi*nffet1(cb,
+     &      ToComplex(0D0, -szb), ToComplex(0D0, sc), ier)
 	  return
 	endif
 
