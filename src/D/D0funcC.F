@@ -1,7 +1,7 @@
 * D0funcC.F
 * the scalar four-point function with complex masses
 * this file is part of LoopTools
-* last modified 16 Dec 19 th
+* last modified 3 May 21 th
 
 #include "externals.h"
 #include "types.h"
@@ -20,6 +20,7 @@
 
 	res = 0
 	res00 = 0
+	res00(0) = -999
 
 	if( lambda .le. 0 ) then
 	  call DCDispatch(res, para, D0CsoftDR, D0CcollDR)

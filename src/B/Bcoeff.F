@@ -1,7 +1,7 @@
 * Bcoeff.F
 * invoke the two-point tensor coefficients
 * this file is part of LoopTools
-* last modified 7 Apr 18 th
+* last modified 3 May 21 th
 
 #include "externals.h"
 #include "types.h"
@@ -25,11 +25,9 @@
 	serial = serial + 1
 	dump = ibits(debugkey, DebugB, 1) .ne. 0 .and.
      &    serial .ge. debugfrom .and. serial .le. debugto
-	if( dump ) call XDumpPara(2, para, "Bcoeff")
+	if( dump ) call DumpPara(2, para, "Bcoeff")
 
-	do i = 1, Nbb
-	  B(i) = 0
-	enddo
+	B(1:Nbb) = 0
 
 	m1 = M(1)
 	m2 = M(2)

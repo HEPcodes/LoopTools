@@ -1,16 +1,14 @@
-#! /bin/sh
+#! /bin/bash
 # this script jumps in if there is no working mcc on the path:
 # - on Mac OS it (hopefully) figures out the location of mcc,
 # - on Cygwin it substitutes mcc completely
-# last modified 16 Apr 18 th
+# last modified 7 Apr 21 th
 
 
 sdkpath() {
-  mathcmd="$1"
-  shift
   mathcmd=`IFS=:
-    PATH="$PATH:$*" which $mathcmd`
-  
+    PATH="$PATH:${*:2}" type -p $1 | head -1`
+
   eval `"$mathcmd" -run '
     Print["sysid=\"", $SystemID, "\""];
     Print["topdir=\"", $TopDirectory, "\""];
@@ -81,7 +79,7 @@ cygmcc() {
 
 
 macmcc() {
-  sdkpath MathKernel \
+  sdkpath MathKernel:WolframKernel \
     /Applications/Mathematica*/Contents/MacOS \
     $HOME/Desktop/Mathematica*/Contents/MacOS
   trap "rm -f /tmp/mcc.$$" 0 1 2 3 15
@@ -91,7 +89,7 @@ macmcc() {
 
 
 defaultmcc() {
-  sdkpath math \
+  sdkpath math:MathKernel:WolframKernel \
     /usr/local/bin \
     /usr/local/Wolfram/bin \
     /usr/local/Wolfram/Mathematica/*/Executables \

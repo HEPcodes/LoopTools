@@ -16,8 +16,11 @@
 #include <quadmath.h>
 
 #define _prec(f) f##q
-#define RealType __float128
+typedef __float128 RealType;
 typedef __float128 REAL;
+#ifndef __cplusplus
+typedef __complex128 ComplexType;
+#endif
 
 #define ToReal(r) (RealType)(r)
 #define ToREAL(r) (REAL)(r)
@@ -96,6 +99,7 @@ typedef double REAL;
 
 typedef int INTEGER;
 typedef const INTEGER CINTEGER;
+typedef long long int INTEGER8;
 typedef const REAL CREAL;
 typedef struct { REAL re, im; } COMPLEX;
 typedef const COMPLEX CCOMPLEX;
@@ -115,7 +119,9 @@ typedef std::complex<RealType> ComplexType;
 #elif __STDC_VERSION__ >= 199901L
 
 #include <complex.h>
+#ifdef RealType
 typedef RealType complex ComplexType;
+#endif
 #define ToComplex(c) (ToReal((c).re) + I*ToReal((c).im))
 #define ToComplex2(r,i) (r + I*(i))
 #define Re(c) _prec(creal)(c)
@@ -124,7 +130,9 @@ typedef RealType complex ComplexType;
 
 #else
 
+#ifdef RealType
 typedef struct { RealType re, im; } ComplexType;
+#endif
 #define ToComplex(c) (ComplexType){ToReal((c).re), ToReal((c).im)}
 #define ToComplex2(r,i) (ComplexType){r, i}
 #define Re(x) (x).re

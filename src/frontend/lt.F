@@ -1,7 +1,7 @@
 * lt.F
 * the LoopTools command-line interface to Aget, Bget, Cget, Dget, Eget
 * this file is part of LoopTools
-* last modified 30 Jan 14 th
+* last modified 3 May 21 th
 
 #include "externals.h"
 #include "types.h"
@@ -21,17 +21,24 @@
 
 	integer argc
 	character argv*100
-	RealType x(Pee)
+	ComplexType x(Pee)
+	RealType re, im
 	integer i, npoint, fail
 	memindex b
 
-	memindex Aget, Bget, Cget, Dget, Eget
+	memindex AgetC, BgetC, CgetC, DgetC, EgetC
 	integer getdebugkey
-	external Aget, Bget, Cget, Dget, Eget, getdebugkey
+	external AgetC, BgetC, CgetC, DgetC, EgetC, getdebugkey
 
 	integer npara(5), key(5)
+	integer Kaa, Kbb, Kcc, Kdd, Kee
+	parameter (Kaa = KeyA0)
+	parameter (Kbb = KeyBget)
+	parameter (Kcc = KeyC0)
+	parameter (Kdd = KeyD0 + KeyD0C)
+	parameter (Kee = KeyEget + KeyEgetC)
 	data npara /Paa, Pbb, Pcc, Pdd, Pee/
-	data key /KeyA0, KeyBget, KeyC0, KeyD0, KeyEget/
+	data key /Kaa, Kbb, Kcc, Kdd, Kee/
 
 	argc = iargc() 
 	do npoint = 1, 5
@@ -48,6 +55,7 @@
 	print *, "  n = 4: p1 p2 p3 p4 p1p2 p2p3 m1 m2 m3 m4"
 	print *, "  n = 5: p1 p2 p3 p4 p5 p1p2 p2p3 p3p4 p4p5 p5p1"//
      &                   " m1 m2 m3 m4 m5"
+	print *, "enter complex parameters as re,im (no space)"
 	print *, "versionkey can be one of:"
 	print *, "  0 = compute version a (same as no versionkey)"
 	print *, "  1 = compute version b"
@@ -57,7 +65,10 @@
 
 1	do i = 1, npara(npoint)
 	  call getarg(i, argv)
-	  read(argv, *, iostat=fail, err=999) x(i)
+	  re = 0
+	  im = 0
+	  read(argv, *, iostat=fail, err=999) re, im
+	  x(i) = re + cI*im
 	enddo
 
 	call ltini
@@ -73,16 +84,16 @@
 	call setdebugkey(ior(getdebugkey(), 2**(npoint - 1)))
 
 	if( npoint .eq. 1 ) then
-	  b = Aget(x(1))
+	  b = AgetC(x(1))
 	else if( npoint .eq. 2 ) then
-	  b = Bget(x(1), x(2), x(3))
+	  b = BgetC(x(1), x(2), x(3))
 	else if( npoint .eq. 3 ) then
-	  b = Cget(x(1), x(2), x(3), x(4), x(5), x(6))
+	  b = CgetC(x(1), x(2), x(3), x(4), x(5), x(6))
 	else if( npoint .eq. 4 ) then
-	  b = Dget(x(1), x(2), x(3), x(4), x(5), x(6),
+	  b = DgetC(x(1), x(2), x(3), x(4), x(5), x(6),
      &      x(7), x(8), x(9), x(10))
 	else
-	  b = Eget(x(1), x(2), x(3), x(4), x(5), x(6),
+	  b = EgetC(x(1), x(2), x(3), x(4), x(5), x(6),
      &      x(7), x(8), x(9), x(10),
      &      x(11), x(12), x(13), x(14), x(15))
 	endif

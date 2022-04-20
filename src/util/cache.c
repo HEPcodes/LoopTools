@@ -3,7 +3,7 @@
 		caching of tensor coefficients in
 		dynamically allocated memory
 		this file is part of LoopTools
-		last modified 14 Apr 18 th
+		last modified 3 May 21 th
 */
 
 
@@ -131,7 +131,7 @@ static void *Lookup(cRealType *para, double *base,
   Node *node;
 
 #ifdef MUTEX
-  pthread_mutex_t *mx = &mutex[cacheno];
+  pthread_mutex_t *mx = &mutex[cacheno-1];
 #endif
 
   if( last == NULL ) last = next;

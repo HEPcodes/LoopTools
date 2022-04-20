@@ -1,7 +1,7 @@
 * BcoeffC.F
 * invoke the two-point tensor coefficients
 * this file is part of LoopTools
-* last modified 26 Jan 14 th
+* last modified 3 May 21 th
 
 #include "externals.h"
 #include "types.h"
@@ -18,11 +18,14 @@
 #include "ltnames.h"
 
 	integer ier(Nbb), i
-	logical ini
+	logical dump, ini
 
-	do i = 1, Nbb
-	  B(i) = 0
-	enddo
+	serial = serial + 1
+	dump = ibits(debugkey, DebugB, 1) .ne. 0 .and.
+     &    serial .ge. debugfrom .and. serial .le. debugto
+	if( dump ) call DumpParaC(2, para, "Bcoeff")
+
+	B(1:Nbb) = 0
 
 	if( lambda .le. 0 ) then
 	  B(1+bb0) = 1
@@ -48,5 +51,7 @@
 	    print *, coeffname(i,2), " claims ", ier(i), "lost digits"
 	  endif
 	enddo
+
+	if( dump ) call DumpCoeffC(2, B)
 	end
 
